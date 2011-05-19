@@ -1,0 +1,76 @@
+It's easy to overuse the hierarchy feature in the wiki. It's best to use 'shallow hierarchies'. 
+
+
+<b>Deep Hierarchy</b>
+
+For example, say you create a //ExampleDeepProject home page. Then you need a ToDo page and make it a subpage to distinguish it from all the other ToDo pages:
+[]
+//ExampleDeepProject/ToDo
+[/]
+
+Then, on the ToDo page, it may seem natural to continue the trend and make individual task pages subpages of the //ExampleDeepProject/ToDo page. But if you make
+[]
+//ExampleDeepProject/ToDo/TaskOne
+//ExampleDeepProject/ToDo/TaskTwo
+//ExampleDeepProject/ToDo/TaskThree
+[/] 
+
+you've setup potentially awkward linking in the future. 
+
+Say you'd like a new home page to record tech support incidents:
+[]
+//ExampleDeepProject/SupportIncidents
+[/]
+
+...and new incident pages are subpages:
+[]
+//ExampleDeepProject/SupportIncidents/Ticket_2005Dec18
+[/]
+
+If a ticket creates the need for a new task, there are a few awkward ways this can play out. If you want to create the new page name in the Ticket_2005Dec18 page, you have to make an absolute reference to it to make it end up in the right place:
+[]
+This problem will need to be fixed, see //ExampleDeepProject/ToDo/TaskFour
+[/]
+
+That can be worked around by first going to the ToDo page and creating the TaskFour page first, then referencing it like so:
+[]
+This problem will need to be fixed, see TaskFour.
+[/]
+
+However, this only works because of Global Linking (see ClWikiHierarchy), and should another project elsewhere in the wiki create a TaskFour page, now your direct link will resolve to the Find Results page in order to show all TaskFour pages, requiring you to change your TaskFour link into an absolute one again if you want to directly access the task page.
+
+This sort of thing can recur in many ways. Say your ToDo page now has 27 tasks, and you need to group them into release home pages:
+[]
+//ExampleDeepProject/ReleaseOne
+//ExampleDeepProject/ReleaseTwo
+[/]
+
+and you'd like your ToDo page to no longer link directly to the tasks themselves individually, but to the release pages. Do the Release pages belong as children of the ToDo page now that they're on the ToDo list? What about wanting to record a Ticket page as an item ToDo? It's already a child of the SupportIncidents pages so it can't be a child of both Support and ToDo. Etc. etc. etc.
+
+
+<b>Shallow Hierarchy</b>
+
+By using a 'shallow hierarchy', you can alleviate yourself of many of these problems.
+
+Make the //ExampleShallowProject/ToDo page like so:
+[]
+TaskOne    [...resolves to //ExampleShallowProject/TaskOne]
+TaskTwo    [...resolves to //ExampleShallowProject/TaskTwo]
+TaskThree  [...etc]
+TaskFour
+[/]
+
+Make the SupportIncidents page like so:
+[]
+Ticket_2005Dec18  [...resolves to //ExampleShallowProject/Ticket_2005Dec18]
+Ticket_2005Dec19  [...resolves to //ExampleShallowProject/Ticket_2005Dec19]
+[/]
+
+Not only is this less typing, but <b>referring to sibling pages overrides the global linking behavior</b>. When //ExampleDeepProject/SupportIncidents/Ticket_2005Dec18 uses a relative reference to the TaskFour page, because it's not a direct sibling, it falls back to the multiple global hits and sends you to the results page listing all TaskFour pages.
+
+When //ExampleShallowProject/Ticket_2005Dec18 uses a relative reference to the TaskFour page, a direct link is provide because it's a direct sibling.
+
+
+<b>Summary</b>
+
+Think hard before creating new subpages, especially 'grand-children' pages. Think through who really owns the page you're about to create. Most pages do not need additional owners if they already have one. (This is probably why many other wikis that do support subpages, only support hierarchies going one layer deep).

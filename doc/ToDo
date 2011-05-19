@@ -1,0 +1,98 @@
+===To Do
+
+====OPEN
+
+* try to recreate the recursive bit by showing pages -- does any indexing
+  action from the recent index with multiple pages on the same time, cause
+  the weird tree behavior bug? 
+ 
+
+====A
+* wikilinks inside a simpletable are not rendered after the change in when
+  custom renderers are processed (fixed, right?)
+
+* Why is a new file not indexed in recent changes? It's only indexed after
+  an edit...
+
+* Add option for _ as a Wiki_Name qualifier? (already working? Yeup, as
+  long as there's more than one capital somewheres...) -- [make it work
+  with one capital and one _]
+
+* add auto-rendering of http:// that's outside a tag
+
+* BUG: Global links are not rendered when the page is displayed right after
+  an edit. Reload the page, and there they are. (index locking issue?)
+  (it seems that global links to direct pages always render, but global
+  links to the find results suffer this bug ... need to verify)
+  [I believe this got fixed by accident when I had other need to fix the
+   index locking issues -- adding hits. Index supported waiting for locks
+   to free, but by default just returns ... added in index WAIT flags
+   everywhere]
+
+* BUG: title searches with the index do not AND partial hits of each term
+  together. Problem is clwiki does a normal search, then deletes hits where
+  the *whole exact* search phrase does not match the title, rather than
+  grepping the hit titles with each search term and AND-ing the sets.
+
+* Allow elimination of auto-forwarding pages in find results. Not only
+  reduces redundant hits, but if this lowers the hit count on a page to
+  just one, than global page detection can directly link to the one page
+  instead of the find results for multiple pages. (Maybe -- the whole
+  point of auto-forwarding is to keep permanent the previous link. If 6
+  months from now I'm searching for that Foo page I remember, and it
+  auto-forwards to something else not having Foo in the name and I
+  search for Foo, I still need a hit ... the reason this comes up for me
+  is that I usually am auto-forwarding to something with a similar name, or
+  exact same name in a different hierarchy, so global links and find results
+  give me 'duplicate' appearing results. But an auto forward with
+  non-similar names would not have these problems, and fixing the other
+  problem would create a new one here).
+
+* Add last updated info (whole standard footer?) to bottom of edit page.
+
+====B
+* Add RedCloth plug-in ... Textile (more pop than Dave's rdocing)
+  http://prdownloads.sourceforge.net/yaml4r/redcloth-2.0.tar.gz
+
+* Add easy way to post back to author in blogki
+
+* Allow easy access to Wiki view from Blogki (the only difference, though,
+  is the Recent page showing only published articles).
+
+* Allow option to view titles only or full articles on Recent page.
+  (In footer do: Recent <a href...>Titles</a> <a href...>Full</a>
+   OR
+   add link at top of Recent page to toggle to the other view?)
+
+* Allow option to return full page on Find view, or just context
+  lines on Find view (allow these options from the Find Results
+  page as well -- sync as much with Recent page as possible, lots
+  of overlap)
+
+* Render space in between each hierarchy in the link on Find/Recent
+  results so longer hierarchies can word wrap within their cell
+  (unless this looks too stupid). Or do as is done in the header
+  of main pages. (Does global linking help here? Can we just render the
+  page name without the hierarchy now that we can find that?)
+
+* Allow for spaced return of page names for better readability
+
+* bug ... \ doesn't subpage correctly. \SubPage is treated as //SubPage
+  Get the tests back up to snuff on this.
+
+
+====C
+* Recent needs paging to go to further depths (30-60, etc.)
+
+* rename NoWikiLinks to NoWiki, still support NoWikiLinks, make it case
+  insensitive
+
+* Add simple find query string for simple interface (like RubLog's
+  =Text dealy?)
+
+* Add encryption option for page contents
+
+* Netscape does not assume <a href=?page=blah> to be <a href=wiki.rb?page=blah>
+  like IE does. Fix this.
+  (FIXED in convertToLink, but many places aren't using that - I think this
+  is finally fixed, need to do one final code review for places like this).

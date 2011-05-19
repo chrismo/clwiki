@@ -1,0 +1,36 @@
+If you're used to a more popular wiki, you'll probably be longing for some features that I've managed to do without myself. 
+
+<b>Markup</b> is basic html. Typical wiki things like asterisked lists, indentation, urls being automagically formatted ain't in here. 
+
+One quirky bit has made it into clWiki, that is the simpletable tag. Look at the source here to see it in action:
+
+<blockquote>
+<simpletable>
+ColA  Col B   Col C
+x     y       z
+u     v       w
+</simpletable>
+</blockquote>
+
+A row is a single line of text. A column break is a tab character, two or more spaces or a horizontal bar.
+
+As of 1.13.5, some new shorthand markup was added. 
+[]
+[ and ] indicates the start of a blockquote section, and [ and ] with a slash in the middle will indicate the end. (see source of this page)
+[p]
+Add in a 'p' and that will indicate a blockquote/pre section with content auto-escaped. (see source of this page)
+[/p]
+(Obviously, it'd be nice to have a &lt;raw&gt; tag, or somesuch, to allow me to use [ and ] together.)
+[/] 
+
+<b>WikiLinks</b> are pretty typical, though there's no special syntax for turning a non-camel-cased word into a link. To stop WikiLinks from being rendered, use a NoWikiLinks tag (closing tag to turn linking back on). <NoWikiLinks>FrontPage</NoWikiLinks> won't render, because the tag is turning it off.
+
+<b>Hierarchy and Global linking</b>. One of the more unique things about clWiki is support for full hierarchy. Two slashes starts an absolute reference (//FrontPage). Single slash indicates a sub-page of the current page (/LikeThis). Or, you can go as deep as you want: /LikeThis/AndAgain. 
+
+Full hierarchy creates a problem though: most subpages names are unique throughout the wiki, and having to refer to a full name //AboutClWiki/LikeThis/AndAgain is a pain. So clWiki uses its index to allow you to simply type AndAgain, and a "global link" to the correct page is created. 
+
+If there are multiple hits on a name like AndAgain, clWiki links to the find results page, showing all matching links. So, LikeThis links to the find results showing both //FrontPage/LikeThis and //AboutClWiki/LikeThis.
+
+And finally, to explain the ? link next to the Reload link in the footer, if you're on the //NewPage page, and want to create a subpage also called /LikeThis under //NewPage, but can't because clWiki turns /LikeThis into a global link, click the ? link and the page will be reloaded with a create page ? link right after the global link. Click that ? link, and //NewPage/LikeThis will be created.
+
+After using the full hierarchy support for sometime, I've come to consider FavorShallowHierarchies as a best practice.

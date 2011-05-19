@@ -1,0 +1,24 @@
+[p]
+Version 1.13.1 or .2 introduced a change to ClWikiPage.convert_newline_to_br.
+Previously, \n was converted to just <br>, but this left the resulting html 
+rather unreadable if you ever viewed the source.
+
+This was changed to \n -> <br>\n, but this affected <pre> sections. Now every 
+line had <br> and \n and browsers (Mozilla, at least) would render two line 
+feeds instead of one.
+
+1.13.3 changed this back and this text here is some testing.
+
+Line One
+Line Two
+Line Three
+
+This section is also testing the custom ClWiki tags for a blockquote/pre section.
+[/p]
+
+<pre>
+This is a pure pre tag section.
+
+Line One
+Line Two
+</pre>

@@ -1,0 +1,314 @@
+===Installation
+
+There is an install.rb script -- you can run that, enter your destination
+path, and go. It really only copies the files and sets the shebang at the
+top of the necessary files to the ruby .exe that you use to run the install
+script.
+
+Then make a copy of default.clwiki.conf and name it clwiki.conf. Hopefully
+each entry in there will be explanatory enough.
+
+Presuming you keep the DRb index setting (useIndex 1), you'll need to then
+run the index server process. clwikiindex.rb with a -h switch will list all
+of the options for running the index DRb server.
+
+If you need some more help, email me direct and I'll help you out.
+
+===About formatter plug-ins
+
+Formatters exist in files in the ./format directory. To write your own,
+just look at one that's in there and copy the structure - should be
+straight-forward. Only other requirement is that the name of the file start
+with format and a period (format.whatever.rb). To disable any formatters
+that come with clWiki, simply rename/delete the appropriate file from
+this directory, or rem out the ClWikiCustomFormatters.instance.register
+line at the bottom of the formatter file. 
+
+*** Some formatters come disabled out of the box ***
+
+Check for the ClWikiCustomFormatters.instance.register line in the format
+file. (Should probably make this a .conf option).
+
+===About CVS Integration
+
+ClWiki assumes that the wiki repository is an active CVS working directory.
+It also assumes that whatever account your web server runs under has the
+ability to do cvs adds and commits without any prompts. This could, for 
+example, mean you need to setup a SetEnv variable in your Apache .conf to
+properly set CVS_RSH and also handle any private key files to make sure
+the web process is not faced with any prompts for logins and whatnot.
+
+In one install on Windows, with Apache and PuTTy, Apache's conf file needed:
+
+  SetEnv CVS_RSH c:\tools\putty\plink.bat
+  
+... and the plink.bat file looked like:
+
+  c:\tools\putty\plink.exe -i C:\home\privkeys\identity.ppk %1 %2 %3 %4 %5 %6 %7 %8 %9
+
+... in order to get everything working. In addition, Apache had to be 
+configured to run under a specific account other than LocalSystem to make
+sure the prompt for the server fingerprint could be taken care of. 
+
+If cvs integration isn't working, be sure to check your web server error
+logs for additional pointers to what may be falling down.
+
+ClWiki also assumes it will be the only one doing commits on the content, 
+as it expects the revision numbers to always be increasing when figuring
+diffs. It knows nothing of branching or any such fancy stuff. If you get
+unexpected results in the diff output, and you do branching on the Wiki
+content outside the cvs calls ClWiki makes, then there's your problem.   
+
+===About GraphViz Integration
+
+see the graphviz/readme.txt file for what files to place in that directory
+to get dot graph rendering support working. Only tested on Windows. 
+
+===Hierarchy Blathering
+
+  This style working in 1.5.pre1:
+  //RootPage
+  /SubPageOfCurrent
+  SiblingPageOfCurrentLevel
+  SiblingPageOfCurrentLevel/SubPage
+  ParentPageOnCurrentPath/SubPage
+  (the last two can be conflicting, who wins? Rare case, assumes two pages
+   have the same name and one is the parent of another)
+
+NOTE: the rest is just brain dumps. None of it may be accurate to
+how it really works now, it's here for referencing in the future how
+I thought through things as I built it to hopefully save time not re-thinking
+things I've already thought through but forgot :)
+
+The trouble is this: how to do links. Does /FrontPage mean sub of current
+or root? UseMod sub pages [http://www.usemod.com/cgi-bin/wiki.pl?SubPage]
+only go one level deep and are counter-intuitive
+compared to file system naming. (/PageName isn't an absolute path, it means
+a subpage of the current one, yet /PageName seems an intuitive way to
+indicate a wiki sub name).
+
+One other point of confusion now that I've got the first shot done, a sub
+directory is both a sub dir *and* a page.
+
+Should I distinguish? Should a sub-dir not be a page, only listing the
+sub pages (much like an Apache directory listing?) (how then do you create
+a new sub page? ... the special sub-dir page would need to be editable).
+
+If I'm in /MyProject/MyModule and I edit this page and type UseStories, I
+seem to expect /MyProject/MyModule/UseStories, but get /MyProject/UseStories,
+because I didn't specify MyModule/UseStories (or ./UseStories**). If I changed
+it to assume ... hmmm
+
+Let's now say I'm in /MyProject/MyModule/UseStories, and I type
+EnterBirthdayAndRetrieveIt, then type SetAlarmOnBirthdayToSendEmail,
+should I get:
+
+  /MyProject/MyModule/UseStories/EnterBirthdayAndRetrieveIt
+  /MyProject/MyModule/UseStories/SetAlarmOnBirthdayToSendEmail
+
+... the actual directory structure will get a little wild perhaps.
+
+That feels good for that one case. Now, say I have a new story in
+response to a bug that references an incident page.
+
+  /MyProject/IncidentBase/20020421ClientFoo
+
+I make this new page:
+
+  /MyProject/MyModule/UseStories/BugOnFeb29Birthday
+
+and want to reference the incident, I have to type the full path:
+
+  /MyProject/IncidentBase/20020421ClientFoo
+
+... because if I type just:
+
+  20020421ClientFoo
+
+... I'd get
+
+  /MyProject/MyModule/UseStories/BugOnFeb29Birthday/20020421ClientFoo
+
+... but that is fully clear. If I wanted a second IncidentBase on
+AnotherProject and it also had a 20020421ClientFoo -- the traditional
+wiki has to tag 20020421ClientFoo to distinguish.
+
+----
+
+Changed to do this.
+
+I have /FrontPage/DocuTIMEEmpACT/UpgradeDTToEA9
+
+I want to be able to type DocuTIMEEmpACT/IncidentBase ... and have it
+know that I mean /FrontPage/DocuTIMEEmpACT/IncidentBase instead of
+/FrontPage/DocuTIMEEmpACT/UpgradeDTToEA9/DocuTIMEEmpACT/IncidentBase by
+looking up the path and matching that way.
+
+It's doing this now.
+
+Another non-intuitive for me (which I know goes against prev intuition).
+
+If I've got a ToDo directory with :
+
+TaskA
+TaskB
+
+... and I'm in TaskB's page, I'd like to be able to type a sibling page
+without having to go to root. If I type TaskA now, it's /ToDo/TaskB/TaskA.
+
+Yet, in the file system, TaskA and TaskB are sibling files.
+
+So add a new rule, if a sibling page exists, reference it instead of a new
+subfolder.
+
+Ok -- then a type a new WikiPage name, which is it -- a new sibling page
+or a new subdir?
+
+Hmmmm ... sometimes I want sub pages, other times I don't. Looks like
+perhaps I need a nomenclature, a way to distinguish between a subdir and
+simply another page on this level.
+
+Have a special WikiName signifier that indicates a new dir *AND* don't
+have a page by the same name (always have a FrontPage?)
+
+...
+
+type
+
+============================================================================
+/
+FrontPage
+--
+
+/DocuTIMEEmpACT ... this creates a new root level page.
+DocuTIMEEmpACT ... creates a new sibling page (in this case, same as above)
+./DocuTIMEEmpACT ... creates a new path /FrontPage/DocuTIMEEmpACT
+============================================================================
+/
+DocuTIMEEmpACT
+--
+/UpgradeToEA9 ... creates new root level page.
+UpgradeToEA9 ... creates a new sibling page (same as above)
+./UpgradeToEA9 ... creates new path /DocuTIMEEmpACT/UpgradeToEA9
+============================================================================
+/ DocuTIMEEmpACT /
+UpgradeToEA9
+--
+/ToDo ... creates new root level page.
+ToDo ... creates new sibling page (/DocuTIMEEmpACT/ToDo)
+./ToDo ... creates new sub dir /DocuTIMEEmpACT/UpgradeToEA9/ToDo
+UpgradeToEA9/ToDo ... same as previous line
+./IncidentBase ... creates /DocuTIMEEmpACT/UpgradeToEA9/IncidentBase
+UpgradeToEA9/IncidentBase ... same as previous line
+============================================================================
+/ DocuTIMEEmpACT / UpgradeToEA9 /
+ToDo
+--
+UpgradeToEA9/IncidentBase ... refs /DocuTIMEEmpACT/UpgradeToEA9/IncidentBase
+IncidentBase ... refs /DocuTIMEEmpACT/UpgradeToEA9/IncidentBase
+============================================================================
+
+So, what if I go the way of UseMod, and / doesn't mean root, but it signifies
+a new sub-directory. If that's so, then how does one indicate up a dir?
+
+make / => //
+make ./ => /
+
+I think it's just the ./ that's throwing me.
+
+--
+
+When doing a makedirs -- need to make blank pages at each level along
+the way, plus a page link to the sub page where appropriate.
+
+Bad news -- this style doesn't upgrade at all, totally breaks existing
+repositories. I'd have to drill down links and create the hierarchy myself,
+and that's going to get mugly. Or prefix every WikiName with a root in
+front / ... that's the only way to upgrade. Maybe a switch to assume all
+names have that in front, to emulate the old style. The turning that
+switch off would require a / in front of all WikiNames (and massive
+search and replace). (Could you do a deal where, if it ain't found, assume
+/WikiName and if that exists, reference it?)
+
+Write up a Move page, which will also need a Rename page. Rename page
+will rename the page and all references to it. The tricky part of the rename
+is renaming references that are on the path -- they shouldn't revert to
+absolute references if they were relative to begin with.
+
+Move page can do a rename on the main page, then travel down recursively
+to each link on the page and rename each one. This should work out, even
+in a circular case -- but I have to test that up. Circular ref case should
+work, it just may have a first-come-first-serve scenario that doesn't
+yield expected results -- but in many of my existing Wiki pages, I have
+a natural hierarchy approach without circular references.
+
+** though this form doesn't work yet ... although it most likely doesn't
+work simply because a period is not allowed in a wiki name, if I did
+just allow it, it'd be interesting to see if it'd Just Work because I'm
+using File.expand_path all over the place as it is).
+
+[publish this version of clwiki on clabs.org for end-user tinkering and
+feedback]
+
+I'm leaning towards file system naming, if I want to go to the root FrontPage,
+then I have to type /FrontPage. Will not support relative paths at the
+moment (../../FrontPage).
+
+::OR:: just have cross-wiki capability, similar benefits,
+easier implementation. Need a new hierarchy? Setup a new wiki.
+(But what about wanting: DocuTIME -> Extraction -> Stories ... that'd be
+three wikis, and the last one would need to be named DTExtractionStories,
+might as well have a simple wiki with a page called DTExtractionStories).
+
+-------
+(Hier. blathering cont.)
+
+    Having a problem -- I've got
+    /Project/Upgrade/ToDo
+
+    ... and have so far been making each story a sub-level:
+
+    /StoryA
+
+    When I'm on the StoryA page, it's nice, cuz I have the ancestor pages
+    up top, just click back and wha-lah.
+
+    But now I'm thinking I want all these story pages to be at the
+    /Project/Upgrade level, since they really belong to Upgrade, and not
+    strictly to the ToDo level. What if I want to reference a story from
+    a /Project/Upgrade/Incidents level?
+
+    Then the bigger thought is this -- this is frustrating, most of my story
+    page names are like UpdateTDm1RetrievePRPayTypesToCodePayBill -- and the
+    need for a hierarchy to uniquely identify that page is ridiculous.
+
+    Can I come up with a way of only requiring hierarchy naming when the
+    page name is duplicated ... or some common sense rules for locating
+    a dup name page when a relative reference is given? Maybe even going
+    to an intermediate page that lists all absolute names if it doesn't know.
+    Or always going to the highest page in the hierarchy, then going to the
+    tie-breaker page if the pages are at the same level.
+    Or always going to the 'closest' one. Something -- this heuristic doesn't
+    have to be that fancy because it's not going to be used that often.
+
+    Problem with this is: how do I create a new ToDo page at /ProjectB level?
+    ... ah, in that case I'd have to put an absolute reference. Hmmm, kinda
+    stinky.
+
+    I guess this is just a thing to get used to. Hierarchy allows
+    self-contained subwikis that can also cross-link with other wikis ...
+    the trick is to not go overboard with the hierarchy stuff.
+
+    Also would help to do history links (last x pages visited at the bottom
+    for simpler backtracking).
+     ==========
+    Hierarchy note: ZWiki does this:
+
+      Page hierarchy - a page is considered to be the child of the page from
+      which it was created. Parents are displayed along with the page title
+      for context. Pages may be reparented. You can also choose not to view
+      the hierarchy.
+
+      see
+      - http://zwiki.org/FolderishZwiki
+      - http://zwiki.org/ReParent
