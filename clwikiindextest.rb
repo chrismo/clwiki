@@ -3,10 +3,10 @@ require 'clwikitestbase'
 
 class TestClWikiIndex < TestBase
   def test_indexing_files_with_same_mod_timestamp
-    @tempSubDir = File.join(@tempDir, 'SubPage')
-    file_a = File.join(@tempDir, 'TestFileA.txt')
-    file_b = File.join(@tempDir, 'TestFileB.txt')
-    file_c = File.join(@tempSubDir, 'TestSubPageA.txt')
+    @temp_sub_dir = File.join(@temp_dir, 'SubPage')
+    file_a = File.join(@temp_dir, 'TestFileA.txt')
+    file_b = File.join(@temp_dir, 'TestFileB.txt')
+    file_c = File.join(@temp_sub_dir, 'TestSubPageA.txt')
     [file_a, file_b, file_c].each do |fn|
       File::makedirs(File.dirname(fn))
       File.open(fn, 'w+') do |f| f.puts "sample file" end
@@ -18,7 +18,7 @@ class TestClWikiIndex < TestBase
     @mtime = File.mtime(file_a)
     @i = ClWikiIndexer.new
     $wikiConf.access_log_index = false
-    Dir.chdir(@tempDir) do
+    Dir.chdir(@temp_dir) do
       # puts .dat files into the tmp dir
       @i.build
     end
@@ -27,6 +27,6 @@ class TestClWikiIndex < TestBase
     first = recent[0]
     assert_equal(2, first.length)
     assert_equal(@mtime, first[0])
-    assert_equal(['/TestFileA', '/TestFileB', "/SubPage/TestSubPageA"], first[1])
+    assert_equal(["/SubPage/TestSubPageA", '/TestFileA', '/TestFileB'], first[1])
   end
 end

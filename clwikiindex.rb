@@ -32,11 +32,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (based on BSD Open Source License)
 =end
 
+require 'rubygems'
+
 require 'clwikipage'
 require 'clwikiconf'
 require 'cl/util/progress'
 require 'cl/util/console'
-require 'cl/index'
+
+gem 'clindex'
+require 'index'
+
 require 'drb'
 
 class ClWikiIndexer

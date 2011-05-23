@@ -1,11 +1,13 @@
+require 'rubygems'
+gem 'clutil'
 require 'cl/util/test'
 require 'clwikiconf'
 
 class TestBase < TempDirTest
-  def setTempDir
-    @tempDir = '/tmp/clwiki'
-    @testWikiPath = @tempDir
-    $wikiPath = @testWikiPath
+  def set_temp_dir
+    @temp_dir = '/tmp/clwiki'
+    @test_wiki_path = @temp_dir
+    $wikiPath = @test_wiki_path
     $wikiConf = ClWikiConfiguration.new
     $wikiConf.wikiPath = $wikiPath
     $wikiConf.useIndex = ClWikiConfiguration::USE_INDEX_LOCAL

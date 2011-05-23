@@ -6,17 +6,17 @@ class TestClWikiFile < TestBase
   # the ClWikiPage level
   def doTestNewPage(fullPageName)
     fullPageName = ClWikiUtil.convertToNativePath(fullPageName)
-    fileName = File.expand_path(File.join(@testWikiPath, fullPageName)) + '.txt'
+    fileName = File.expand_path(File.join(@test_wiki_path, fullPageName)) + '.txt'
     File.delete(fileName) if FileTest.exists?(fileName)
-    wikiFile = ClWikiFile.new(fullPageName, @testWikiPath)
+    wikiFile = ClWikiFile.new(fullPageName, @test_wiki_path)
     assert(FileTest.exists?(wikiFile.fullPathAndName))
     pagePath, pageName = File.split(fullPageName)
     assert(wikiFile.name == pageName)
     assert_equal(pagePath, wikiFile.pagePath)
-    assert(wikiFile.wikiRootPath == @testWikiPath)
+    assert(wikiFile.wikiRootPath == @test_wiki_path)
     assert_equal(fileName, wikiFile.fullPathAndName)
     assert_equal(["Describe " + pageName + " here."], wikiFile.content)
-    newWikiFile = ClWikiFile.new(fullPageName, @testWikiPath)
+    newWikiFile = ClWikiFile.new(fullPageName, @test_wiki_path)
     assert_equal(["Describe " + pageName + " here."], newWikiFile.content)
   end
 
@@ -33,7 +33,7 @@ class TestClWikiFile < TestBase
   end
 
   def testUpdatePage
-    wikiFile = ClWikiFile.new("/UpdatePage", @testWikiPath)
+    wikiFile = ClWikiFile.new("/UpdatePage", @test_wiki_path)
     assert_equal(["Describe UpdatePage here."], wikiFile.content)
 
     # this test looks ridiculous, but ClWikiFile actually does a write to disk
@@ -46,8 +46,8 @@ class TestClWikiFile < TestBase
   def testMultiUserEdit
     # this is an unlikely case, if two users set new contents almost simultaneously.
     # Not sure if this test will still be necessary, but keeping it around for now.
-    wikiFileA = ClWikiFile.new("/UpdatePage", @testWikiPath)
-    wikiFileB = ClWikiFile.new("/UpdatePage", @testWikiPath)
+    wikiFileA = ClWikiFile.new("/UpdatePage", @test_wiki_path)
+    wikiFileB = ClWikiFile.new("/UpdatePage", @test_wiki_path)
     assert_equal(["Describe UpdatePage here."], wikiFileA.content)
     assert_equal(["Describe UpdatePage here."], wikiFileB.content)
 

@@ -33,112 +33,111 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =end
 
 require 'findinfile'
+require 'rubygems'
+gem 'clutil'
 require 'cl/util/test'
 require 'test/unit'
 require 'ftools'
 
 class TestFindInFile < TempDirTest
-  def setTempDir
-    @tempDir = '/tmp/clwiki'
-    @testWikiPath = @tempDir
+  def set_temp_dir
+    @temp_dir = '/tmp/clwiki'
+    @test_wiki_path = @temp_dir
   end
 
-  def set_up
+  def setup
     super
-    @findPath = @testWikiPath
-    @findInFile = FindInFile.new(@findPath)
+    @find_path = @test_wiki_path
+    @find_in_file = FindInFile.new(@find_path)
   end
   
-  alias setup set_up
-
-  def createTestFile(fileName, content)
-    f = File.new(fileName, File::CREAT|File::RDWR|File::TRUNC)
-    f.puts(content)
-    f.flush
-    f.close
+  def create_test_file(filename, content)
+    File.open(filename, 'w') do |f|
+      f.puts(content)
+    end
   end
 
-  def testInitialization
-    assert_equal(@findPath, @findInFile.findPath)
+  def test_initialization
+    assert_equal(@find_path, @find_in_file.find_path)
   end
 
-  def testSimpleFindContent
-    createTestFile(@testWikiPath + '/TestA', 'this is only a test')
-    assert_equal(1, @findInFile.find('only'))
-    assert_equal(1, @findInFile.files.length)
-    assert_equal('TestA', @findInFile.files[0])
+  def test_simple_find_content
+    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    assert_equal(1, @find_in_file.find('only'))
+    assert_equal(1, @find_in_file.files.length)
+    assert_equal('TestA', @find_in_file.files[0])
   end
 
-  def testSimpleFindFilename
-    createTestFile(@testWikiPath + '/TestA', 'this is only a test')
-    assert_equal(1, @findInFile.find('tA'))
-    assert_equal(1, @findInFile.files.length)
-    assert_equal('TestA', @findInFile.files[0])
+  def test_simple_find_filename
+    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    assert_equal(1, @find_in_file.find('tA'))
+    assert_equal(1, @find_in_file.files.length)
+    assert_equal('TestA', @find_in_file.files[0])
   end
 
-  def testSimpleFindContentCaseInsensitive
-    createTestFile(@testWikiPath + '/TestA', 'this is only a test')
-    assert_equal(1, @findInFile.find('oNly'))
-    assert_equal(1, @findInFile.files.length)
-    assert_equal('TestA', @findInFile.files[0])
+  def test_simple_find_content_case_insensitive
+    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    assert_equal(1, @find_in_file.find('oNly'))
+    assert_equal(1, @find_in_file.files.length)
+    assert_equal('TestA', @find_in_file.files[0])
   end
 
-  def testSimpleFindFilenameCaseInsensitive
-    createTestFile(@testWikiPath + '/TestA', 'this is only a test')
-    assert_equal(1, @findInFile.find('Ta'))
-    assert_equal(1, @findInFile.files.length)
-    assert_equal('TestA', @findInFile.files[0])
+  def test_simple_find_filename_case_insensitive
+    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    assert_equal(1, @find_in_file.find('Ta'))
+    assert_equal(1, @find_in_file.files.length)
+    assert_equal('TestA', @find_in_file.files[0])
   end
 
-  def testMatchInFileNameAndContent
-    createTestFile(@testWikiPath + '/TestA', 'this is only a test')
-    assert_equal(1, @findInFile.find('test'))
-    assert_equal(1, @findInFile.files.length)
-    assert_equal('TestA', @findInFile.files[0])
+  def test_match_in_file_name_and_content
+    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    assert_equal(1, @find_in_file.find('test'))
+    assert_equal(1, @find_in_file.files.length)
+    assert_equal('TestA', @find_in_file.files[0])
   end
 
-  def testSubdirSearch
-    File.makedirs(@testWikiPath + '/subdir')
-    createTestFile(@testWikiPath + '/TestA.txt', 'this is only a test')
-    assert_equal(1, @findInFile.find('test'))
+  def test_subdir_search
+    File.makedirs(@test_wiki_path + '/subdir')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
+    assert_equal(1, @find_in_file.find('test'))
   end
 
-  def testTitleOnlySearch
-    createTestFile(@testWikiPath + '/TestA', 'this is only a test')
-    createTestFile(@testWikiPath + '/blah', 'this is only a test')
-    assert_equal(1, @findInFile.find('test', FindInFile::FILE_NAME_ONLY))
-    assert_equal(1, @findInFile.files.length)
-    assert_equal('TestA', @findInFile.files[0])
+  def test_title_only_search
+    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/blah', 'this is only a test')
+    assert_equal(1, @find_in_file.find('test', FindInFile::FILE_NAME_ONLY))
+    assert_equal(1, @find_in_file.files.length)
+    assert_equal('TestA', @find_in_file.files[0])
   end
 
-  def xtestMiniLoadTest
-    createTestFile(@testWikiPath + '/TestA', 'this is only a test')
+  def xtest_mini_load_test
+    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
     content = ''
     1000.times do
       content << 'this is a sample file'
     end
     100.times do |x|
-      createTestFile(@testWikiPath + '/Test' + x.to_s, content)
+      create_test_file(@test_wiki_path + '/Test' + x.to_s, content)
     end
     start = Time.now
-    assert_equal(1, @findInFile.find('only'))
+    assert_equal(1, @find_in_file.find('only'))
     stop = Time.now
     puts "find one file in 101"
     puts stop - start
 
     start = Time.now
-    assert_equal(100, @findInFile.find('sample'))
+    assert_equal(100, @find_in_file.find('sample'))
     stop = Time.now
     puts "find 100 file in 101"
     print stop - start
   end
 
   def test_recursive
-    subdir = File.join(@testWikiPath, '/subdir')
+    subdir = File.join(@test_wiki_path, '/subdir')
     File.makedirs(subdir)
-    createTestFile(File.join(subdir, '/TestA.txt'), 'this is only a test')
-    assert_equal(1, @findInFile.find('Ta'))
-    assert_equal(1, @findInFile.files.length)
-    assert_equal('subdir/TestA.txt', @findInFile.files[0])
+    create_test_file(File.join(subdir, '/TestA.txt'), 'this is only a test')
+    assert_equal(1, @find_in_file.find('Ta'))
+    assert_equal(1, @find_in_file.files.length)
+    assert_equal('subdir/TestA.txt', @find_in_file.files[0])
   end
 end

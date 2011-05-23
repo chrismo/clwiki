@@ -39,12 +39,12 @@ require 'ftools'
 class TestClWiki < TestBase
   def set_up
     super
-    @clWiki = ClWiki.new(@testWikiPath)
+    @clWiki = ClWiki.new(@test_wiki_path)
     sleep 1
   end
 
   def doTestNewPageThruWiki(pageNameArray, separator)
-    @clWiki = ClWiki.new(@testWikiPath)
+    @clWiki = ClWiki.new(@test_wiki_path)
     fullPageName = separator + pageNameArray.join(separator)
     fullPageName = ClWikiUtil.convertToNativePath(fullPageName)
     actualContent = @clWiki.displayPage(fullPageName).content
@@ -64,7 +64,7 @@ class TestClWiki < TestBase
   end
 
   def testDisplayPage
-    @clWiki = ClWiki.new(@testWikiPath)
+    @clWiki = ClWiki.new(@test_wiki_path)
     testPage = '/TestPage'
     wikiPageModTime = @clWiki.displayPage(testPage).modTime
     updateContent = "Sample text before\n\n" +
@@ -80,7 +80,7 @@ class TestClWiki < TestBase
   end
 
   def testDisplayEditPage
-    @clWiki = ClWiki.new(@testWikiPath)
+    @clWiki = ClWiki.new(@test_wiki_path)
     testPage = '/TestPage'
     content = @clWiki.displayPageEdit(testPage)
     assert(content =~ /Describe TestPage here/)
@@ -153,7 +153,7 @@ end
 class TestClWikiConf < TestBase
   def set_up
     super
-    @testConfFile = @testWikiPath + '/testwiki.conf.xml'
+    @testConfFile = @test_wiki_path + '/testwiki.conf.xml'
   end
 
   def testReadPath
@@ -161,7 +161,7 @@ class TestClWikiConf < TestBase
     begin
       xml = <<-XML
         <ClWikiConf>
-          <wikiPath>#{@testWikiPath}</wikiPath>
+          <wikiPath>#{@test_wiki_path}</wikiPath>
         </ClWikiConf>
       XML
       f.puts(xml)
@@ -170,6 +170,6 @@ class TestClWikiConf < TestBase
       f.close unless f.nil?
     end
     clWiki = ClWiki.new("", @testConfFile)
-    assert_equal(@testWikiPath, clWiki.wikiPath)
+    assert_equal(@test_wiki_path, clWiki.wikiPath)
   end
 end
