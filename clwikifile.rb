@@ -237,8 +237,11 @@ module CLabs
 end
 
 class ClWikiUtil
-  def ClWikiUtil.raiseIfMTimeNotEqual(aMTime, fileName)
-    if aMTime != File.mtime(fileName)
+  def ClWikiUtil.raiseIfMTimeNotEqual(mtime_to_compare, file_name)
+    # reading the instance .mtime appears to take Windows DST into account,
+    # whereas the static File.mtime(filename) method does not
+    current_mtime = File.open(file_name) do |f| f.mtime end
+    if mtime_to_compare != current_mtime
       raise ClWikiFileModifiedSinceRead, 
         "File has been modified since it was last read."
     end

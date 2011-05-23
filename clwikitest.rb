@@ -105,7 +105,7 @@ class TestClWiki < TestBase
     expectedContent << f.footer(fullPageName)
   end
 
-  def testMultiUserEdit
+  def test_multi_user_edit
     exit
     # clwikifiletest has a multi user test
 

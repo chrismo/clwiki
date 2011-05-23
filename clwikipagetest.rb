@@ -16,11 +16,11 @@ class ClWikiPage
 end
 
 class TestClWikiPage < TestBase
-  def testWikiPage
+  def test_wiki_page
     newPage = ClWikiPage.new('/NewPage')
   end
 
-  def doTestConvertToLink(pageName, pagePath='/FrontPage')
+  def do_test_convert_to_link(pageName, pagePath='/FrontPage')
     f = ClWikiPageFormatter.new(nil, pagePath)
     fullPageName = f.expand_path(pageName, pagePath)
     ClWikiPage.set_page_exists(false)
@@ -49,37 +49,37 @@ class TestClWikiPage < TestBase
     # methods makes it a bit awkward here -- eats up a lot of extra space --
     # I need methods to be created at run-time, or a sub-testcase object?
     # or just delete the ClWikiFile at the end of doTestConvertToLink
-    def testConvertToLinkMain
-      doTestConvertToLink("TestPage")
+    def test_convert_to_link_main
+      do_test_convert_to_link("TestPage")
     end
 
-    def testConvertToLinkSubBS
-      doTestConvertToLink("TestPage\TestSubPage")
+    def test_convert_to_link_sub_bs
+      do_test_convert_to_link("TestPage\TestSubPage")
     end
 
-    def testConvertToLinkSubFS
-      doTestConvertToLink("TestPage/TestSubPage")
+    def test_convert_to_link_sub_fs
+      do_test_convert_to_link("TestPage/TestSubPage")
     end
 
-    def testConvertToLinkBSSub
-      doTestConvertToLink("\TestPage/TestSubPage")
+    def test_convert_to_link_bs_sub
+      do_test_convert_to_link("\TestPage/TestSubPage")
     end
 
-    def testConvertToLinkFSSub
-      doTestConvertToLink("/TestPage/TestSubPage")
+    def test_convert_to_link_fs_sub
+      do_test_convert_to_link("/TestPage/TestSubPage")
     end
 
-    def testConvertToLinkFSSubSub
-      doTestConvertToLink("/TestPage/TestSubPage\NotherSubPage")
+    def test_convert_to_link_fs_sub_sub
+      do_test_convert_to_link("/TestPage/TestSubPage\NotherSubPage")
     end
 
-    def testConvertToLinkFSSubSub2
-      doTestConvertToLink("/TestPage/TestSubPage/NotherSubPage")
+    def test_convert_to_link_fs_sub_sub2
+      do_test_convert_to_link("/TestPage/TestSubPage/NotherSubPage")
     end
 
-    def testConvertToLinkCollapsePath
-      doTestConvertToLink("TestSubPage/NotherSubPage", "/TestPage/TestSubPage")
-      doTestConvertToLink("SubPage/NotherSubPage", "/TestPage/SubPage/SubPage")
+    def test_convert_to_link_collapse_path
+      do_test_convert_to_link("TestSubPage/NotherSubPage", "/TestPage/TestSubPage")
+      do_test_convert_to_link("SubPage/NotherSubPage", "/TestPage/SubPage/SubPage")
     end
   # end refactor
 
@@ -124,7 +124,7 @@ class TestClWikiPage < TestBase
     assert_equal("/m/n",             f.expand_path("//m/n", "/a/b"))
   end
 
-  def testGSubWords
+  def test_gsub_words
     original =
       'test page PageName ' +
       'PageName/SubPage PageName\SubPage\SubPage ' +
@@ -144,7 +144,7 @@ class TestClWikiPage < TestBase
     assert_equal(expectedResults, actualResults)
   end
 
-  def doTestFormatLinks(content, expectedContent, currentPagePath='/FrontPage', pageExists=true, pageGloballyExists=false)
+  def do_test_format_links(content, expectedContent, currentPagePath='/FrontPage', pageExists=true, pageGloballyExists=false)
     if pageGloballyExists
       globalFullPageName = '/GlobalRoot/' + content
     else
@@ -166,61 +166,61 @@ class TestClWikiPage < TestBase
     end
   end
 
-  def testFormatLinkPages
+  def test_format_link_pages
                       # content, expectedContent, currentPagePath, pageExists
-    doTestFormatLinks('TestPage', "TestPage<a href=clwikicgi.rb?page=/TestPage&edit=true>?</a>", '/FrontPage', false)
-    doTestFormatLinks('TestPage', "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>", '/FrontPage', true)
+    do_test_format_links('TestPage', "TestPage<a href=clwikicgi.rb?page=/TestPage&edit=true>?</a>", '/FrontPage', false)
+    do_test_format_links('TestPage', "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>", '/FrontPage', true)
 
     # this is an important test. The scanning includes some punctuation
     # as word characters, but not others. Comma ain't one of them, so this
     # makes sure the division of characters is working right.
-    doTestFormatLinks('TestPage,', "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>,", '/FrontPage', true)
+    do_test_format_links('TestPage,', "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>,", '/FrontPage', true)
 
     # the current parsing skips over the brackets, so the tags
     # are returned intact. IE 5 just ignores them.
     # In the future I need to code no wiki links within
     # brackets which means parsing them.
-    doTestFormatLinks('<NoWikiLinks>TestPage</NoWikiLinks>', "TestPage")
+    do_test_format_links('<NoWikiLinks>TestPage</NoWikiLinks>', "TestPage")
 
     # No WikiLinks within < >, to avoid problems with href
-    doTestFormatLinks('<a href="www.NotAWikiPage.com">some link</a>', '<a href="www.NotAWikiPage.com">some link</a>')
+    do_test_format_links('<a href="www.NotAWikiPage.com">some link</a>', '<a href="www.NotAWikiPage.com">some link</a>')
 
-    doTestFormatLinks('/TestPage',
+    do_test_format_links('/TestPage',
                       "/<a href=clwikicgi.rb?page=/FrontPage/TestPage>TestPage</a>",
                       '/FrontPage', true)
-    doTestFormatLinks('TestPage/TestSubPage',
+    do_test_format_links('TestPage/TestSubPage',
                       "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
                       '/FrontPage', true)
-    doTestFormatLinks('TestPage/TestSubPage',
+    do_test_format_links('TestPage/TestSubPage',
                       "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
                       '/SubRoot', true)
-    doTestFormatLinks('/TestPage/TestSubPage',
+    do_test_format_links('/TestPage/TestSubPage',
                       "/<a href=clwikicgi.rb?page=/SubRoot/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/SubRoot/TestPage/TestSubPage>TestSubPage</a>",
                       '/SubRoot', true)
-    doTestFormatLinks('//TestPage/TestSubPage',
+    do_test_format_links('//TestPage/TestSubPage',
                       "//<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
                       '/SubRoot', true)
-    doTestFormatLinks('TestPage/TestSubPage',
+    do_test_format_links('TestPage/TestSubPage',
                       "<a href=clwikicgi.rb?page=/SubRootA/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/SubRootA/TestPage/TestSubPage>TestSubPage</a>",
                       '/SubRootA/SubRootB', true)
-    doTestFormatLinks('/TestPage/TestSubPage',
+    do_test_format_links('/TestPage/TestSubPage',
                       "/<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage/TestSubPage>TestSubPage</a>",
                       '/SubRootA/SubRootB', true)
-    doTestFormatLinks('//TestPage/TestSubPage',
+    do_test_format_links('//TestPage/TestSubPage',
                       "//<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
                       '/SubRootA/SubRootB', true)
-    doTestFormatLinks('TestPage\TestSubPage',
+    do_test_format_links('TestPage\TestSubPage',
                       "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
                       '/FrontPage', true)
-    doTestFormatLinks('TestPage',
+    do_test_format_links('TestPage',
                       "<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage>TestPage</a>",
                       '/SubRootA/SubRootB/TestPage', true)
-    doTestFormatLinks('TestPage',
+    do_test_format_links('TestPage',
                       "TestPage<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage&edit=true>?</a>",
                       '/SubRootA/SubRootB/MasterTestPage', false)
   end
 
-  def testIsWikiName
+  def test_is_wiki_name
     f = ClWikiPageFormatter.new
     assert(f.isWikiName?("WikiName"))
     assert(!f.isWikiName?("WikiName,"))

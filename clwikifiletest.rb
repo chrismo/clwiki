@@ -4,7 +4,7 @@ require 'clwikitestbase'
 class TestClWikiFile < TestBase
   # refactor: shouldn't be dealing with page paths at this level, should be at
   # the ClWikiPage level
-  def doTestNewPage(fullPageName)
+  def do_test_new_page(fullPageName)
     fullPageName = ClWikiUtil.convertToNativePath(fullPageName)
     fileName = File.expand_path(File.join(@test_wiki_path, fullPageName)) + '.txt'
     File.delete(fileName) if FileTest.exists?(fileName)
@@ -20,19 +20,19 @@ class TestClWikiFile < TestBase
     assert_equal(["Describe " + pageName + " here."], newWikiFile.content)
   end
 
-  def testNewRootPage
-    doTestNewPage('/NewPage')
+  def test_new_root_page
+    do_test_new_page('/NewPage')
   end
 
-  def testNewSubPageForwardSlash
-    doTestNewPage('/NewPage/NewSubPage')
+  def test_new_sub_page_forward_slash
+    do_test_new_page('/NewPage/NewSubPage')
   end
 
-  def testNewSubPageBackSlash
-    doTestNewPage("\\NewPage\\NewSubPage")
+  def test_new_sub_page_back_slash
+    do_test_new_page("\\NewPage\\NewSubPage")
   end
 
-  def testUpdatePage
+  def test_update_page
     wikiFile = ClWikiFile.new("/UpdatePage", @test_wiki_path)
     assert_equal(["Describe UpdatePage here."], wikiFile.content)
 
@@ -43,25 +43,37 @@ class TestClWikiFile < TestBase
     assert_equal(["This is new content."], wikiFile.content)
   end
 
-  def testMultiUserEdit
-    # this is an unlikely case, if two users set new contents almost simultaneously.
-    # Not sure if this test will still be necessary, but keeping it around for now.
-    wikiFileA = ClWikiFile.new("/UpdatePage", @test_wiki_path)
-    wikiFileB = ClWikiFile.new("/UpdatePage", @test_wiki_path)
-    assert_equal(["Describe UpdatePage here."], wikiFileA.content)
-    assert_equal(["Describe UpdatePage here."], wikiFileB.content)
+  def test_multi_user_edit
+    # this can happen if 2 people load a page, then both edit the page - the last one
+    # to submit would stomp the first edit ... unless:
+    wiki_file_a = ClWikiFile.new("/UpdatePage", @test_wiki_path)
+    wiki_file_b = ClWikiFile.new("/UpdatePage", @test_wiki_path)
+    assert_equal(["Describe UpdatePage here."], wiki_file_a.content)
+    assert_equal(["Describe UpdatePage here."], wiki_file_b.content)
 
     sleep 2.5 # to ensure mtime changes. (lesser time sometimes doesn't work)
-    wikiFileA.content = "This is new A content."
+    wiki_file_a.content = "This is new A content."
     begin
-      wikiFileB.content = "This is new B content."
+      wiki_file_b.content = "This is new B content."
       assert(false, "Expected exception did not occur.")
     rescue ClWikiFileModifiedSinceRead
       # don do anythain, issa wha shoo 'appen
     end
 
-    wikiFileB.readFile
-    assert_equal(["This is new A content."], wikiFileB.content)
+    wiki_file_b.readFile
+    assert_equal(["This is new A content."], wiki_file_b.content)
+  end
+
+  def test_multi_user_edit_dst
+    # running into a problem where I can't edit a page that was last edited outside
+    # of DST when I'm in DST ... it raises ClWikiFileModifiedSinceRead
+    wiki_file = ClWikiFile.new("/UpdateDstPage", @test_wiki_path)
+    assert_equal(["Describe UpdateDstPage here."], wiki_file.content)
+    File.utime(Time.now, Time.local(2011, "jan", 1), wiki_file.fullPathAndName)
+
+    wiki_file_read = ClWikiFile.new("/UpdateDstPage", @test_wiki_path)
+    wiki_file_read.content = "This is new A content."
+    assert_equal(["This is new A content."], wiki_file_read.content)
   end
 end
 
