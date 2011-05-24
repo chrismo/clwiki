@@ -1,8 +1,9 @@
 require 'ftools'
 require 'fileutils'
+require 'rubygems'
+gem 'clutil'
 require 'cl/util/console'
 require 'cl/util/file'
-require 'cl/util/version'
 require 'cl/util/win'
 
 $LOAD_PATH << '..'
@@ -12,12 +13,6 @@ require 'install'
 module CLabs
   module Wiki
     VERSION = ClWiki::VERSION
-    if if_switch('-min')
-      VERSION.minor = (VERSION.minor.to_i + 1).to_s
-      VERSION.release = '0'
-    elsif if_switch('-rel')
-      VERSION.release = (VERSION.release.to_i + 1).to_s
-    end
 
     def do_system(cmd)
       puts cmd if if_switch('-v')
@@ -37,12 +32,10 @@ module CLabs
     end
 
     def do_build
-      rootDir = File.expand_path("./#{rootname}")
-      srcDir = '..'
-      VERSION.write_version_header('../clwiki.rb')
+      root_dir = File.expand_path("./#{rootname}")
 
       Dir.chdir('..') do 
-        copy_files(rootDir, 'ruby')
+        copy_files(root_dir, 'ruby')
       end
 
       # File.copy '../doc/License', doc_dir
@@ -102,9 +95,7 @@ if __FILE__ == $0
     puts '-h      show help'
     puts '-v      verbose output'
     puts
-    puts '-min    increment minor version, reset release to zero'
-    puts '-rel    increment release version'
-    puts '-clabs  do steps to update cLabs website' 
+    puts '-clabs  do steps to update cLabs website'
   end
   
   def need_help

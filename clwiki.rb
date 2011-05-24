@@ -46,14 +46,8 @@ $wikiPath = ''
 # ClWiki -> ClWikiPage -> ClWikiFile
 # names are getting confused and mixed up
 class ClWiki
-  # VERSION auto generated section
-  begin                                                                  
-    require 'cl/util/version'                                            
-    VERSION = CLabs::Version.new('1', '15', '0')
-  rescue LoadError                                                       
-    VERSION = '1.15.0'                                                  
-  end                                                                    
-  # END_VERSION
+  # cl/util/version is no more, but don't have time to gem-ify this properly, so just going back to manual for now.
+  VERSION = '1.16.0'
 
   attr_reader :name, :wikiPath, :wrapWidth, :wrap
 
