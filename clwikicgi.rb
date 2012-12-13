@@ -259,6 +259,7 @@ class ClWikiCGI
         BODY { font-size: x-small; font-family: Verdana; Arial; }
         TD { font-size: x-small; font-family: Verdana; Arial; }
         PRE {font-size: 100%; }
+        pageName { font-size: larger; }
         -->
         </STYLE>
       CSS
