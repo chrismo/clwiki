@@ -254,10 +254,10 @@ class ClWikiPageFormatter
        (fullPageName != $FIND_RESULTS_NAME) and
        (fullPageName != $wikiConf.recent_changes_name) and
        (fullPageName != $wikiConf.stats_name)
-      head = "<b>//"
+      head = "<span class='parentPageNames'>//"
       fulldirs.each do |dir| head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a>/" end
       head << "<br>"
-      head << "<font size=+3><a href=#{cgifn}?find=true&searchText=#{searchText}&type=full>#{pageName}</a></font></b><br><br>"
+      head << "<span class='pageName'><a href=#{cgifn}?find=true&searchText=#{searchText}&type=full>#{pageName}</a></span></span><br><br>"
     else
       "<h2>" + fullPageName + "</h2>"
     end

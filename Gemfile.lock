@@ -1,0 +1,13 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    clindex (1.2.0)
+      clutil (>= 2011.138.0)
+    clutil (2011.138.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  clindex
+  clutil
