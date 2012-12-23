@@ -47,7 +47,7 @@ $wikiPath = ''
 # names are getting confused and mixed up
 class ClWiki
   # cl/util/version is no more, but don't have time to gem-ify this properly, so just going back to manual for now.
-  VERSION = '1.16.0'
+  VERSION = '1.17.0'
 
   attr_reader :name, :wikiPath, :wrapWidth, :wrap
 

@@ -4,7 +4,6 @@ require 'rubygems'
 gem 'clutil'
 require 'cl/util/console'
 require 'cl/util/file'
-require 'cl/util/win'
 
 $LOAD_PATH << '..'
 require 'clwiki'
@@ -56,8 +55,8 @@ module CLabs
       # do_system('pause')
 
       FileUtils.rm_rf('../dist')
-      do_system("md ..\\dist")
-      do_system("zip -r ..\\dist\\#{zipfn} #{rootname}")
+      FileUtils.mkpath('../dist')
+      do_system("zip -r ..#{File::SEPARATOR}dist#{File::SEPARATOR}#{zipfn} #{rootname}")
       sleep 2
       ClUtilFile.delTree("#{rootname}")
 

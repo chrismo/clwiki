@@ -1,6 +1,20 @@
 ===Change Log
 
-====1.14.0 (not released)
+====1.17.0
+
+* (Man, this boat, she is old). Little bit of updating to the page header
+  to better support css styling. To get with the times. Or at least cut
+  them in half.
+
+====1.16.0
+
+* DST fix for Windows
+
+====1.15.0
+
+* ? forgot to update. Transferred over to github.
+
+====1.14.0
 
 * update.shebang.rb and the short-lived symlink.cgi.rb removed in favor
   of a --repair switch for install.rb which will perform 3 steps: updating
