@@ -406,27 +406,27 @@ module ClWiki
       if !starts_with_path_char(partial)
         # sibling
         # "" is in [0] if partial is an absolute
-        partialPieces = partial.split('/').delete_if { |p| p == "" }
-        matchFound = false
+        partial_pieces = partial.split('/').delete_if { |p| p == "" }
+        match_found = false
         result = ''
-        (partialPieces.length-1).downto(0) do |i|
-          thisPartial = '/' + partialPieces[0..i].join('/')
-          matchLoc = (reference.rindex(/#{thisPartial}/))
-          if matchLoc
-            matchFound = true
+        (partial_pieces.length-1).downto(0) do |i|
+          this_partial = '/' + partial_pieces[0..i].join('/')
+          match_loc = (reference.rindex(/#{this_partial}/))
+          if match_loc
+            match_found = true
             # isn't next line stored in a Regexp globals? pre-match and match, right?
-            result = reference[0..(matchLoc + thisPartial.length-1)]
-            partialRemainder = partialPieces[(i+1)..-1]
-            result = ::File.join(result, partialRemainder)
+            result = reference[0..(match_loc + this_partial.length-1)]
+            partial_remainder = partial_pieces[(i+1)..-1]
+            result = ::File.join(result, partial_remainder)
             result.chop! if result[-1..-1] == '/'
             break
           end
         end
-        if !matchFound
+        unless match_found
           # take off last entry on reference path to force a sibling
           # or refactor elsewhere to pass nothing but paths into this
           # method.
-          reference, = reference.split(::File::SEPARATOR)
+          reference, = ::File.split(reference)
           result = do_file_expand_path(partial, (reference.empty? ? '/' : reference))
         end
       else

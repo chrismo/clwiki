@@ -12,7 +12,7 @@ module ClWiki
       @wikiRootPath = wikiRootPath
       fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
       raise 'fullPageName must start with /' if fullPageName[0..0] != '/'
-      @pagePath, @name = fullPageName.split(::File::SEPARATOR)
+      @pagePath, @name = ::File.split(fullPageName)
       @pagePath = '/' if @pagePath == '.'
       @fileExt = fileExt
       if autocreate
@@ -89,9 +89,9 @@ module ClWiki
       parent = ::File.dirname(dir)
       return if parent == dir or FileTest.directory? dir
       make_dirs parent unless FileTest.directory? parent
-      if File.basename(dir) != ""
+      if ::File.basename(dir) != ""
         Dir.mkdir dir, 0755
-        do_cvs_commit(File.dirname(dir), File.basename(dir))
+        do_cvs_commit(::File.dirname(dir), ::File.basename(dir))
       end
     end
 

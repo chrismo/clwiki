@@ -43,57 +43,38 @@ class TestClWikiPage < TestBase
     #   f.convertToLink(pageName))
   end
 
-  # refactor
-    # these were all one method, but I had repeat pages and
-    # needed setup/teardown around them. But, having them all be separate
-    # methods makes it a bit awkward here -- eats up a lot of extra space --
-    # I need methods to be created at run-time, or a sub-testcase object?
-    # or just delete the ClWikiFile at the end of doTestConvertToLink
-    def test_convert_to_link_main
-      do_test_convert_to_link("TestPage")
-    end
+  def test_convert_to_link_main
+    do_test_convert_to_link("TestPage")
+  end
 
-    def test_convert_to_link_sub_bs
-      do_test_convert_to_link("TestPage\TestSubPage")
-    end
+  def test_convert_to_link_sub_bs
+    do_test_convert_to_link("TestPage\TestSubPage")
+  end
 
-    def test_convert_to_link_sub_fs
-      do_test_convert_to_link("TestPage/TestSubPage")
-    end
+  def test_convert_to_link_sub_fs
+    do_test_convert_to_link("TestPage/TestSubPage")
+  end
 
-    def test_convert_to_link_bs_sub
-      do_test_convert_to_link("\TestPage/TestSubPage")
-    end
+  def test_convert_to_link_bs_sub
+    do_test_convert_to_link("\TestPage/TestSubPage")
+  end
 
-    def test_convert_to_link_fs_sub
-      do_test_convert_to_link("/TestPage/TestSubPage")
-    end
+  def test_convert_to_link_fs_sub
+    do_test_convert_to_link("/TestPage/TestSubPage")
+  end
 
-    def test_convert_to_link_fs_sub_sub
-      do_test_convert_to_link("/TestPage/TestSubPage\NotherSubPage")
-    end
+  def test_convert_to_link_fs_sub_sub
+    do_test_convert_to_link("/TestPage/TestSubPage\NotherSubPage")
+  end
 
-    def test_convert_to_link_fs_sub_sub2
-      do_test_convert_to_link("/TestPage/TestSubPage/NotherSubPage")
-    end
+  def test_convert_to_link_fs_sub_sub2
+    do_test_convert_to_link("/TestPage/TestSubPage/NotherSubPage")
+  end
 
-    def test_convert_to_link_collapse_path
-      do_test_convert_to_link("TestSubPage/NotherSubPage", "/TestPage/TestSubPage")
-      do_test_convert_to_link("SubPage/NotherSubPage", "/TestPage/SubPage/SubPage")
-    end
-  # end refactor
-
-  # def test_page_expand_path
-  #   assert_equal("/a/b/c",           ClWiki::Page.expand_path("b/c", "/a/b/c/d/e"))
-  #   assert_equal("/b/c",             ClWiki::Page.expand_path("/b/c", "/a/b/c/d/e"))
-  #   assert_equal("/a/b",             ClWiki::Page.expand_path("b", "/a/b/c/d/e"))
-  #   assert_equal("/a/b/c/f",         ClWiki::Page.expand_path("b/c/f", "/a/b/c/d/e"))
-  #   assert_equal("/a/b/c/d/e/m/n/o", ClWiki::Page.expand_path("m/n/o", "/a/b/c/d/e"))
-  #   assert_equal("/a/b/c/a/b/d",     ClWiki::Page.expand_path("a/b/d", "/a/b/c/a/b/c"))
-  #   assert_equal("/a/b",             ClWiki::Page.expand_path("/a/b", "/"))
-  #   assert_equal("/m/n",             ClWiki::Page.expand_path("/m/n", "/a/b"))
-  #   fail('need case insensitive tests...')
-  # end
+  def test_convert_to_link_collapse_path
+    do_test_convert_to_link("TestSubPage/NotherSubPage", "/TestPage/TestSubPage")
+    do_test_convert_to_link("SubPage/NotherSubPage", "/TestPage/SubPage/SubPage")
+  end
 
   def test_page_expand_path
     f = ClWiki::PageFormatter.new
