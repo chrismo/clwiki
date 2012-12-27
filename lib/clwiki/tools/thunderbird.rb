@@ -20,4 +20,4 @@ emails.each do |email|
   puts "writing #{page_name}..." 
   @wiki.updatePage(page_name, clientModTime, email)
 end
-# $wikiConf.wait_on_threads
+# $wiki_conf.wait_on_threads

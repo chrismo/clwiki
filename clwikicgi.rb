@@ -55,9 +55,9 @@ class ClWikiCGI
     begin
       @cgi = CGI.new("html3")
       @wiki = ClWikiFactory.new_wiki
-      $wikiConf.cgifn = get_script_name.split('/')[-1]
+      $wiki_conf.cgifn = get_script_name.split('/')[-1]
       url_path = get_script_name.split('/')[0..-2].join('/') + '/'
-      $wikiConf.url_prefix = "http://#{ENV['SERVER_NAME']}#{url_path}"
+      $wiki_conf.url_prefix = "http://#{ENV['SERVER_NAME']}#{url_path}"
 
       @post = (ENV['REQUEST_METHOD'] == "POST")
       @editConflict = false
@@ -67,7 +67,7 @@ class ClWikiCGI
         @find = (@queryHash['find'].to_s == "true")
         @saveButton = @cgi.params.has_key? "save"
         @saveEditButton = @cgi.params.has_key? "saveedit"
-        if !@find && $wikiConf.editable
+        if !@find && $wiki_conf.editable
           get_page_name
           newContent = @cgi['wikiContent']
           clientModTime = Time.at(@cgi['clientModTime'].to_s.to_i)
@@ -81,7 +81,7 @@ class ClWikiCGI
       else
         @queryHash = @cgi.params
         get_page_name
-        @edit = (@queryHash['edit'].to_s == "true") && $wikiConf.editable
+        @edit = (@queryHash['edit'].to_s == "true") && $wiki_conf.editable
       end
 
       processQueryHash
@@ -92,7 +92,7 @@ class ClWikiCGI
       @stats = (@queryHash['stats'].to_s == "true")
       @about = (@queryHash['about'].to_s == "true")
       @searchText = @queryHash['searchText'].to_s
-      $wikiConf.global_edits = (@queryHash['globaledits'].to_s == "true")
+      $wiki_conf.global_edits = (@queryHash['globaledits'].to_s == "true")
       @show_diff = (@queryHash['diff'].to_s == "true")
       if @searchText.empty?
         @searchText = @cgi['searchText']
@@ -122,7 +122,7 @@ class ClWikiCGI
       print "Error occurred: " + e.message + "<br><br>\r\n\r\n"
       print e.backtrace.join("<br>\n")
     ensure
-      $wikiConf.wait_on_threads
+      $wiki_conf.wait_on_threads
     end
   end
 
@@ -160,12 +160,12 @@ class ClWikiCGI
   end
 
   def displayPage
-    page = @wiki.displayPage(@pageName, !$wikiConf.template, @show_diff)
+    page = @wiki.displayPage(@pageName, !$wiki_conf.template, @show_diff)
     content = page.content
 
     title = "#{@wiki.title_name}: " + @pageName
 
-    if !$wikiConf.template
+    if !$wiki_conf.template
       display(title, content)
     else
       display(title, content, page.get_header, page.get_footer)
@@ -173,7 +173,7 @@ class ClWikiCGI
   end
 
   def displayEditConflictPage
-    exit if !$wikiConf.editable
+    exit if !$wiki_conf.editable
 
     title = "#{@wiki.title_name}: " + @pageName
     content =
@@ -186,7 +186,7 @@ class ClWikiCGI
   end
 
   def display(title, body, header='', footer='')
-    if !$wikiConf.template
+    if !$wiki_conf.template
       @cgi.out {
         @cgi.html {
           @cgi.head {
@@ -199,7 +199,7 @@ class ClWikiCGI
         }
       }
     else
-      templateLines = File.readlines($wikiConf.template)
+      templateLines = File.readlines($wiki_conf.template)
       templateLines.collect! do |ln|
         ln.sub!(/<!--#clwiki_include_title-->/, title)
         ln.sub!(/<!--#clwiki_include_style-->/, displayEmbeddedCss)
@@ -213,7 +213,7 @@ class ClWikiCGI
   end
 
   def displayPageEdit
-    exit if !$wikiConf.editable
+    exit if !$wiki_conf.editable
 
     title = "#{@wiki.title_name}: editing " + @pageName
 
@@ -252,7 +252,7 @@ class ClWikiCGI
   end
 
   def displayEmbeddedCss
-    if !$wikiConf.cssHref
+    if !$wiki_conf.cssHref
       <<-CSS
         <STYLE TYPE="text/css" MEDIA="screen" TITLE="clWiki">
         <!--
@@ -265,7 +265,7 @@ class ClWikiCGI
       CSS
     else
       <<-CSS
-        <link rel="StyleSheet" href="#{$wikiConf.cssHref}" type="text/css" media="screen">
+        <link rel="StyleSheet" href="#{$wiki_conf.cssHref}" type="text/css" media="screen">
       CSS
     end
   end

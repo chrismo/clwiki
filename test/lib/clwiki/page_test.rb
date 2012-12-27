@@ -24,11 +24,11 @@ class TestClWikiPage < TestBase
     f = ClWiki::PageFormatter.new(nil, pagePath)
     fullPageName = f.expand_path(pageName, pagePath)
     ClWiki::Page.set_page_exists(false)
-    $wikiConf.editable = true
+    $wiki_conf.editable = true
     assert_equal(
       pageName + "<a href=clwikicgi.rb?page=" + fullPageName + "&edit=true>?</a>",
       f.convertToLink(pageName))
-    $wikiConf.editable = false
+    $wiki_conf.editable = false
     assert_equal(
       pageName,
       f.convertToLink(pageName))
@@ -132,12 +132,12 @@ class TestClWikiPage < TestBase
       globalFullPageName = nil
     end
 
-    $wikiConf.editable = true
+    $wiki_conf.editable = true
     f = ClWiki::PageFormatter.new(content, currentPagePath)
     ClWiki::Page.set_page_exists(pageExists)
     assert_equal(expectedContent, f.formatLinks, "content: #{content} pageExists: #{pageExists} pageGloballyExists: #{pageGloballyExists} editable")
 
-    $wikiConf.editable = false
+    $wiki_conf.editable = false
     f = ClWiki::PageFormatter.new(content, currentPagePath)
     ClWiki::Page.set_page_exists(pageExists)
     if !pageExists
@@ -202,24 +202,24 @@ class TestClWikiPage < TestBase
 
   def test_is_wiki_name
     f = ClWiki::PageFormatter.new
-    assert(f.isWikiName?("WikiName"))
-    assert(!f.isWikiName?("WikiName,"))
-    assert(!f.isWikiName?("Wikiname"))
-    assert(!f.isWikiName?("wIkiName"))
-    assert(!f.isWikiName?("<h1>wikiName</h1><br>Other"))
-    assert(!f.isWikiName?("<WikiName>"))
-    assert(!f.isWikiName?("WIKI"))
-    assert(f.isWikiName?('WikiName/SubWikiName'))
-    assert(f.isWikiName?('WikiName\SubWikiName'))
-    assert(f.isWikiName?('/WikiName/SubWikiName'))
-    assert(!f.isWikiName?('./WikiName/SubWikiName'))
-    assert(!f.isWikiName?('/.WikiName/SubWikiName'))
-    assert(!f.isWikiName?('/Wiki.Name/SubWikiName'))
-    assert(!f.isWikiName?('WikiName/Notwikiname'))
-    assert(!f.isWikiName?('Notwikiname/WikiName'))
-    assert(!f.isWikiName?('WikiName/WikiName/Notwikiname'))
-    assert(!f.isWikiName?('/'))
-    assert(!f.isWikiName?('//'))
+    assert(f.is_wiki_name?("WikiName"))
+    assert(!f.is_wiki_name?("WikiName,"))
+    assert(!f.is_wiki_name?("Wikiname"))
+    assert(!f.is_wiki_name?("wIkiName"))
+    assert(!f.is_wiki_name?("<h1>wikiName</h1><br>Other"))
+    assert(!f.is_wiki_name?("<WikiName>"))
+    assert(!f.is_wiki_name?("WIKI"))
+    assert(f.is_wiki_name?('WikiName/SubWikiName'))
+    assert(f.is_wiki_name?('WikiName\SubWikiName'))
+    assert(f.is_wiki_name?('/WikiName/SubWikiName'))
+    assert(!f.is_wiki_name?('./WikiName/SubWikiName'))
+    assert(!f.is_wiki_name?('/.WikiName/SubWikiName'))
+    assert(!f.is_wiki_name?('/Wiki.Name/SubWikiName'))
+    assert(!f.is_wiki_name?('WikiName/Notwikiname'))
+    assert(!f.is_wiki_name?('Notwikiname/WikiName'))
+    assert(!f.is_wiki_name?('WikiName/WikiName/Notwikiname'))
+    assert(!f.is_wiki_name?('/'))
+    assert(!f.is_wiki_name?('//'))
     # Should these be WikiNames?
     #  EmpACT
     #  HelP

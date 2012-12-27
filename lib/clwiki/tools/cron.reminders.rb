@@ -128,7 +128,7 @@ class Cron
         ref_page_full_name = formatter.expand_path(wiki_page_name, '/UrgentToDo')
         puts ref_page_full_name
         if ClWikiPage.page_exists?(ref_page_full_name)
-          ref_page = ClWikiPage.new(ref_page_full_name, $wikiPath)
+          ref_page = ClWikiPage.new(ref_page_full_name, $wiki_path)
           ref_page.read_raw_content
           content << ref_page_full_name << "\n" <<
             ('-' * ref_page_full_name.length) << "\n\n" <<
@@ -221,10 +221,10 @@ end
 if __FILE__ == $0
   begin
     $debug = if_switch('-d')
-    $wikiPath = get_switch('-wp')
-    raise 'no wikiPath specified' if !$wikiPath
-    $wikiConf = ClWikiConfiguration.new
-    $wikiConf.useIndex = ClWikiConfiguration::USE_INDEX_NO
+    $wiki_path = get_switch('-wp')
+    raise 'no wikiPath specified' if !$wiki_path
+    $wiki_conf = ClWikiConfiguration.new
+    $wiki_conf.useIndex = ClWikiConfiguration::USE_INDEX_NO
     crontabFilename = 'c:/Dev/svn.momo/cweb/wikirep/UrgentToDo.txt';
     Cron.new(crontabFilename, true).run()
   rescue Exception => e

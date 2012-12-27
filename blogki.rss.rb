@@ -61,9 +61,9 @@ module CLabs
       @queryHash = @cgi.params
     
       if @queryHash['publishTag'] && !@queryHash['publishTag'].empty?
-        $wikiConf.publishTag = @queryHash['publishTag'].to_s
+        $wiki_conf.publishTag = @queryHash['publishTag'].to_s
       end
-      $wikiConf.cgifn = $wikiConf.cgifn_from_rss
+      $wiki_conf.cgifn = $wiki_conf.cgifn_from_rss
       
       wikiIndex = ClWikiIndexClient.new
       wikiIndex.add_hit("<a href='#{this_url}'>#{this_url.split('/')[-1]}</a>")
@@ -87,7 +87,7 @@ module CLabs
     # refactoring to displayRecentChanges -> override recentChanges -> override recentChangeOutput
     def recentChanges(top=10)
       @show_recent_content = true
-      super(top, $wikiConf.publishTag)
+      super(top, $wiki_conf.publishTag)
     end
   
     def recentChangeOutput(pageFullName, pageModTime, pageContent)
@@ -103,7 +103,7 @@ module CLabs
       item_content << "  <category>#{category}</category>"
       page_content = CGI.escapeHTML(pageContent)
       # this is a major band-aid for a piece of content at cLabs.
-      page_content.gsub!(/’/, '&#8217;')
+      page_content.gsub!(/ï¿½/, '&#8217;')
       item_content << "  <description>#{page_content}</description>"
       item_content << '</item>'
       item_content
@@ -111,9 +111,9 @@ module CLabs
   
     def recentChangesHeader
       top = RSS_TOP
-      top.sub!(/<!--TITLE-->/, $wikiConf.recent_changes_name)
+      top.sub!(/<!--TITLE-->/, $wiki_conf.recent_changes_name)
       top.sub!(/<!--LINK-->/, "#{base_url}")
-      top.sub!(/<!--DESC-->/, $wikiConf.recent_changes_name)
+      top.sub!(/<!--DESC-->/, $wiki_conf.recent_changes_name)
       top
     end
     
@@ -122,7 +122,7 @@ module CLabs
     end
   
     def base_url
-      CGI.escapeHTML(File.join("http://#{ENV['SERVER_NAME']}", $wikiConf.cgifn))
+      CGI.escapeHTML(File.join("http://#{ENV['SERVER_NAME']}", $wiki_conf.cgifn))
     end
   end
 end

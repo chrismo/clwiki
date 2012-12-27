@@ -40,7 +40,7 @@ require 'clwikiconf'
 require 'findinfile'
 require 'ftools'
 
-$wikiPath = ''
+$wiki_path = ''
 
 # need to fully refactor ClWikiFile out and have ClWiki only use ClWikiPage
 # ClWiki -> ClWikiPage -> ClWikiFile
@@ -61,7 +61,7 @@ class ClWiki
       @wikiPath = wikiPath
     end
     # shortcut -- need a Singleton conf obj
-    $wikiPath = @wikiPath
+    $wiki_path = @wikiPath
     if !FileTest.directory?(@wikiPath)
       File::makedirs(@wikiPath)
     end
@@ -88,7 +88,7 @@ class ClWiki
 
   def displayPage(wikiName, includeHeaderFooter=true, include_diff=false)
     wikiName = frontPageIfBadName(wikiName)
-    if !$wikiConf.editable and !ClWikiPage.page_exists?(wikiName)
+    if !$wiki_conf.editable and !ClWikiPage.page_exists?(wikiName)
       wikiName = FRONT_PAGE_NAME
     end
     wikiPage = ClWikiPage.new(wikiName)
@@ -104,7 +104,7 @@ class ClWiki
     # see note at end of source file called Escaping HTML.
     form = <<-FORMCONTENT
       <FORM METHOD="post" ACTION="#{@formatter.cgifn}?page=#{wikiName}">
-      <TEXTAREA NAME="wikiContent" ROWS="#{$wikiConf.edit_rows}" COLS="#{$wikiConf.edit_cols}">#{CGI.escapeHTML(wikiPage.rawContent)}</TEXTAREA>
+      <TEXTAREA NAME="wikiContent" ROWS="#{$wiki_conf.edit_rows}" COLS="#{$wiki_conf.edit_cols}">#{CGI.escapeHTML(wikiPage.rawContent)}</TEXTAREA>
       <INPUT NAME="clientModTime" TYPE="hidden" VALUE="#{wikiPage.modTime.to_i.to_s}">
       <BR>
       <INPUT TYPE="submit" VALUE="Save" NAME="save"> <INPUT TYPE="submit" VALUE="Save and Continue Editing" NAME="saveedit">
@@ -234,14 +234,14 @@ class ClWiki
       pageModTime = timeNamePair.time
       if @show_recent_content
           # we don't need want to record page hits here
-        $wikiConf.override_access_log_index
+        $wiki_conf.override_access_log_index
         begin
           pg = ClWikiPage.new(pageName)
           pg.read_content(false)
           pageContent = pg.content
           pageModTime = pg.modTime
         ensure
-          $wikiConf.restore_access_log_index
+          $wiki_conf.restore_access_log_index
         end
       else
         pageContent = nil
@@ -250,13 +250,13 @@ class ClWiki
     end
     content << recentChangesFooter
     [content,
-     @formatter.header($wikiConf.recent_changes_name) + "<hr>",
-     @formatter.footer($wikiConf.recent_changes_name)]
+     @formatter.header($wiki_conf.recent_changes_name) + "<hr>",
+     @formatter.footer($wiki_conf.recent_changes_name)]
   end
   
   def recentChangeOutput(pageFullName, pageModTime, pageContent)
     content = ''
-    if $wikiConf.useGmt
+    if $wiki_conf.useGmt
       modTime = pageModTime.gmtime.strftime($DATE_TIME_FORMAT) + '&nbsp;GMT'
     else
       modTime = pageModTime.strftime($DATE_TIME_FORMAT)
@@ -289,8 +289,8 @@ class ClWiki
     end
     content << "</table>"
     [content,
-     @formatter.header($wikiConf.stats_name) + "<hr>",
-     @formatter.footer($wikiConf.stats_name)]
+     @formatter.header($wiki_conf.stats_name) + "<hr>",
+     @formatter.footer($wiki_conf.stats_name)]
   end
   
   def statsTitleRow
@@ -351,8 +351,8 @@ class ClWiki
   end
 
   def readConf(item)
-    ClWikiConfiguration.load_xml(@confFile) if $wikiConf == nil
-    $wikiConf.send(item)
+    ClWikiConfiguration.load_xml(@confFile) if $wiki_conf == nil
+    $wiki_conf.send(item)
   end
 end
 

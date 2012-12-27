@@ -1,7 +1,7 @@
 namespace :test do
   # copy/redefine out of Rails
   task :run do
-    errors = %w(test:units test:functionals test:integration test:lib).collect do |task|
+    errors = %w(test:units test:functionals test:integration test:lib spec).collect do |task|
       begin
         Rake::Task[task].invoke
         nil
@@ -21,3 +21,5 @@ namespace :test do
     t.pattern = 'test/{lib}/**/*_test.rb'
   end
 end
+
+task :default => 'test:run'

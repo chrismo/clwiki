@@ -10,10 +10,10 @@ class TestBase < TempDirTest
   def set_temp_dir
     @temp_dir = '/tmp/clwiki'
     @test_wiki_path = @temp_dir
-    $wikiPath = @test_wiki_path
-    $wikiConf = ClWiki::Configuration.new
-    $wikiConf.wikiPath = $wikiPath
-    $wikiConf.useIndex = ClWiki::Configuration::USE_INDEX_LOCAL
+    $wiki_path = @test_wiki_path
+    $wiki_conf = ClWiki::Configuration.new
+    $wiki_conf.wiki_path = $wiki_path
+    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_LOCAL
   end
   
   # to ward off the new Test::Unit detection of classes with no test

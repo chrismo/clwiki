@@ -49,7 +49,7 @@ module CLabs
     def processQueryHash
       super
       if @queryHash['publishTag'] && !@queryHash['publishTag'].empty?
-        $wikiConf.publishTag = @queryHash['publishTag'].to_s
+        $wiki_conf.publishTag = @queryHash['publishTag'].to_s
       end
     end
   end
@@ -58,8 +58,8 @@ module CLabs
     def initialize(wikiPath="", confFile=$defaultConfFile)
       super(wikiPath, confFile)
       @show_recent_content = true
-      $wikiConf.default_recent_changes_name = 'Blogki'
-      $wikiConf.useGmt = true
+      $wiki_conf.default_recent_changes_name = 'Blogki'
+      $wiki_conf.useGmt = true
     end
 
     def title_name
@@ -68,9 +68,9 @@ module CLabs
 
     def recentChanges(top=10)
       wikiIndex = ClWikiIndexClient.new
-      url = "<a href='#{$wikiConf.cgifn_from_rss}'>#{$wikiConf.cgifn_from_rss.split('/')[-1]}</a>"
+      url = "<a href='#{$wiki_conf.cgifn_from_rss}'>#{$wiki_conf.cgifn_from_rss.split('/')[-1]}</a>"
       wikiIndex.add_hit(url)
-      super(top, $wikiConf.publishTag)
+      super(top, $wiki_conf.publishTag)
     end
   end
 end

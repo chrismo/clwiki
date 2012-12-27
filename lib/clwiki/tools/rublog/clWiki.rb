@@ -45,8 +45,8 @@ class ClWikiConvertor < BaseConvertor
 
   def convert_html(file_entry, f, all_entries)
     ClWikiConfiguration.load_xml(File.join(CLWIKI_PATH, $defaultConfFile))
-    $wikiConf.cgifn = CLWIKI_URL
-    page_name = file_entry.file_name.sub($wikiPath, '')
+    $wiki_conf.cgifn = CLWIKI_URL
+    page_name = file_entry.file_name.sub($wiki_path, '')
     page_name.sub!($wikiPageExt, '')
     page = ClWikiPage.new(page_name)
     page.read_content(false)
@@ -54,7 +54,7 @@ class ClWikiConvertor < BaseConvertor
     title.gsub!(/([^A-Z])([A-Z])/, '\1 \2')
     title.gsub!(/([^0-9])([0-9])/, '\1 \2')
     title.gsub!(/_/, ' ')
-    title = "<a href='#{$wikiConf.cgifn}?page=#{page_name}'>#{title}</a>"
+    title = "<a href='#{$wiki_conf.cgifn}?page=#{page_name}'>#{title}</a>"
     body  = page.content
     HTMLEntry.new(title, body, self)
   end

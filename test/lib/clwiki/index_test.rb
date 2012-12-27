@@ -17,7 +17,7 @@ class TestClWikiIndex < TestBase
     assert_equal(File.mtime(file_a), File.mtime(file_c))
     @mtime = File.mtime(file_a)
     @i = ClWiki::Indexer.new
-    $wikiConf.access_log_index = false
+    $wiki_conf.access_log_index = false
     Dir.chdir(@temp_dir) do
       # puts .dat files into the tmp dir
       @i.build

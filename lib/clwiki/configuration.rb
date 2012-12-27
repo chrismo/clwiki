@@ -9,7 +9,7 @@ module ClWiki
     USE_INDEX_DRB = 1
     USE_INDEX_LOCAL = 2
 
-    attr_accessor :wikiPath, :cgifn, :indexPort, :cssHref, :template, :useGmt,
+    attr_accessor :wiki_path, :cgifn, :indexPort, :cssHref, :template, :useGmt,
                   :publishTag, :url_prefix, :global_edits, :cgifn_from_rss, :stats_name,
                   :index_log_fn
 
@@ -57,7 +57,7 @@ module ClWiki
     end
 
     def cvs_log=(value)
-      @cvs_log = File.expand_path(value) if value
+      @cvs_log = ::File.expand_path(value) if value
     end
 
     def useIndexForPageExists
@@ -173,22 +173,22 @@ module ClWiki
     alias recent_changes_name recentChangesName
 
     def self.scan_conf_lines(confLines, tag)
-      confLines.grep(/^#{tag}/).to_s.scan(/^#{tag} (.*)/)
+      confLines.grep(/^#{tag}/).join.scan(/^#{tag} (.*)/)
     end
 
     def self.set_value(item_name, conf_lines)
-      value = self.scan_conf_lines(conf_lines, item_name).to_s
-      $wikiConf.send(item_name + '=', value) if !value.empty?
+      value = self.scan_conf_lines(conf_lines, item_name).join
+      $wiki_conf.send(item_name + '=', value) if !value.empty?
     end
 
     def self.load_xml(fileName=$defaultConfFile)
-      if !$wikiConf
-        $wikiConf = ClWiki::Configuration.new
-        confLines = File.readlines(fileName)
+      if !$wiki_conf
+        $wiki_conf = ClWiki::Configuration.new
+        confLines = ::File.readlines(fileName)
 
         # refactor this away to just read whatever item names are found in
         # the file
-        ClWiki::Configuration.set_value('wikiPath', confLines)
+        ClWiki::Configuration.set_value('wiki_path', confLines)
         ClWiki::Configuration.set_value('useIndex', confLines)
         ClWiki::Configuration.set_value('useIndexForPageExists', confLines)
         ClWiki::Configuration.set_value('editable', confLines)
@@ -210,14 +210,14 @@ module ClWiki
 
         ClWiki::Configuration.set_value('index_log_fn', confLines)
 
-        $wikiPath = $wikiConf.wikiPath
+        $wiki_path = $wiki_conf.wiki_path
       end
-      $wikiConf
+      $wiki_conf
     end
   end
 end
 
 if __FILE__ == $0
   ClWiki::Configuration.load_xml
-  p $wikiConf
+  p $wiki_conf
 end

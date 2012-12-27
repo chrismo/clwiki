@@ -1,17 +1,31 @@
-require 'test_helper'
+require File.dirname(__FILE__) + '/../spec_helper'
 
-class WikiControllerTest < ActionController::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+describe WikiController do
+  it 'should render /FrontPage by default' do
+    get :index
+
+    page = assigns(:page)
+    page.full_name.should == '/FrontPage'
+  end
+
+  it 'should redirect to front page on bad page name'
 end
 
+def build_expected_content(full_page_name, content = "")
+  f = ClWiki::PageFormatter.new(content, full_page_name)
+  page_name = File.split(full_page_name)[-1]
+  expected_content = f.header(full_page_name)
+
+  if content.empty?
+    expected_content << "Describe <a href=clwikicgi.rb?page=" + full_page_name + ">" + page_name + "</a> here.<br>"
+  else
+    expected_content << content
+  end
+
+  expected_content << f.footer(full_page_name)
+end
 
 =begin
-
-require File.dirname(__FILE__) + '/clwiki_test_helper'
-require 'clwiki'
-require 'fileutils'
 
 class TestClWiki < TestBase
   def set_up

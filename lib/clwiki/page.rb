@@ -18,7 +18,7 @@ $DATE_TIME_FORMAT = "%a&nbsp;%b&nbsp;%d&nbsp;%Y %I:%M&nbsp;%p"
 
 module ClWiki
   class Page
-    attr_reader :content, :modTime, :name, :fullName, :pagePath, :rawContent,
+    attr_reader :content, :modTime, :name, :full_name, :pagePath, :rawContent,
                 :fileFullPathAndName
 
     @@wikiIndexClient = nil
@@ -28,11 +28,11 @@ module ClWiki
 
     # refactor away wikiPath ... should be taken care of elsewhere, otherwise
     # ClWiki must know it, and it should be storage independent
-    def initialize(fullName, wikiPath=$wikiPath)
-      @fullName = fullName
+    def initialize(fullName, wiki_path=$wiki_path)
+      @full_name = fullName
       raise 'fullName must start with /' if fullName[0..0] != '/'
-      @wikiPath = wikiPath
-      @wikiFile = ClWiki::File.new(@fullName, @wikiPath)
+      @wiki_path = wiki_path
+      @wikiFile = ClWiki::File.new(@full_name, @wiki_path)
       @pagePath = @wikiFile.pagePath
       @name = @wikiFile.name
     end
@@ -45,7 +45,7 @@ module ClWiki
     def convert_newline_to_br
       newcontent = ""
       insideHtmlTags = false
-      @content.each do |substr|
+      @content.each_line do |substr|
         insideHtmlTags = true if (substr =~ /#{$HTML_START}/)
         insideHtmlTags = false if (substr =~ /#{$HTML_END}/)
         if ((!ClWiki::PageFormatter.only_html(substr)) or (substr == "\n")) and !insideHtmlTags
@@ -63,9 +63,9 @@ module ClWiki
     end
 
     def read_raw_content
-      @rawContent = @wikiFile.content.to_s.gsub(/\r\n/, "\n")
+      @rawContent = @wikiFile.content.join.gsub(/\r\n/, "\n")
       read_page_attributes
-      ClWikiPage.wikiIndexClient.add_hit(@fullName) if $wikiConf.access_log_index
+      ClWiki::Page.wikiIndexClient.add_hit(@full_name) if $wiki_conf.access_log_index
     end
 
     def content_never_edited?
@@ -76,7 +76,7 @@ module ClWiki
       @wikiFile.delete
     end
 
-    def self.read_file_full_path_and_name(full_name, wiki_path=$wikiPath)
+    def self.read_file_full_path_and_name(full_name, wiki_path=$wiki_path)
       wiki_file = ClWikiFile.new(full_name, wiki_path, $wikiPageExt, false)
       wiki_file.fullPathAndName
     end
@@ -98,7 +98,7 @@ module ClWiki
         if history.index(this_pg_name)
           pg_content = '-= CIRCULAR FORWARDING DETECTED =-'
         else
-          pg = ClWikiPage.new(this_pg_name)
+          pg = ClWiki::Page.new(this_pg_name)
           pg.read_raw_content
           pg_content = pg.rawContent
           fwd_full_page_name = get_forward_ref(pg_content)
@@ -117,10 +117,10 @@ module ClWiki
 
     def read_content(includeHeaderAndFooter=true, include_diff=false)
       read_page_attributes
-      @content, final_page_name = read_raw_content_with_forwarding(@fullName)
+      @content, final_page_name = read_raw_content_with_forwarding(@full_name)
       process_custom_renderers
       convert_newline_to_br
-      f = ClWikiPageFormatter.new(content, final_page_name)
+      f = ClWiki::PageFormatter.new(content, final_page_name)
       @content = f.formatLinks
       if includeHeaderAndFooter
         @content = get_header + @content + get_footer
@@ -134,16 +134,16 @@ module ClWiki
         require fn
       end
 
-      ClWikiCustomFormatters.instance.process_formatters(@content, self)
+      ClWiki::CustomFormatters.instance.process_formatters(@content, self)
     end
 
     def get_header
-      f = ClWikiPageFormatter.new(nil, @fullName)
-      f.header(@fullName)
+      f = ClWiki::PageFormatter.new(nil, @full_name)
+      f.header(@full_name)
     end
 
     def get_footer
-      f = ClWikiPageFormatter.new(nil, @fullName)
+      f = ClWiki::PageFormatter.new(nil, @full_name)
       f.footer(self)
     end
 
@@ -161,11 +161,11 @@ module ClWiki
 
       if res
         page_name = $1
-        f = ClWikiPageFormatter.new(content, @fullName)
-        page_name = f.expand_path(page_name, @fullName)
-        res = f.isWikiName?(page_name)
+        f = ClWiki::PageFormatter.new(content, @full_name)
+        page_name = f.expand_path(page_name, @full_name)
+        res = f.is_wiki_name?(page_name)
         if res
-          res = ClWikiPage.page_exists?(page_name)
+          res = ClWiki::Page.page_exists?(page_name)
         end
       end
       if res
@@ -179,18 +179,18 @@ module ClWiki
       wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
       wikiFile.clientLastReadModTime = modTime
       wikiFile.content = newcontent
-      if $wikiConf.useIndex != ClWikiConfiguration::USE_INDEX_NO
-        wikiIndexClient = ClWikiIndexClient.new
-        wikiIndexClient.reindex_page(@fullName)
+      if $wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO
+        wikiIndexClient = ClWiki::IndexClient.new
+        wikiIndexClient.reindex_page(@full_name)
       end
     end
 
     def self.page_exists?(fullPageName)
-      if ($wikiConf.useIndex != ClWikiConfiguration::USE_INDEX_NO) &&
-          ($wikiConf.useIndexForPageExists)
-        res = ClWikiPage.wikiIndexClient.page_exists?(fullPageName)
+      if ($wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO) &&
+          ($wiki_conf.useIndexForPageExists)
+        res = ClWiki::Page.wikiIndexClient.page_exists?(fullPageName)
       else
-        wikiFile = ClWikiFile.new(fullPageName, $wikiPath, $wikiPageExt, false)
+        wikiFile = ClWiki::File.new(fullPageName, $wiki_path, $wikiPageExt, false)
         res = wikiFile.file_exists?
       end
       res
@@ -207,19 +207,19 @@ module ClWiki
     end
 
     def fullName=(value)
-      @fullName = value
-      if @fullName
-        @fullName = @fullName[1..-1] if @fullName[0..1] == '//'
+      @full_name = value
+      if @full_name
+        @full_name = @full_name[1..-1] if @full_name[0..1] == '//'
       end
     end
 
     def fullName
-      @fullName
+      @full_name
     end
 
     def header(fullPageName, searchText = '')
-      searchText = File.basename(fullPageName) if searchText == ''
-      pagePath, pageName = File.split(fullPageName)
+      searchText = ::File.basename(fullPageName) if searchText == ''
+      pagePath, pageName = ::File.split(fullPageName)
       pagePath = '/' if pagePath == '.'
       dirs = pagePath.split('/')
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
@@ -227,8 +227,8 @@ module ClWiki
       (0..dirs.length-1).each { |i| fulldirs[i] = ('/' + dirs[0..i].join('/')) }
       if (fullPageName != $FIND_PAGE_NAME) and
           (fullPageName != $FIND_RESULTS_NAME) and
-          (fullPageName != $wikiConf.recent_changes_name) and
-          (fullPageName != $wikiConf.stats_name)
+          (fullPageName != $wiki_conf.recent_changes_name) and
+          (fullPageName != $wiki_conf.stats_name)
         head = "<span class='parentPageNames'>//"
         fulldirs.each do |dir|
           head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a>/"
@@ -241,7 +241,7 @@ module ClWiki
     end
 
     def process_custom_footers(page)
-      Dir['footer/footer.*'].each do |fn|
+      Dir[::File.dirname(__FILE__) + '/footer/footer.*'].each do |fn|
         require fn
       end
 
@@ -249,11 +249,11 @@ module ClWiki
     end
 
     def footer(page)
-      return '' if !page.is_a? ClWikiPage # blogki does this
+      return '' if !page.is_a? ClWiki::Page # blogki does this
 
       custom_footer = process_custom_footers(page)
 
-      wikiName, modTime = page.fullName, page.modTime
+      wikiName, modTime = page.full_name, page.modTime
       if modTime
         update = 'last update: ' + modTime.strftime($DATE_TIME_FORMAT)
       else
@@ -262,9 +262,9 @@ module ClWiki
 
       if (wikiName != $FIND_PAGE_NAME) and
           (wikiName != $FIND_RESULTS_NAME) and
-          (wikiName != $wikiConf.recent_changes_name) and
-          (wikiName != $wikiConf.stats_name)
-        if $wikiConf.enable_cvs
+          (wikiName != $wiki_conf.recent_changes_name) and
+          (wikiName != $wiki_conf.stats_name)
+        if $wiki_conf.enable_cvs
           update = "<a href=#{cgifn}?page=" + wikiName + "&diff=true>diff</a> | " + update
         end
       end
@@ -274,20 +274,20 @@ module ClWiki
       footer << "<table border=0 width='100%'><tr><td align=left>"
       if (wikiName != $FIND_PAGE_NAME) and
           (wikiName != $FIND_RESULTS_NAME) and
-          (wikiName != $wikiConf.recent_changes_name) and
-          (wikiName != $wikiConf.stats_name)
-        if $wikiConf.editable
+          (wikiName != $wiki_conf.recent_changes_name) and
+          (wikiName != $wiki_conf.stats_name)
+        if $wiki_conf.editable
           footer << ("| <a href=#{cgifn}?page=" + wikiName + "&edit=true>Edit</a> ")
         end
         footer << ("| <a href='#{mailto_url}'>Email</a> ")
         footer << "| <a href=#{reload_url}>Reload</a> <a href=#{reload_url(true)}>?</a> "
-        if $wikiConf.showSourceLink
+        if $wiki_conf.showSourceLink
           footer << "| <a href=#{src_url}>Source</a> "
         end
       end
       footer << "|| <a href=#{cgifn}?find=true>Find</a> "
       footer << "| <a href=#{cgifn}?recent=true>Recent</a> "
-      footer << "| <a href=#{cgifn}?stats=true>Stats</a> " if $wikiConf.access_log_index
+      footer << "| <a href=#{cgifn}?stats=true>Stats</a> " if $wiki_conf.access_log_index
       footer << "| <a href=#{cgifn}?page=/FrontPage>Home</a> "
       footer << "| <a href=#{cgifn}?about=true>About</a> " if wikiName == "/FrontPage"
       footer << "</td><td align=right>#{update}</td></tr></table>"
@@ -295,11 +295,11 @@ module ClWiki
     end
 
     def src_url
-      "file://#{ClWikiPage.read_file_full_path_and_name(@fullName)}"
+      "file://#{ClWiki::Page.read_file_full_path_and_name(@full_name)}"
     end
 
     def reload_url(with_global_edit_links=false)
-      result = "#{full_url}?page=#{@fullName}"
+      result = "#{full_url}?page=#{@full_name}"
       if with_global_edit_links
         result << "&globaledits=true"
       else
@@ -308,7 +308,7 @@ module ClWiki
     end
 
     def mailto_url
-      "mailto:?Subject=wikifyi:%20#{@fullName}&Body=#{reload_url}"
+      "mailto:?Subject=wikifyi:%20#{@full_name}&Body=#{reload_url}"
     end
 
     def gsubWords
@@ -362,7 +362,7 @@ module ClWiki
             insideHtmlTags = false
             word = ''
           end
-        elsif isWikiName?(word)
+        elsif is_wiki_name?(word)
           if !noWikiLinkInEffect and !insideHtmlTags
             # code smell here y'all
             word = convertToLink(word) if !block_given?
@@ -492,17 +492,17 @@ module ClWiki
     end
 
     def cgifn
-      $wikiConf.cgifn if $wikiConf
+      $wiki_conf.cgifn if $wiki_conf
     end
 
     def full_url
-      ($wikiConf.url_prefix + cgifn) if $wikiConf
+      ($wiki_conf.url_prefix + cgifn) if $wiki_conf
     end
 
     def convertToLink(pageName)
       # We need to calculate its fullPageName based on the ref fullName in case
       # the pageName is a relative reference
-      pageFullName = expand_path(pageName, @fullName)
+      pageFullName = expand_path(pageName, @full_name)
       if ClWiki::Page.page_exists?(pageFullName)
         format_for_dir_and_page_links(pageFullName, pageName)
       else
@@ -520,7 +520,7 @@ module ClWiki
             result = "<a href=#{cgifn}?find=true&searchText=#{pageName}&type=title>#{pageName}</a>"
         end
 
-        if ($wikiConf.editable) && ((hits.length == 0) || ($wikiConf.global_edits))
+        if ($wiki_conf.editable) && ((hits.length == 0) || ($wiki_conf.global_edits))
           result <<
               "<a href=#{cgifn}?page=" + pageFullName + "&edit=true>?</a>"
         end
@@ -528,17 +528,17 @@ module ClWiki
       end
     end
 
-    def isWikiName?(string)
-      allWikiNames = true
+    def is_wiki_name?(string)
+      all_wiki_names = true
       names = string.split(/[\\\/]/)
 
       # if first character is a slash, then split puts an empty string into names[0]
       names.delete_if { |name| name.empty? }
-      allWikiNames = false if names.empty?
+      all_wiki_names = false if names.empty?
       names.each do |name|
-        allWikiNames =
+        all_wiki_names =
             (
-            allWikiNames and
+            all_wiki_names and
 
                 # the number of all capitals followed by a lowercase is greater than 1
                 (name.scan(/[A-Z][a-z]/).length > 1) and
@@ -556,7 +556,7 @@ module ClWiki
                 (name.scan(/[^\w\\\/]/).length == 0)
             )
       end
-      return allWikiNames
+      return all_wiki_names
     end
   end
   class CustomFooters

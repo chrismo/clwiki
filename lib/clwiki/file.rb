@@ -15,6 +15,7 @@ module ClWiki
       @pagePath, @name = ::File.split(fullPageName)
       @pagePath = '/' if @pagePath == '.'
       @fileExt = fileExt
+      Rails.logger.debug("@wikiRootPath, @pagePath: #{@wikiRootPath} #@pagePath")
       if autocreate
         if file_exists?
           readFile
@@ -96,7 +97,7 @@ module ClWiki
     end
 
     def cvs_commit
-      if $wikiConf.enable_cvs
+      if $wiki_conf.enable_cvs
         dir = File.dirname(fullPathAndName)
         fn = File.basename(fullPathAndName)
         do_cvs_commit(dir, fn)
@@ -104,7 +105,7 @@ module ClWiki
     end
 
     def cvs_remove
-      if $wikiConf.enable_cvs
+      if $wiki_conf.enable_cvs
         dir = File.dirname(fullPathAndName)
         fn = File.basename(fullPathAndName)
         do_cvs_remove(dir, fn)
@@ -112,7 +113,7 @@ module ClWiki
     end
 
     def do_cvs_commit(dir, item_name)
-      if $wikiConf.enable_cvs
+      if $wiki_conf.enable_cvs
         cvsout = ''
         Dir.chdir(dir) do
           # always adding for now. If it exists, no worries ... could be
@@ -132,7 +133,7 @@ module ClWiki
     end
 
     def do_cvs_remove(dir, item_name)
-      if $wikiConf.enable_cvs
+      if $wiki_conf.enable_cvs
         cvsout = ''
         Dir.chdir(dir) do
           cvsout << "\n" << Time.now.to_s << "\n"
@@ -150,8 +151,8 @@ module ClWiki
     end
 
     def cvs_log(log_content)
-      if $wikiConf.cvs_log
-        File.open($wikiConf.cvs_log, 'a+') do |f|
+      if $wiki_conf.cvs_log
+        File.open($wiki_conf.cvs_log, 'a+') do |f|
           f.puts log_content
         end
       end
@@ -169,7 +170,7 @@ module ClWiki
     end
 
     def get_diff
-      if $wikiConf.enable_cvs
+      if $wiki_conf.enable_cvs
         stat_out = ''; cvs_pwd = ''
         fn = File.basename(fullPathAndName)
         Dir.chdir(fullPath) do

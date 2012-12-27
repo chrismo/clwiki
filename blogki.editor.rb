@@ -41,14 +41,14 @@ module CLabs
     def initialize(wikiPath="", confFile=$defaultConfFile)
       super(wikiPath, confFile)
       @show_recent_content = true
-      $wikiConf.default_recent_changes_name = 'Blogki Editor'
+      $wiki_conf.default_recent_changes_name = 'Blogki Editor'
     end
   
     def recentChangeOutput(pageFullName, pageModTime, pageContent)
       content = ''
       modTime = pageModTime.strftime($DATE_TIME_FORMAT)
       # this is a smell
-      publishTag = $wikiConf.publishTag
+      publishTag = $wiki_conf.publishTag
       publishTag = '.*' if publishTag == '*'
       showPublishTag = (pageContent =~ /#{publishTag}/) || (pageFullName =~ /#{publishTag}/)
       @formatter.fullName = pageFullName
@@ -73,6 +73,6 @@ if __FILE__ == $0
   ClWikiFactory.wiki_class = CLabs::BlogkiEditor
   blogki_cgi = CLabs::BlogkiCGI.new
   ClWikiConfiguration.load_xml
-  $wikiConf.editable = true # override conf file
+  $wiki_conf.editable = true # override conf file
   blogki_cgi.execute
 end

@@ -26,8 +26,8 @@ module ClWiki
       @index = ClIndex.new
       @recent = ClIndex.new
       @pages = ClIndex.new
-      @hits = ClIndex.new if $wikiConf.access_log_index
-      @rootDir = $wikiConf.wikiPath
+      @hits = ClIndex.new if $wiki_conf.access_log_index
+      @rootDir = $wiki_conf.wiki_path
       @fn = fn
       @record_hits = true
       load
@@ -80,7 +80,7 @@ module ClWiki
         else
           formatter = ClWiki::PageFormatter.new(pg.rawContent, fullName)
           formatter.formatLinks do |word|
-            if formatter.isWikiName?(word)
+            if formatter.is_wiki_name?(word)
               word = formatter.expand_path(word, fullName)
             else
               word.downcase!
@@ -145,7 +145,7 @@ module ClWiki
         reindex_page(fullPageName)
         save
       end
-      $wikiConf.wait_on_thread(thread)
+      $wiki_conf.wait_on_thread(thread)
     end
 
     def reindex_page(fullPageName)
@@ -167,7 +167,7 @@ module ClWiki
           @pages.save(pages_filename, WAIT)
         end
         put_status 'Saving Hits' do
-          @hits.save(hits_filename, WAIT) if $wikiConf.access_log_index
+          @hits.save(hits_filename, WAIT) if $wiki_conf.access_log_index
         end
       end
     end
@@ -183,7 +183,7 @@ module ClWiki
         put_status 'Loading Pages' do
           @pages.load(pages_filename, WAIT) if ::File.exists?(pages_filename)
         end
-        if $wikiConf.access_log_index
+        if $wiki_conf.access_log_index
           put_status 'Loading Hits' do
             @hits.load(hits_filename, WAIT) if ::File.exists?(hits_filename)
           end
@@ -214,7 +214,7 @@ module ClWiki
       dump_clindex(@index, 'index')
       dump_clindex(@recent, 'recent')
       dump_clindex(@pages, 'pages')
-      dump_clindex(@hits, 'hits') if $wikiConf.access_log_index
+      dump_clindex(@hits, 'hits') if $wiki_conf.access_log_index
     end
 
     def search(text)
@@ -279,18 +279,18 @@ module ClWiki
     end
 
     def add_hit(fullPageName)
-      if @record_hits && $wikiConf.access_log_index
+      if @record_hits && $wiki_conf.access_log_index
         put_status('Hit on ' + fullPageName)
         @hits.add(fullPageName, Time.now, WAIT)
         thread = Thread.new do
           @hits.save(hits_filename, WAIT)
         end
-        $wikiConf.wait_on_thread(thread)
+        $wiki_conf.wait_on_thread(thread)
       end
     end
 
     def hit_summary(start_index=0, end_index=-1)
-      if $wikiConf.access_log_index
+      if $wiki_conf.access_log_index
         hit_index = nil
         @hits.do_read(WAIT) do
           hit_index = @hits.index.dup
@@ -302,14 +302,14 @@ module ClWiki
 
   class IndexClient
     def initialize
-      case $wikiConf.useIndex
+      case $wiki_conf.useIndex
         when ClWiki::Configuration::USE_INDEX_NO
           raise 'wikiConf.useIndex says to not use an index'
         when ClWiki::Configuration::USE_INDEX_DRB
           DRb.start_service()
-          @indexer = DRbObject.new(nil, "druby://localhost:#{$wikiConf.indexPort}")
+          @indexer = DRbObject.new(nil, "druby://localhost:#{$wiki_conf.indexPort}")
         when ClWiki::Configuration::USE_INDEX_LOCAL
-          $indexer ||= ClWiki::Indexer.new($wikiConf.index_log_fn)
+          $indexer ||= ClWiki::Indexer.new($wiki_conf.index_log_fn)
           @indexer = $indexer
       end
     end
@@ -424,13 +424,13 @@ if __FILE__ == $0
     limit = -1
     limit = get_switch('-l').to_i if get_switch('-l')
     @i = ClWiki::Indexer.new
-    $wikiConf.access_log_index = false
+    $wiki_conf.access_log_index = false
     @i.build(limit, if_switch('-bp'))
     @i.save
   else
     puts 'loading index...'
     @i = ClWiki::Indexer.new
-    $wikiConf.access_log_index = false
+    $wiki_conf.access_log_index = false
     #@i.load
     if get_switch('-q')
       do_search(get_switch('-q'))
