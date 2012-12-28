@@ -8,6 +8,14 @@ describe WikiController do
     page.full_name.should == '/FrontPage'
   end
 
+  it 'should render /NewPage with new content prompt' do
+    get :index, :page_name => 'NewPage'
+
+    page = assigns(:page)
+    page.full_name.should == '/NewPage'
+    page.content.should =~ /Describe.*NewPage.*here/
+  end
+
   it 'should redirect to front page on bad page name'
 end
 

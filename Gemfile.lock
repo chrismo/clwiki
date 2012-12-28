@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/rails/activerecord-deprecated_finders.git
-  revision: 2125c7b4f959c1aa025f61bdfb5f95b5d6a52b51
+  revision: 2c4ebb2e79095efdd189c08861e3e7f694c52215
   specs:
     activerecord-deprecated_finders (0.0.1)
 
@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: git://github.com/rails/rails.git
-  revision: 7ab469c839d70ea9fbc74eb3bfe273037a91af69
+  revision: 6b18a79abe03046e5f572df26fc201958d5b2d0b
   specs:
     actionmailer (4.0.0.beta)
       actionpack (= 4.0.0.beta)

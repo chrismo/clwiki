@@ -1,6 +1,12 @@
 ClWiki::Application.routes.draw do
   root to: 'wiki#index'
 
+  # legacy CGI
+
+  match '/clwikicgi.rb', to: 'wiki#index', via: [:get], as: 'legacy'
+
+  get '/:page_name' => 'wiki#index', as: 'page'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

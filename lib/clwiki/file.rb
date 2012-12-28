@@ -15,7 +15,6 @@ module ClWiki
       @pagePath, @name = ::File.split(fullPageName)
       @pagePath = '/' if @pagePath == '.'
       @fileExt = fileExt
-      Rails.logger.debug("@wikiRootPath, @pagePath: #{@wikiRootPath} #@pagePath")
       if autocreate
         if file_exists?
           readFile
@@ -98,8 +97,8 @@ module ClWiki
 
     def cvs_commit
       if $wiki_conf.enable_cvs
-        dir = File.dirname(fullPathAndName)
-        fn = File.basename(fullPathAndName)
+        dir = ::File.dirname(fullPathAndName)
+        fn = ::File.basename(fullPathAndName)
         do_cvs_commit(dir, fn)
       end
     end
