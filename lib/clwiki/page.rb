@@ -18,7 +18,7 @@ $DATE_TIME_FORMAT = "%a&nbsp;%b&nbsp;%d&nbsp;%Y %I:%M&nbsp;%p"
 
 module ClWiki
   class Page
-    attr_reader :content, :modTime, :name, :full_name, :pagePath, :rawContent,
+    attr_reader :content, :mtime, :name, :full_name, :pagePath, :raw_content,
                 :fileFullPathAndName
 
     @@wikiIndexClient = nil
@@ -63,7 +63,7 @@ module ClWiki
     end
 
     def read_raw_content
-      @rawContent = @wikiFile.content.join.gsub(/\r\n/, "\n")
+      @raw_content = @wikiFile.content.join.gsub(/\r\n/, "\n")
       read_page_attributes
       ClWiki::Page.wikiIndexClient.add_hit(@full_name) if $wiki_conf.access_log_index
     end
@@ -83,7 +83,7 @@ module ClWiki
 
     def read_page_attributes
       wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
-      @modTime = wikiFile.modTimeAtLastRead
+      @mtime = wikiFile.modTimeAtLastRead
       @fileFullPathAndName = wikiFile.fullPathAndName
     end
 
@@ -100,7 +100,7 @@ module ClWiki
         else
           pg = ClWiki::Page.new(this_pg_name)
           pg.read_raw_content
-          pg_content = pg.rawContent
+          pg_content = pg.raw_content
           fwd_full_page_name = get_forward_ref(pg_content)
           if fwd_full_page_name
             pg_content = "Auto forwarded from /" + this_pg_name + "<hr>" + "/" + fwd_full_page_name + ":\n\n"
@@ -175,9 +175,9 @@ module ClWiki
       end
     end
 
-    def update_content(newcontent, modTime)
+    def update_content(newcontent, mtime)
       wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
-      wikiFile.clientLastReadModTime = modTime
+      wikiFile.clientLastReadModTime = mtime
       wikiFile.content = newcontent
       if $wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO
         wikiIndexClient = ClWiki::IndexClient.new
@@ -253,7 +253,7 @@ module ClWiki
 
       custom_footer = process_custom_footers(page)
 
-      wikiName, modTime = page.full_name, page.modTime
+      wikiName, modTime = page.full_name, page.mtime
       if modTime
         update = 'last update: ' + modTime.strftime($DATE_TIME_FORMAT)
       else

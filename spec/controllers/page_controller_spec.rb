@@ -1,6 +1,17 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
+require 'tmpdir'
+
 describe PageController do
+  before do
+    $wiki_path = Dir.mktmpdir
+  end
+
+  after do
+    FileUtils.remove_entry_secure $wiki_path
+    $wiki_path = $wiki_conf.wiki_path
+  end
+
   it 'should render /FrontPage by default' do
     get :show
 
@@ -16,7 +27,43 @@ describe PageController do
     page.content.should =~ /Describe.*NewPage.*here/
   end
 
+  it 'should allow editing of a page' do
+    get :edit, :page_name => 'NewPage'
+
+    page = assigns(:page)
+    page.full_name.should == '/NewPage'
+    page.raw_content.should == 'Describe NewPage here.'
+  end
+
+  it 'should accept posted changes to a page' do
+    get :edit, :page_name => 'NewPage'
+    page = assigns(:page)
+
+    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i
+
+    page = assigns(:page)
+    page.read_raw_content
+    page.raw_content.should == 'NewPage content'
+    assert_redirected_to page_show_url
+  end
+
+  it 'should also accept posted changes to a page and continue editing' do
+    get :edit, :page_name => 'NewPage'
+    page = assigns(:page)
+
+    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i, :save_and_edit => true
+
+    page = assigns(:page)
+    page.read_raw_content
+    page.raw_content.should == 'NewPage content'
+    assert_redirected_to page_edit_url
+  end
+
+  it 'should handle multiple edit situation' # see legacy test test_multi_user_edit below
+
   it 'should redirect to front page on bad page name'
+
+  it 'should redirect to front page on non-existent page if not editable'
 end
 
 def build_expected_content(full_page_name, content = "")

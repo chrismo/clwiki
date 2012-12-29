@@ -17,7 +17,7 @@ def read_page(pageName)
       content << "\n" + pageName + "\n" + ("=" * pageName.length) + "\n"
       page = ClWikiPage.new(pageName, @wikiPath)
       page.read_raw_content
-      formatter = ClWikiPageFormatter.new(page.rawContent, pageName)
+      formatter = ClWikiPageFormatter.new(page.raw_content, pageName)
       content << formatter.formatLinks do |word|
         if formatter.isWikiName?(word)
           wikiPageName = word

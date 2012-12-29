@@ -132,7 +132,7 @@ class Cron
           ref_page.read_raw_content
           content << ref_page_full_name << "\n" <<
             ('-' * ref_page_full_name.length) << "\n\n" <<
-            ref_page.rawContent << "\n"
+            ref_page.raw_content << "\n"
         end
       end
     end

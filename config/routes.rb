@@ -5,7 +5,9 @@ ClWiki::Application.routes.draw do
 
   match '/clwikicgi.rb', to: 'page#show', via: [:get], as: 'legacy'
 
-  get '/:page_name' => 'page#show', as: 'page'
+  get '/:page_name' => 'page#show', as: 'page_show'
+  get '/:page_name/edit' => 'page#edit', as: 'page_edit'
+  post '/:page_name' => 'page#update'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

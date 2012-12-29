@@ -78,7 +78,7 @@ module ClWiki
           pg.delete
           remove_page_from_index(fullName)
         else
-          formatter = ClWiki::PageFormatter.new(pg.rawContent, fullName)
+          formatter = ClWiki::PageFormatter.new(pg.raw_content, fullName)
           formatter.formatLinks do |word|
             if formatter.is_wiki_name?(word)
               word = formatter.expand_path(word, fullName)
@@ -90,7 +90,7 @@ module ClWiki
           add_to_index(fullName, fullName)
           add_to_pages(fullName)
 
-          add_to_recent(pg.modTime, fullName)
+          add_to_recent(pg.mtime, fullName)
         end
       end
     end

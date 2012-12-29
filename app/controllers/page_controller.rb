@@ -14,6 +14,18 @@ class PageController < ApplicationController
     @page
   end
 
+  def edit
+    @page = ClWiki::Page.new(@page_name)
+    @page.read_raw_content
+    @page
+  end
+
+  def update
+    @page = ClWiki::Page.new(@page_name)
+    @page.update_content(params[:page_content], Time.at(params[:client_mod_time].to_s.to_i))
+    redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.full_name[1..-1]) : page_show_url(:page_name => @page.full_name[1..-1])
+  end
+
   def front_page_name
     '/FrontPage'
   end
@@ -21,7 +33,7 @@ class PageController < ApplicationController
   def redirect_legacy_cgi_urls
     # $stderr.puts "request.path_info #{request.path_info} legacy_path #{legacy_path}"
     if request.path_info == legacy_path
-      redirect_to page_url(:page_name => params[:page][1..-1])
+      redirect_to page_show_url(:page_name => params[:page][1..-1])
     end
   end
 
