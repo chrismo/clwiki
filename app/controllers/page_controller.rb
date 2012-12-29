@@ -1,11 +1,11 @@
 require 'clwiki/page'
 
-class WikiController < ApplicationController
+class PageController < ApplicationController
   before_filter :redirect_legacy_cgi_urls
   before_filter :initialize_formatter
   before_filter :front_page_if_bad_name
 
-  def index
+  def show
     #if !$wiki_conf.editable and !ClWiki::Page.page_exists?(@page_name)
     #  @wiki_page = front_page_name
     #end

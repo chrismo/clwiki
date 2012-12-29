@@ -1,15 +1,15 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe WikiController do
+describe PageController do
   it 'should render /FrontPage by default' do
-    get :index
+    get :show
 
     page = assigns(:page)
     page.full_name.should == '/FrontPage'
   end
 
   it 'should render /NewPage with new content prompt' do
-    get :index, :page_name => 'NewPage'
+    get :show, :page_name => 'NewPage'
 
     page = assigns(:page)
     page.full_name.should == '/NewPage'
