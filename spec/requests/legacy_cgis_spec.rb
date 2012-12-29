@@ -1,10 +1,15 @@
 require 'spec_helper'
 
 describe "Legacy CGI url support" do
-  it "works! (now write some real specs)" do
-    # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
+  it "should redirect legacy show url" do
     get legacy_path, :page => '/ChrisMorris'
 
-    response.status.should be(302)
+    assert_redirected_to page_show_url(:page_name => 'ChrisMorris')
+  end
+
+  it "should redirect legacy edit url" do
+    get legacy_path, :page => '/ChrisMorris', :edit => 'true'
+
+    assert_redirected_to page_edit_url(:page_name => 'ChrisMorris')
   end
 end

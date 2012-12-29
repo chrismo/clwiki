@@ -200,7 +200,6 @@ module ClWiki
         f.mtime
       end
       if mtime_to_compare != current_mtime
-        $stderr.puts "mtime_to_compare #{mtime_to_compare} current_mtime #{current_mtime}"
         raise FileModifiedSinceRead, "File has been modified since it was last read."
       end
     end

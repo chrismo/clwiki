@@ -2,6 +2,7 @@ require 'cgi'
 require 'singleton'
 
 require File.dirname(__FILE__) + '/file'
+require File.dirname(__FILE__) + '/find_in_file'
 
 $NO_WIKI_LINKS = "NoWikiLinks"
 $NO_WIKI_LINKS_START = '<' + $NO_WIKI_LINKS + '>'
@@ -506,10 +507,16 @@ module ClWiki
       if ClWiki::Page.page_exists?(pageFullName)
         format_for_dir_and_page_links(pageFullName, pageName)
       else
-        @wikiIndex = ClWiki::IndexClient.new if @wikiIndex.nil?
-        titles_only = true
-        hits = @wikiIndex.search(pageName, titles_only)
-        hits = GlobalHitReducer.reduce_to_exact_if_exists(pageName, hits)
+        if $wiki_conf.useIndex == ClWiki::Configuration::USE_INDEX_NO
+          finder = FindInFile.new($wiki_path)
+          finder.find(pageName, FindInFile::FILE_NAME_ONLY)
+          hits = finder.files.collect { |f| f.sub($wikiPageExt, '') }
+        else
+          @wikiIndex = ClWiki::IndexClient.new if @wikiIndex.nil?
+          titles_only = true
+          hits = @wikiIndex.search(pageName, titles_only)
+          hits = GlobalHitReducer.reduce_to_exact_if_exists(pageName, hits)
+        end
 
         case hits.length
           when 0
@@ -521,8 +528,7 @@ module ClWiki
         end
 
         if ($wiki_conf.editable) && ((hits.length == 0) || ($wiki_conf.global_edits))
-          result <<
-              "<a href=#{cgifn}?page=" + pageFullName + "&edit=true>?</a>"
+          result << "<a href=#{cgifn}?page=" + pageFullName + "&edit=true>?</a>"
         end
         result
       end

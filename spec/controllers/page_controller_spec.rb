@@ -64,6 +64,8 @@ describe PageController do
   it 'should redirect to front page on bad page name'
 
   it 'should redirect to front page on non-existent page if not editable'
+
+  it 'should render title and headers on show and edit' # <= move to view spec
 end
 
 def build_expected_content(full_page_name, content = "")

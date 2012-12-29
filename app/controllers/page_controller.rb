@@ -31,9 +31,13 @@ class PageController < ApplicationController
   end
 
   def redirect_legacy_cgi_urls
-    # $stderr.puts "request.path_info #{request.path_info} legacy_path #{legacy_path}"
     if request.path_info == legacy_path
-      redirect_to page_show_url(:page_name => params[:page][1..-1])
+      case
+        when request.query_parameters.include?('edit')
+          redirect_to page_edit_url(:page_name => params[:page][1..-1])
+        else
+          redirect_to page_show_url(:page_name => params[:page][1..-1])
+      end
     end
   end
 
