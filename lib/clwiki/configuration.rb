@@ -1,6 +1,7 @@
-$defaultConfFile = 'clwiki.conf'
-
 require File.dirname(__FILE__) + '/index'
+require 'yaml'
+
+$defaultConfFile = 'clwiki.yml'
 
 module ClWiki
   class Configuration
@@ -129,23 +130,37 @@ module ClWiki
       end
     end
 
-    def initialize
-      @cgifn = 'clwikicgi.rb'
-      @url_prefix = '/'
-      @indexPort = ClWiki::Indexer.defaultPort
-      @default_recent_changes_name = "Recent Changes"
-      @recent_changes_name = @default_recent_changes_name
-      @stats_name = "Hit Counts"
-      @useGmt = false
-      @publishTag = '<publish>'
-      @useIndexForPageExists = false
-      @enable_cvs = false
-      @showSourceLink = false
-      @cgifn_from_rss = 'blogki.rb'
-      @edit_rows = 25
-      @edit_cols = 80
-      @access_log_index = false
-      @index_log_fn = nil
+    def self.load(filename=$defaultConfFile)
+      $wiki_conf = self.new(YAML::load(::File.open(filename)))
+      $wiki_path = $wiki_conf.wiki_path
+      $wiki_conf
+    end
+
+    def initialize(hash={})
+      default_hash.merge(hash).each do |k, v|
+        instance_variable_set(:"@#{k.to_s}", v)
+      end
+    end
+
+    def default_hash
+      {
+          :url_prefix => '/',
+          :indexPort => ClWiki::Indexer.defaultPort,
+          :cgifn => 'clwikicgi.rb',
+          :default_recent_changes_name => "Recent Changes",
+          :recent_changes_name => "Recent Changes",
+          :stats_name => "Hit Counts",
+          :useGmt => false,
+          :publishTag => '<publish>',
+          :useIndexForPageExists => false,
+          :enable_cvs => false,
+          :showSourceLink => false,
+          :cgifn_from_rss => 'blogki.rb',
+          :edit_rows => 25,
+          :edit_cols => 80,
+          :access_log_index => false,
+          :index_log_fn => nil
+      }
     end
 
     def default_recent_changes_name=(value)
@@ -171,53 +186,5 @@ module ClWiki
     end
 
     alias recent_changes_name recentChangesName
-
-    def self.scan_conf_lines(confLines, tag)
-      confLines.grep(/^#{tag}/).join.scan(/^#{tag} (.*)/)
-    end
-
-    def self.set_value(item_name, conf_lines)
-      value = self.scan_conf_lines(conf_lines, item_name).join
-      $wiki_conf.send(item_name + '=', value) if !value.empty?
-    end
-
-    def self.load_xml(fileName=$defaultConfFile)
-      if !$wiki_conf
-        $wiki_conf = ClWiki::Configuration.new
-        confLines = ::File.readlines(fileName)
-
-        # refactor this away to just read whatever item names are found in
-        # the file
-        ClWiki::Configuration.set_value('wiki_path', confLines)
-        ClWiki::Configuration.set_value('useIndex', confLines)
-        ClWiki::Configuration.set_value('useIndexForPageExists', confLines)
-        ClWiki::Configuration.set_value('editable', confLines)
-        ClWiki::Configuration.set_value('indexPort', confLines)
-        ClWiki::Configuration.set_value('cssHref', confLines)
-        ClWiki::Configuration.set_value('template', confLines)
-        ClWiki::Configuration.set_value('recentChangesName', confLines)
-        ClWiki::Configuration.set_value('publishTag', confLines)
-        ClWiki::Configuration.set_value('showSourceLink', confLines)
-        ClWiki::Configuration.set_value('cgifn_from_rss', confLines)
-
-        ClWiki::Configuration.set_value('enable_cvs', confLines)
-        ClWiki::Configuration.set_value('cvs_log', confLines)
-
-        ClWiki::Configuration.set_value('edit_rows', confLines)
-        ClWiki::Configuration.set_value('edit_cols', confLines)
-
-        ClWiki::Configuration.set_value('access_log_index', confLines)
-
-        ClWiki::Configuration.set_value('index_log_fn', confLines)
-
-        $wiki_path = $wiki_conf.wiki_path
-      end
-      $wiki_conf
-    end
   end
-end
-
-if __FILE__ == $0
-  ClWiki::Configuration.load_xml
-  p $wiki_conf
 end

@@ -1,0 +1,78 @@
+production:
+  # path to the root directory that stores the page files
+  wiki_path: wikirep
+
+  # useIndex can be one of the three numbers:
+  #  0 No Index
+  #  1 DRb Index Server
+  #  2 Local Index Server
+
+  useIndex: 0
+
+  # useIndexForPageExists determines if the index is referenced for
+  # determining if a page exists rather than querying the file system. In
+  # some cases, the file system (due to OS caching and whatnot) outperforms
+  # the index. This option is ignored if useIndex is set to No Index.
+
+  useIndexForPageExists: false
+
+  # the port the DRb Index Server uses. This setting is irrelevant if
+  # useIndex is anything other than 1
+
+  # indexPort: 9111
+
+  # set this to false for a read-only wiki. Useful with Blogki
+
+  editable: false
+
+  # enable this option to use an external style sheet
+
+  # cssHref http://www.my.domain/stylesheet.css
+
+  # enable this option to have the wiki rendered in a template. See the
+  # sample.template.htm file for how to use this option. (NOTE: this is a
+  # BETA option -- probably not even a sample.template.htm included in the
+  # distribution)
+
+  # template mytemplate.htm
+
+  # <publish> is the default tag to flag a page for display via Blogki.
+  # You can customize this here. This is especially useful for setting up
+  # multiple Blogki's all using the same clWiki repository.
+  #
+  # To auto-publish every page, use *
+  #
+  #  publishTag *
+
+  # publishTag <publish>
+
+  # showSourceLink can be turned on to add a page link in the footer that
+  # is a file:// url direct to the raw page. Default is false.
+
+  # showSourceLink true
+
+  # set enable_cvs to true to have page writes committed to cvs. To get
+  # this working, you must have cvs.exe on the path and your wiki repository
+  # must be a checked out copy from cvs.
+  #
+  enable_cvs: false
+
+  # log file for cvs output. If none is specified, of course, no logging
+  # will occur
+  #
+  # cvs_log clwiki.cvs.log
+
+test:
+  wiki_path: tmp/testrep
+  useIndex: 0
+  useIndexForPageExists: false
+  editable: true
+  enable_cvs: false
+
+development:
+  # path to the root directory that stores the page files
+  wiki_path: test/fixtures/testrep
+  useIndex: 0
+  useIndexForPageExists: false
+  editable: true
+  enable_cvs: false
