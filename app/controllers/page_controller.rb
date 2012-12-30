@@ -6,9 +6,6 @@ class PageController < ApplicationController
   before_filter :front_page_if_bad_name
 
   def show
-    #if !$wiki_conf.editable and !ClWiki::Page.page_exists?(@page_name)
-    #  @wiki_page = front_page_name
-    #end
     @page = ClWiki::Page.new(@page_name)
     @page.read_content
     @page
@@ -44,11 +41,17 @@ class PageController < ApplicationController
   def front_page_if_bad_name
     page_name = params[:page_name]
     @page_name = if (page_name.blank?) || (!@formatter.is_wiki_name?(page_name))
-                   wiki_name = front_page_name
+                   front_page_name
+                 elsif !$wiki_conf.editable && !ClWiki::Page.page_exists?(ensure_slash_prefix(page_name))
+                   front_page_name
                  else
                    page_name
                  end
-    @page_name = '/' + @page_name if @page_name[0..0] != '/'
+    @page_name = ensure_slash_prefix(@page_name)
+  end
+
+  def ensure_slash_prefix(page_name)
+    page_name[0..0] != '/' ? "/#{page_name}" : page_name
   end
 
   def initialize_formatter

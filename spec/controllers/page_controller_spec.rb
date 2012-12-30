@@ -10,6 +10,7 @@ describe PageController do
   after do
     FileUtils.remove_entry_secure $wiki_path
     $wiki_path = $wiki_conf.wiki_path
+    $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
   end
 
   it 'should render /FrontPage by default' do
@@ -61,9 +62,20 @@ describe PageController do
 
   it 'should handle multiple edit situation' # see legacy test test_multi_user_edit below
 
-  it 'should redirect to front page on bad page name'
+  it 'should redirect to front page on bad page name' do
+    get :show, :page_name => 'notavalidname'
 
-  it 'should redirect to front page on non-existent page if not editable'
+    page = assigns(:page)
+    page.full_name.should == '/FrontPage'
+  end
+
+  it 'should redirect to front page on non-existent page if not editable' do
+    $wiki_conf.editable = false
+    get :show, :page_name => 'NewPage'
+
+    page = assigns(:page)
+    page.full_name.should == '/FrontPage'
+  end
 
   it 'should render title and headers on show and edit' # <= move to view spec
 end

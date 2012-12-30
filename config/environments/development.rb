@@ -25,4 +25,7 @@ ClWiki::Application.configure do
 
   # Debug mode disables concatenation and preprocessing of assets.
   config.assets.debug = true
+
+  # see http://edgeguides.rubyonrails.org/asset_pipeline.html#local-precompilation
+  config.assets.prefix = "/dev-assets"
 end
