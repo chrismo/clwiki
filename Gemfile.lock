@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: git://github.com/rails/rails.git
-  revision: 6b18a79abe03046e5f572df26fc201958d5b2d0b
+  revision: 3755a496d7cb716d4a9451e7eb5b3716fc2157cb
   specs:
     actionmailer (4.0.0.beta)
       actionpack (= 4.0.0.beta)
@@ -81,7 +81,7 @@ GIT
 
 GIT
   remote: git://github.com/rspec/rspec-core.git
-  revision: f273be379551b9ecaa2b526152e58703af3f862b
+  revision: cc2e56fdd9b5f2cdc01295b3ad7154bdb5f7ee52
   specs:
     rspec-core (2.12.2)
 

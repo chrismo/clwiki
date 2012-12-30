@@ -2,7 +2,6 @@ ClWiki::Application.routes.draw do
   root to: 'page#show'
 
   # legacy CGI
-
   match '/clwikicgi.rb', to: 'page#show', via: [:get], as: 'legacy'
 
   get '/:page_name' => 'page#show', as: 'page_show'
