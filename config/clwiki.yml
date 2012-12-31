@@ -1,6 +1,6 @@
 production:
   # path to the root directory that stores the page files
-  wiki_path: wikirep
+  wiki_path: test/fixtures/testrep
 
   # useIndex can be one of the three numbers:
   #  0 No Index

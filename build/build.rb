@@ -1,3 +1,5 @@
+raise 'deprecated' # TODO: kill build.rb
+
 require 'ftools'
 require 'fileutils'
 require 'rubygems'

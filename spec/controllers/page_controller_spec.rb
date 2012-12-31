@@ -2,8 +2,16 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 require 'tmpdir'
 
-describe PageController do
+describe ClWiki::PageController do
   before do
+    @routes = ClWiki::Engine.routes
+
+    # TODO: being an Engine fouls with this somehow ... or maybe the intent was to have
+    # controller tests in the dummy application itself ... ?!
+    def @controller.default_url_options
+      { :host => 'foo.com' }
+    end
+
     $wiki_path = Dir.mktmpdir
   end
 
@@ -45,7 +53,7 @@ describe PageController do
     page = assigns(:page)
     page.read_raw_content
     page.raw_content.should == 'NewPage content'
-    assert_redirected_to page_show_url
+    assert_redirected_to page_show_url(:page_name => 'NewPage', :host => 'foo.com')
   end
 
   it 'should also accept posted changes to a page and continue editing' do
@@ -57,7 +65,7 @@ describe PageController do
     page = assigns(:page)
     page.read_raw_content
     page.raw_content.should == 'NewPage content'
-    assert_redirected_to page_edit_url
+    assert_redirected_to page_edit_url(:page_name => 'NewPage', :host => 'foo.com')
   end
 
   it 'should handle multiple edit situation' # see legacy test test_multi_user_edit below

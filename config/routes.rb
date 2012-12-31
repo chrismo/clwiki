@@ -1,4 +1,4 @@
-ClWiki::Application.routes.draw do
+ClWiki::Engine.routes.draw do
   root to: 'page#show'
 
   # legacy CGI
