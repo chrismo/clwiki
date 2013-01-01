@@ -29,7 +29,7 @@ module ClWiki
     end
 
     def redirect_legacy_cgi_urls
-      if request.path_info == legacy_path
+      if request.fullpath.start_with?(legacy_path)
         case
           when request.query_parameters.include?('edit')
             redirect_to page_edit_url(:page_name => params[:page][1..-1])

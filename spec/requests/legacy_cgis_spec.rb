@@ -1,24 +1,15 @@
 require 'spec_helper'
 
 describe "Legacy CGI url support" do
-  before do
-    @routes = ClWiki::Engine.routes
-
-    # TODO: or maybe the bit about :only_path needing to be set somewheres?
-    def @controller.default_url_options
-      { :host => 'foo.com' }
-    end
-  end
-
   it "should redirect legacy show url" do
-    get legacy_path, :page => '/ChrisMorris'
+    get legacy_path, use_route: :cl_wiki, :page => '/ChrisMorris'
 
-    assert_redirected_to page_show_url(:page_name => 'ChrisMorris', :host => 'foo.com')
+    assert_redirected_to page_show_path(:page_name => 'ChrisMorris')
   end
 
   it "should redirect legacy edit url" do
-    get legacy_path, :page => '/ChrisMorris', :edit => 'true'
+    get legacy_path, use_route: :cl_wiki, :page => '/ChrisMorris', :edit => 'true'
 
-    assert_redirected_to page_edit_url(:page_name => 'ChrisMorris', :host => 'foo.com')
+    assert_redirected_to page_edit_path(:page_name => 'ChrisMorris')
   end
 end

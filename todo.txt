@@ -5,7 +5,3 @@
 
   - assets not accessible in dev env. they're name spaced, but nothing's returning them?
     - serve_static_assets appears to default to true down deep - there's no setting in development.rb in dummy app.
-
-  - specs now being run - but problems with legacy, plus the weirdness I had to patch in
-    in regard to setting @routes and @controller.default_url_options. Is the intent to
-    write engine controller tests inside the dummy app?

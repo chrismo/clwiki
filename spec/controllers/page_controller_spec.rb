@@ -4,14 +4,6 @@ require 'tmpdir'
 
 describe ClWiki::PageController do
   before do
-    @routes = ClWiki::Engine.routes
-
-    # TODO: being an Engine fouls with this somehow ... or maybe the intent was to have
-    # controller tests in the dummy application itself ... ?!
-    def @controller.default_url_options
-      { :host => 'foo.com' }
-    end
-
     $wiki_path = Dir.mktmpdir
   end
 
@@ -22,14 +14,14 @@ describe ClWiki::PageController do
   end
 
   it 'should render /FrontPage by default' do
-    get :show
+    get :show, use_route: :cl_wiki
 
     page = assigns(:page)
     page.full_name.should == '/FrontPage'
   end
 
   it 'should render /NewPage with new content prompt' do
-    get :show, :page_name => 'NewPage'
+    get :show, use_route: :cl_wiki, :page_name => 'NewPage'
 
     page = assigns(:page)
     page.full_name.should == '/NewPage'
@@ -37,7 +29,7 @@ describe ClWiki::PageController do
   end
 
   it 'should allow editing of a page' do
-    get :edit, :page_name => 'NewPage'
+    get :edit, use_route: :cl_wiki, :page_name => 'NewPage'
 
     page = assigns(:page)
     page.full_name.should == '/NewPage'
@@ -45,33 +37,33 @@ describe ClWiki::PageController do
   end
 
   it 'should accept posted changes to a page' do
-    get :edit, :page_name => 'NewPage'
+    get :edit, use_route: :cl_wiki, :page_name => 'NewPage'
     page = assigns(:page)
 
-    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i
+    post :update, use_route: :cl_wiki, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i
 
     page = assigns(:page)
     page.read_raw_content
     page.raw_content.should == 'NewPage content'
-    assert_redirected_to page_show_url(:page_name => 'NewPage', :host => 'foo.com')
+    assert_redirected_to page_show_path(:page_name => 'NewPage', :host => 'foo.com')
   end
 
   it 'should also accept posted changes to a page and continue editing' do
-    get :edit, :page_name => 'NewPage'
+    get :edit, use_route: :cl_wiki, :page_name => 'NewPage'
     page = assigns(:page)
 
-    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i, :save_and_edit => true
+    post :update, use_route: :cl_wiki, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i, :save_and_edit => true
 
     page = assigns(:page)
     page.read_raw_content
     page.raw_content.should == 'NewPage content'
-    assert_redirected_to page_edit_url(:page_name => 'NewPage', :host => 'foo.com')
+    assert_redirected_to page_edit_path(:page_name => 'NewPage')
   end
 
   it 'should handle multiple edit situation' # see legacy test test_multi_user_edit below
 
   it 'should redirect to front page on bad page name' do
-    get :show, :page_name => 'notavalidname'
+    get :show, use_route: :cl_wiki, :page_name => 'notavalidname'
 
     page = assigns(:page)
     page.full_name.should == '/FrontPage'
@@ -79,7 +71,7 @@ describe ClWiki::PageController do
 
   it 'should redirect to front page on non-existent page if not editable' do
     $wiki_conf.editable = false
-    get :show, :page_name => 'NewPage'
+    get :show, use_route: :cl_wiki, :page_name => 'NewPage'
 
     page = assigns(:page)
     page.full_name.should == '/FrontPage'
