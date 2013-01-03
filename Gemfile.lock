@@ -122,7 +122,9 @@ GIT
 PATH
   remote: .
   specs:
-    clWiki (2.0.0)
+    clwiki (2.0.0)
+      clindex
+      clutil
 
 GEM
   remote: https://rubygems.org/
@@ -187,9 +189,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-deprecated_finders!
   arel!
-  clWiki!
-  clindex
-  clutil
+  clwiki!
   coffee-rails!
   jquery-rails
   rails!

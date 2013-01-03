@@ -5,7 +5,7 @@ require "cl_wiki/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "clWiki"
+  s.name        = "clwiki"
   s.version     = ClWiki::VERSION
   s.authors     = %w(chrismo)
   s.email       = %w(chrismo@clabs.org)
@@ -15,6 +15,9 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
+
+  s.add_dependency 'clutil'
+  s.add_dependency 'clindex'
 
   # s.add_dependency "rails", git: 'git://github.com/rails/rails.git'
   # s.add_dependency "jquery-rails"

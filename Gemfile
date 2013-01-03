@@ -26,9 +26,6 @@ gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
 
-gem 'clindex'
-gem 'clutil'
-
 group :development, :test do
   gem "rspec-rails",        :git => "git://github.com/rspec/rspec-rails.git"
   gem "rspec",              :git => "git://github.com/rspec/rspec.git"
