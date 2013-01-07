@@ -1,6 +1,6 @@
 production:
   # path to the root directory that stores the page files
-  wiki_path: test/fixtures/testrep
+  wiki_path: wikirep
 
   # useIndex can be one of the three numbers:
   #  0 No Index
@@ -71,7 +71,7 @@ test:
 
 development:
   # path to the root directory that stores the page files
-  wiki_path: test/fixtures/testrep
+  wiki_path: wikirep
   useIndex: 0
   useIndexForPageExists: false
   editable: true

@@ -15,47 +15,6 @@
 
 body {
     font-family: "Verdana", Arial, serif;
-    background-color: #F8F8FF
-}
-
-.small {
-    font-size: smaller
-}
-
-.smaller {
-    font-size: x-small
-}
-
-.newheader {
-    text-align: right
-}
-
-.pageheader {
-    font-size: large;
-    font-weight: bold;
-    text-align: center
-}
-
-.grpheader {
-    font-size: medium;
-    text-align: center;
-    background-color: #E8E8E8
-}
-
-a.dots:link {
-    text-decoration: none
-}
-
-a.dots:visited {
-    text-decoration: none
-}
-
-a.dots:hover {
-    text-decoration: underline
-}
-
-.legenddt {
-    font-style: italic
 }
 
 td {
