@@ -12,32 +12,42 @@
  *= require_tree .
  */
 
-
 body {
     font-family: "Verdana", Arial, serif;
 }
 
-td {
-    font-size: small
+a:link {
+    color: #00f;
+    text-decoration: none;
 }
 
-/* Wiki body text */
-pre {
+a:visited {
+    color: #00f;
+}
+
+a:hover {
+    color: #77f;
+}
+
+a:active {
+    color: #77f;
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    display: inline;
+    padding-right: 10px;
+}
+
+.wikiBody {
+    font-size: small;
+}
+
+.wikiBody.pre {
     font-size: 125%;
 }
 
-table {
-    padding-left: 10px;
-    width: 846px;
-    margin: auto;
-    background-color: #e8e8ef;
-    box-shadow: 9px 9px 9px #eee;
-}
-
-#disqus_thread {
-    padding: 10px;
-    width: 846px;
-    margin: auto;
-    background-color: #fff;
-    box-shadow: 9px 9px 9px #eee;
-}
+.wikiPageData

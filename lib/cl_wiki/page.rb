@@ -230,14 +230,14 @@ module ClWiki
           (fullPageName != $FIND_RESULTS_NAME) and
           (fullPageName != $wiki_conf.recent_changes_name) and
           (fullPageName != $wiki_conf.stats_name)
-        head = "<span class='parentPageNames'>//"
+        head = "<span class='pageName'><a href=#{cgifn}?find=true&searchText=#{searchText}&type=full>#{pageName}</a></span><br><br>"
         fulldirs.each do |dir|
-          head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a>/"
+          head << "<span class='pageTag'>"
+          head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a></span>"
         end
         head << "<br>"
-        head << "<span class='pageName'><a href=#{cgifn}?find=true&searchText=#{searchText}&type=full>#{pageName}</a></span></span><br><br>"
       else
-        "<h2>" + fullPageName + "</h2>"
+        "<span class='pageName'>" + fullPageName + "</span>"
       end
     end
 
@@ -271,27 +271,21 @@ module ClWiki
       end
 
       # refactor string constants
-      footer = "<hr/>"
-      footer << "<table border=0 width='100%'><tr><td align=left>"
+      footer = ""
+      footer << "<ul>"
       if (wikiName != $FIND_PAGE_NAME) and
           (wikiName != $FIND_RESULTS_NAME) and
           (wikiName != $wiki_conf.recent_changes_name) and
           (wikiName != $wiki_conf.stats_name)
         if $wiki_conf.editable
-          footer << ("| <a href=#{cgifn}?page=" + wikiName + "&edit=true>Edit</a> ")
-        end
-        footer << ("| <a href='#{mailto_url}'>Email</a> ")
-        footer << "| <a href=#{reload_url}>Reload</a> <a href=#{reload_url(true)}>?</a> "
-        if $wiki_conf.showSourceLink
-          footer << "| <a href=#{src_url}>Source</a> "
+          footer << ("<li><span class='wikiAction'><a href=#{cgifn}?page=" + wikiName + "&edit=true>Edit</a></span></li>")
         end
       end
-      footer << "|| <a href=#{cgifn}?find=true>Find</a> "
-      footer << "| <a href=#{cgifn}?recent=true>Recent</a> "
-      footer << "| <a href=#{cgifn}?stats=true>Stats</a> " if $wiki_conf.access_log_index
-      footer << "| <a href=#{cgifn}?page=/FrontPage>Home</a> "
-      footer << "| <a href=#{cgifn}?about=true>About</a> " if wikiName == "/FrontPage"
-      footer << "</td><td align=right>#{update}</td></tr></table>"
+      footer << "<li><span class='wikiAction'><a href=#{cgifn}?find=true>Find</a></span></li>"
+      footer << "<li><span class='wikiAction'><a href=#{cgifn}?recent=true>Recent</a></span></li>"
+      footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wikiName == "/FrontPage"
+      footer << "<li><span class='wikiPageData'>#{update}</span></li>"
+      footer << "</ul>"
       return custom_footer << footer
     end
 
