@@ -15,8 +15,6 @@ $HTML_END = '</' + $HTML + '>'
 $FIND_PAGE_NAME = "Find Page"
 $FIND_RESULTS_NAME = "Find Results"
 
-$DATE_TIME_FORMAT = "%a&nbsp;%b&nbsp;%d&nbsp;%Y %I:%M&nbsp;%p"
-
 module ClWiki
   class Page
     attr_reader :content, :mtime, :name, :full_name, :pagePath, :raw_content,
@@ -116,14 +114,14 @@ module ClWiki
       [content, final_page_name]
     end
 
-    def read_content(includeHeaderAndFooter=true, include_diff=false)
+    def read_content(include_header_and_footer=true, include_diff=false)
       read_page_attributes
       @content, final_page_name = read_raw_content_with_forwarding(@full_name)
       process_custom_renderers
       convert_newline_to_br
-      f = ClWiki::PageFormatter.new(content, final_page_name)
-      @content = f.formatLinks
-      if includeHeaderAndFooter
+      f = ClWiki::PageFormatter.new(@content, final_page_name)
+      @content = "<div class='wikiBody'>#{f.formatLinks}</div>"
+      if include_header_and_footer
         @content = get_header + @content + get_footer
       end
       @content = CLabs::WikiDiffFormatter.format_diff(@wikiFile.diff) + @content if include_diff
@@ -140,7 +138,7 @@ module ClWiki
 
     def get_header
       f = ClWiki::PageFormatter.new(nil, @full_name)
-      f.header(@full_name)
+      f.header(@full_name, self)
     end
 
     def get_footer
@@ -218,26 +216,39 @@ module ClWiki
       @full_name
     end
 
-    def header(fullPageName, searchText = '')
-      searchText = ::File.basename(fullPageName) if searchText == ''
-      pagePath, pageName = ::File.split(fullPageName)
-      pagePath = '/' if pagePath == '.'
-      dirs = pagePath.split('/')
+    def header(full_page_name, page = nil)
+      search_text = ::File.basename(full_page_name)
+      page_path, page_name = ::File.split(full_page_name)
+      page_path = '/' if page_path == '.'
+      dirs = page_path.split('/')
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
-      fulldirs = []
+      fulldirs =
       (0..dirs.length-1).each { |i| fulldirs[i] = ('/' + dirs[0..i].join('/')) }
-      if (fullPageName != $FIND_PAGE_NAME) and
-          (fullPageName != $FIND_RESULTS_NAME) and
-          (fullPageName != $wiki_conf.recent_changes_name) and
-          (fullPageName != $wiki_conf.stats_name)
-        head = "<span class='pageName'><a href=#{cgifn}?find=true&searchText=#{searchText}&type=full>#{pageName}</a></span><br><br>"
+      head = "<div class='wikiHeader'>"
+      if (full_page_name != $FIND_PAGE_NAME) and
+          (full_page_name != $FIND_RESULTS_NAME) and
+          (full_page_name != $wiki_conf.recent_changes_name) and
+          (full_page_name != $wiki_conf.stats_name)
+        head << "<span class='pageName'><a href=#{cgifn}?find=true&searchText=#{search_text}&type=full>#{page_name}</a></span><br/>"
         fulldirs.each do |dir|
           head << "<span class='pageTag'>"
           head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a></span>"
         end
-        head << "<br>"
+        head << "<br/>"
+        head << "<span class='wikiPageData'>#{page_update_time(page)}</span><br/>" if page
       else
-        "<span class='pageName'>" + fullPageName + "</span>"
+        head << "<span class='pageName'>" + full_page_name + "</span>"
+      end
+      head << "</div>"
+    end
+
+    def page_update_time(page)
+      mod_time = page.mtime
+      if mod_time
+        update_format = $wiki_conf.page_update_format.gsub(/ /, '&nbsp;')
+        mod_time.strftime(update_format)
+      else
+        ''
       end
     end
 
@@ -254,38 +265,32 @@ module ClWiki
 
       custom_footer = process_custom_footers(page)
 
-      wikiName, modTime = page.full_name, page.mtime
-      if modTime
-        update = 'last update: ' + modTime.strftime($DATE_TIME_FORMAT)
-      else
-        update = ''
-      end
+      wiki_name = page.full_name
 
-      if (wikiName != $FIND_PAGE_NAME) and
-          (wikiName != $FIND_RESULTS_NAME) and
-          (wikiName != $wiki_conf.recent_changes_name) and
-          (wikiName != $wiki_conf.stats_name)
+      if (wiki_name != $FIND_PAGE_NAME) and
+          (wiki_name != $FIND_RESULTS_NAME) and
+          (wiki_name != $wiki_conf.recent_changes_name) and
+          (wiki_name != $wiki_conf.stats_name)
         if $wiki_conf.enable_cvs
-          update = "<a href=#{cgifn}?page=" + wikiName + "&diff=true>diff</a> | " + update
+          update = "<a href=#{cgifn}?page=" + wiki_name + "&diff=true>diff</a> | " + update
         end
       end
 
       # refactor string constants
-      footer = ""
+      footer = "<div class='wikiFooter'>"
       footer << "<ul>"
-      if (wikiName != $FIND_PAGE_NAME) and
-          (wikiName != $FIND_RESULTS_NAME) and
-          (wikiName != $wiki_conf.recent_changes_name) and
-          (wikiName != $wiki_conf.stats_name)
+      if (wiki_name != $FIND_PAGE_NAME) and
+          (wiki_name != $FIND_RESULTS_NAME) and
+          (wiki_name != $wiki_conf.recent_changes_name) and
+          (wiki_name != $wiki_conf.stats_name)
         if $wiki_conf.editable
-          footer << ("<li><span class='wikiAction'><a href=#{cgifn}?page=" + wikiName + "&edit=true>Edit</a></span></li>")
+          footer << ("<li><span class='wikiAction'><a href=#{cgifn}?page=" + wiki_name + "&edit=true>Edit</a></span></li>")
         end
       end
       footer << "<li><span class='wikiAction'><a href=#{cgifn}?find=true>Find</a></span></li>"
       footer << "<li><span class='wikiAction'><a href=#{cgifn}?recent=true>Recent</a></span></li>"
-      footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wikiName == "/FrontPage"
-      footer << "<li><span class='wikiPageData'>#{update}</span></li>"
-      footer << "</ul>"
+      footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wiki_name == "/FrontPage"
+      footer << "</ul></div>"
       return custom_footer << footer
     end
 

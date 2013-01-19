@@ -43,11 +43,25 @@ li {
 }
 
 .wikiBody {
-    font-size: small;
+    font-size: 90%;
+    padding: 20px 20px 20px 20px;
 }
 
 .wikiBody.pre {
     font-size: 125%;
 }
 
-.wikiPageData
+.wikiPageData {
+    font-size: 80%;
+    font-style: italic;
+}
+
+.wikiHeader {
+    font-size: 110%;
+    margin-bottom: 5px;
+}
+
+.wikiFooter {
+    font-size: 90%;
+    margin-bottom: 5px;
+}

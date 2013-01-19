@@ -62,12 +62,17 @@ production:
   #
   # cvs_log clwiki.cvs.log
 
+  # time format for display of last page update
+  #
+  page_update_format: '%B %d, %Y'
+
 test:
   wiki_path: tmp/testrep
   useIndex: 0
   useIndexForPageExists: false
   editable: true
   enable_cvs: false
+  page_update_format: '%B %d, %Y'
 
 development:
   # path to the root directory that stores the page files
@@ -76,3 +81,4 @@ development:
   useIndexForPageExists: false
   editable: true
   enable_cvs: false
+  page_update_format: '%B %d, %Y'

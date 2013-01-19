@@ -12,7 +12,7 @@ module ClWiki
 
     attr_accessor :wiki_path, :cgifn, :indexPort, :cssHref, :template, :useGmt,
                   :publishTag, :url_prefix, :global_edits, :cgifn_from_rss, :stats_name,
-                  :index_log_fn
+                  :index_log_fn, :page_update_format
 
     def wait_on_threads
       # Ruby kills any threads as soon as the main process is done. Any
