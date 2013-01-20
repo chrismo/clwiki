@@ -4,14 +4,6 @@ require 'singleton'
 require File.dirname(__FILE__) + '/file'
 require File.dirname(__FILE__) + '/find_in_file'
 
-$NO_WIKI_LINKS = "NoWikiLinks"
-$NO_WIKI_LINKS_START = '<' + $NO_WIKI_LINKS + '>'
-$NO_WIKI_LINKS_END = '</' + $NO_WIKI_LINKS + '>'
-
-$HTML = "html"
-$HTML_START = '<' + $HTML + '>'
-$HTML_END = '</' + $HTML + '>'
-
 $FIND_PAGE_NAME = "Find Page"
 $FIND_RESULTS_NAME = "Find Results"
 
@@ -340,30 +332,30 @@ module ClWiki
     end
 
     def formatLinks
-      noWikiLinkInEffect = false
-      insideHtmlTags = false
+      no_wiki_link_in_effect = false
+      inside_html_tags = false
 
       gsubWords do |word|
         if (word[0, 1] == '<') and (word[-1, 1] == '>')
           # refactor to class,local constant, instead of global
-          if (word =~ /#{$NO_WIKI_LINKS_START}/i)
-            noWikiLinkInEffect = true
+          if word =~ /#{'<NoWikiLinks>'}/i
+            no_wiki_link_in_effect = true
             word = ''
             # refactor to class,local constant, instead of global
-          elsif (word =~ /#{$NO_WIKI_LINKS_END}/i)
-            noWikiLinkInEffect = false
+          elsif word =~ /#{'</NoWikiLinks>'}/i
+            no_wiki_link_in_effect = false
             word = ''
           end
 
-          if (word =~ /#{$HTML_START}/i)
-            insideHtmlTags = true
+          if word =~ /#{'<html>'}/i
+            inside_html_tags = true
             word = ''
-          elsif (word =~ /#{$HTML_END}/i)
-            insideHtmlTags = false
+          elsif word =~ /#{'</html>'}/i
+            inside_html_tags = false
             word = ''
           end
         elsif is_wiki_name?(word)
-          if !noWikiLinkInEffect and !insideHtmlTags
+          if !no_wiki_link_in_effect and !inside_html_tags
             # code smell here y'all
             word = convertToLink(word) if !block_given?
           end

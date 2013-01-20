@@ -7,5 +7,3 @@ DotTest
 PreTagsTest
 
 AboutClWiki
-
-RedClothTest
