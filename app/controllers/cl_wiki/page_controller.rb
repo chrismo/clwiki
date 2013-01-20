@@ -21,7 +21,7 @@ module ClWiki
     def update
       @page = ClWiki::Page.new(@page_name)
       @page.update_content(params[:page_content], Time.at(params[:client_mod_time].to_s.to_i))
-      redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.full_name[1..-1]) : page_show_url(:page_name => @page.full_name[1..-1])
+      redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.full_name.strip_slash_prefix) : page_show_url(:page_name => @page.full_name.strip_slash_prefix)
     end
 
     def front_page_name
@@ -32,9 +32,9 @@ module ClWiki
       if request.fullpath.start_with?(legacy_path)
         case
           when request.query_parameters.include?('edit')
-            redirect_to page_edit_url(:page_name => params[:page][1..-1])
+            redirect_to page_edit_url(:page_name => params[:page].strip_slash_prefix)
           else
-            redirect_to page_show_url(:page_name => params[:page][1..-1])
+            redirect_to page_show_url(:page_name => params[:page].strip_slash_prefix)
         end
       end
     end
@@ -43,20 +43,26 @@ module ClWiki
       page_name = params[:page_name]
       @page_name = if (page_name.blank?) || (!@formatter.is_wiki_name?(page_name))
                      front_page_name
-                   elsif !$wiki_conf.editable && !ClWiki::Page.page_exists?(ensure_slash_prefix(page_name))
+                   elsif !$wiki_conf.editable && !ClWiki::Page.page_exists?(page_name.ensure_slash_prefix)
                      front_page_name
                    else
                      page_name
                    end
-      @page_name = ensure_slash_prefix(@page_name)
-    end
-
-    def ensure_slash_prefix(page_name)
-      page_name[0..0] != '/' ? "/#{page_name}" : page_name
+      @page_name = @page_name.ensure_slash_prefix
     end
 
     def initialize_formatter
       @formatter = ClWiki::PageFormatter.new
     end
+  end
+end
+
+class String
+  def ensure_slash_prefix
+    self[0..0] != '/' ? "/#{self}" : self
+  end
+
+  def strip_slash_prefix
+    self.gsub(/^\//, '')
   end
 end
