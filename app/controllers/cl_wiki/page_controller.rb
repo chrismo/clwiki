@@ -30,11 +30,12 @@ module ClWiki
 
     def redirect_legacy_cgi_urls
       if request.fullpath.start_with?(legacy_path)
+        page_name = params[:page].split('/')[-1]
         case
           when request.query_parameters.include?('edit')
-            redirect_to page_edit_url(:page_name => params[:page].strip_slash_prefix)
+            redirect_to page_edit_url(:page_name => page_name)
           else
-            redirect_to page_show_url(:page_name => params[:page].strip_slash_prefix)
+            redirect_to page_show_url(:page_name => page_name)
         end
       end
     end
