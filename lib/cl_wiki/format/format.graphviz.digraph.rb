@@ -1,4 +1,4 @@
-class FormatGraphVizDiGraph < ClWikiCustomFormatter
+class FormatGraphVizDiGraph < ClWiki::CustomFormatter
   def FormatGraphVizDiGraph.match_re
     /digraph.*\}/m
   end
@@ -13,4 +13,4 @@ class FormatGraphVizDiGraph < ClWikiCustomFormatter
   end
 end
 
-ClWikiCustomFormatters.instance.register(FormatGraphVizDiGraph)
+ClWiki::CustomFormatters.instance.register(FormatGraphVizDiGraph)

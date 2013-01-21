@@ -1,4 +1,4 @@
-class FormatBlockquote < ClWikiCustomFormatter
+class FormatBlockquote < ClWiki::CustomFormatter
   def FormatBlockquote.match_re
     /\[\].*\[\/\]/m
   end
@@ -12,4 +12,4 @@ class FormatBlockquote < ClWikiCustomFormatter
   end
 end
 
-ClWikiCustomFormatters.instance.register(FormatBlockquote)
+ClWiki::CustomFormatters.instance.register(FormatBlockquote)

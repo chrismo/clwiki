@@ -1,6 +1,6 @@
 require 'cgi'
 
-class FormatPreBlockquote < ClWikiCustomFormatter
+class FormatPreBlockquote < ClWiki::CustomFormatter
   def FormatPreBlockquote.match_re
     /\[p\].*?\[\/p\]/mi
   end
@@ -12,4 +12,4 @@ class FormatPreBlockquote < ClWikiCustomFormatter
   end
 end
 
-ClWikiCustomFormatters.instance.register(FormatPreBlockquote)
+ClWiki::CustomFormatters.instance.register(FormatPreBlockquote)

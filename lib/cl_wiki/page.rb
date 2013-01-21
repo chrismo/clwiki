@@ -121,7 +121,7 @@ module ClWiki
     end
 
     def process_custom_renderers
-      Dir['format/format.*'].each do |fn|
+      Dir[::File.join(::File.dirname(__FILE__), 'format', 'format.*')].each do |fn|
         require fn
       end
 

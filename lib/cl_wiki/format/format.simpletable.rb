@@ -1,4 +1,4 @@
-class FormatSimpleTable < ClWikiCustomFormatter
+class FormatSimpleTable < ClWiki::CustomFormatter
   def FormatSimpleTable.match_re
     /<simpletable.*?>.*?<\/simpletable>/m
   end
@@ -22,4 +22,4 @@ class FormatSimpleTable < ClWikiCustomFormatter
   end
 end
 
-ClWikiCustomFormatters.instance.register(FormatSimpleTable)
+ClWiki::CustomFormatters.instance.register(FormatSimpleTable)

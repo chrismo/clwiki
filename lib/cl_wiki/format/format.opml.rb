@@ -3,7 +3,7 @@ if __FILE__ == $0
   require 'clwikipage'
 end
   
-class FormatOPML < ClWikiCustomFormatter
+class FormatOPML < ClWiki::CustomFormatter
   def FormatOPML.match_re
     /<opml.*?>.*?<\/opml>/m
   end
@@ -29,7 +29,7 @@ class FormatOPML < ClWikiCustomFormatter
   end
 end
 
-ClWikiCustomFormatters.instance.register(FormatOPML)
+ClWiki::CustomFormatters.instance.register(FormatOPML)
 
 if __FILE__ == $0
   sample_opml = <<-OPMLTEXT
