@@ -33,16 +33,6 @@ a:active {
     color: #77f;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0px;
-}
-
-li {
-    display: inline;
-    padding-right: 10px;
-}
-
 .wikiBody {
     font-size: 90%;
     padding: 20px 20px 20px 20px;
@@ -65,4 +55,33 @@ li {
 .wikiFooter {
     font-size: 90%;
     margin-bottom: 5px;
+}
+
+.wikiFooter ul {
+    list-style-type: none;
+    padding: 0px;
+}
+
+.wikiFooter li {
+    display: inline;
+    padding-right: 10px;
+}
+
+.findInput {
+    text-align: center;
+}
+
+.findDetails {
+    text-align: center;
+    font-size: 80%;
+    padding-bottom: 10px;
+}
+
+.findResults {
+text-align: center;
+}
+
+.findResults li {
+    list-style-type: none;
+    padding: 5px;
 }

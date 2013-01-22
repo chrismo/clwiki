@@ -9,17 +9,16 @@ module ClWiki
       @find_path = find_path
     end
 
-    def find(searchText, scope = FULL_SEARCH)
-      # refactor out reg expression duplication
-      recursiveFindPath = ::File.join(@find_path, '**', '*')
-      @files = Dir[recursiveFindPath].grep(/#{searchText}/i)
+    def find(search_text, scope = FULL_SEARCH)
+      recursive_find_path = ::File.join(@find_path, '**', '*')
+      regex = /#{search_text}/i
+      @files = Dir[recursive_find_path].grep(regex)
       if scope == FULL_SEARCH
-        Dir[recursiveFindPath].each do |pathfilename|
-          if ::File.stat(pathfilename).file?
-            f = ::File.open(pathfilename)
+        Dir[recursive_find_path].each do |path_filename|
+          if ::File.stat(path_filename).file?
+            f = ::File.open(path_filename)
             begin
-              # refactor out reg expression duplication
-              @files << pathfilename if f.grep(/#{searchText}/i) != []
+              @files << path_filename if f.grep(regex) != []
             ensure
               f.close unless f.nil?
             end

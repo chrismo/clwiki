@@ -221,7 +221,7 @@ module ClWiki
           (full_page_name != $FIND_RESULTS_NAME) and
           (full_page_name != $wiki_conf.recent_changes_name) and
           (full_page_name != $wiki_conf.stats_name)
-        head << "<span class='pageName'><a href=#{cgifn}?find=true&searchText=#{search_text}&type=full>#{page_name}</a></span><br/>"
+        head << "<span class='pageName'><a href='find?search_text=#{search_text}'>#{page_name}</a></span><br/>"
         fulldirs.each do |dir|
           head << "<span class='pageTag'>"
           head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a></span>"
@@ -259,14 +259,15 @@ module ClWiki
 
       wiki_name = page.full_name
 
-      if (wiki_name != $FIND_PAGE_NAME) and
-          (wiki_name != $FIND_RESULTS_NAME) and
-          (wiki_name != $wiki_conf.recent_changes_name) and
-          (wiki_name != $wiki_conf.stats_name)
-        if $wiki_conf.enable_cvs
-          update = "<a href=#{cgifn}?page=" + wiki_name + "&diff=true>diff</a> | " + update
-        end
-      end
+      #TODO: rip out all CVS stuff
+      #if (wiki_name != $FIND_PAGE_NAME) and
+      #    (wiki_name != $FIND_RESULTS_NAME) and
+      #    (wiki_name != $wiki_conf.recent_changes_name) and
+      #    (wiki_name != $wiki_conf.stats_name)
+      #  if $wiki_conf.enable_cvs
+      #    update = "<a href=#{cgifn}?page=" + wiki_name + "&diff=true>diff</a> | " + update
+      #  end
+      #end
 
       # refactor string constants
       footer = "<div class='wikiFooter'>"
@@ -276,12 +277,12 @@ module ClWiki
           (wiki_name != $wiki_conf.recent_changes_name) and
           (wiki_name != $wiki_conf.stats_name)
         if $wiki_conf.editable
-          footer << ("<li><span class='wikiAction'><a href=#{cgifn}?page=" + wiki_name + "&edit=true>Edit</a></span></li>")
+          footer << ("<li><span class='wikiAction'><a href='" + wiki_name.strip_slash_prefix + "/edit'>Edit</a></span></li>")
         end
       end
-      footer << "<li><span class='wikiAction'><a href=#{cgifn}?find=true>Find</a></span></li>"
-      footer << "<li><span class='wikiAction'><a href=#{cgifn}?recent=true>Recent</a></span></li>"
-      footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wiki_name == "/FrontPage"
+      footer << "<li><span class='wikiAction'><a href='find'>Find</a></span></li>"
+      footer << "<li><span class='wikiAction'><a href='recent'>Recent</a></span></li>"
+      # footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wiki_name == "/FrontPage"
       footer << "</ul></div>"
       return custom_footer << footer
     end
@@ -623,5 +624,15 @@ module CLabs
     def WikiDiffFormatter.format_diff(diff)
       "<b>Diff</b><br><pre>\n#{CGI.escapeHTML(diff)}\n</pre><br><hr=width\"50%\">"
     end
+  end
+end
+
+class String
+  def ensure_slash_prefix
+    self[0..0] != '/' ? "/#{self}" : self
+  end
+
+  def strip_slash_prefix
+    self.gsub(/^\//, '')
   end
 end

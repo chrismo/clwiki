@@ -24,6 +24,33 @@ module ClWiki
       redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.full_name.strip_slash_prefix) : page_show_url(:page_name => @page.full_name.strip_slash_prefix)
     end
 
+    def find
+      @formatter = ClWiki::PageFormatter.new
+      @search_text = params[:search_text]
+      @results = []
+      if @search_text
+        hits = search(@search_text)
+
+        hits.each do |full_name|
+          @formatter.fullName = full_name
+          @results << "#{@formatter.convertToLink(full_name)}"
+        end
+      end
+    end
+
+    def search(text)
+      case $wiki_conf.useIndex
+        when ClWiki::Configuration::USE_INDEX_NO
+          finder = FindInFile.new($wiki_path)
+          finder.find(text)
+          finder.files.collect do |filename|
+            filename.sub($wikiPageExt, '')
+          end
+        else
+          ClWiki::IndexClient.new.search(text)
+      end
+    end
+
     def front_page_name
       '/FrontPage'
     end
@@ -55,15 +82,5 @@ module ClWiki
     def initialize_formatter
       @formatter = ClWiki::PageFormatter.new
     end
-  end
-end
-
-class String
-  def ensure_slash_prefix
-    self[0..0] != '/' ? "/#{self}" : self
-  end
-
-  def strip_slash_prefix
-    self.gsub(/^\//, '')
   end
 end

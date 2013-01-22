@@ -5,12 +5,14 @@ require 'tmpdir'
 describe ClWiki::PageController do
   before do
     $wiki_path = Dir.mktmpdir
+    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
   end
 
   after do
     FileUtils.remove_entry_secure $wiki_path
     $wiki_path = $wiki_conf.wiki_path
     $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
+    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
   end
 
   it 'should render /FrontPage by default' do
@@ -19,6 +21,8 @@ describe ClWiki::PageController do
     page = assigns(:page)
     page.full_name.should == '/FrontPage'
   end
+
+  it 'should render blog view by default if configured'
 
   it 'should render /NewPage with new content prompt' do
     get :show, use_route: :cl_wiki, :page_name => 'NewPage'
@@ -77,7 +81,40 @@ describe ClWiki::PageController do
     page.full_name.should == '/FrontPage'
   end
 
-  it 'should render title and headers on show and edit' # <= move to view spec
+  it 'should render header on edit' # <= view spec?
+
+  it 'should render find entry page' do
+    get :find, use_route: :cl_wiki
+
+    assigns(:formatter).should be_a ClWiki::PageFormatter
+    assigns(:search_text).should == nil
+    assigns(:results).should == []
+  end
+
+  it 'should render find page with results with index'
+  #do
+  #  $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_LOCAL
+  #  PageFixture.write_page('FooBar', 'foobar > QuuxBaz')
+  #  PageFixture.write_page('QuuxBaz', 'quux baz rules')
+  #
+  #  post :find, use_route: :cl_wiki, :search_text => 'quux'
+  #
+  #  assigns(:formatter).should be_a ClWiki::PageFormatter
+  #  assigns(:search_text).should == 'quux'
+  #  assigns(:results).should == ['FooBar', 'QuuxBaz']
+  #end
+
+  it 'should render find page with results without index' do
+    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+    PageFixture.write_page('BarFoo', 'foobar')
+    PageFixture.write_page('BaaRamEwe', 'sheep foobar')
+
+    post :find, use_route: :cl_wiki, :search_text => 'sheep'
+
+    assigns(:formatter).should be_a ClWiki::PageFormatter
+    assigns(:search_text).should == 'sheep'
+    assigns(:results).should == ['BaaRamEwe']
+  end
 end
 
 def build_expected_content(full_page_name, content = "")

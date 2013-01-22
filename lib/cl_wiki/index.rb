@@ -309,7 +309,7 @@ module ClWiki
           DRb.start_service()
           @indexer = DRbObject.new(nil, "druby://localhost:#{wiki_conf.indexPort}")
         when ClWiki::Configuration::USE_INDEX_LOCAL
-          $indexer ||= ClWiki::Indexer.new(wiki_conf.index_log_fn)
+          $indexer ||= ClWiki::Indexer.new(wiki_conf, wiki_conf.index_log_fn)
           @indexer = $indexer
       end
     end
