@@ -1,1 +1,2 @@
 https://github.com/chrismo/clwiki/issues
+http://huboard.com/chrismo/clwiki/board

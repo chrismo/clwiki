@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'time'
 
 $wikiPageExt = '.txt'
 
@@ -15,6 +16,7 @@ module ClWiki
       @pagePath, @name = ::File.split(fullPageName)
       @pagePath = '/' if @pagePath == '.'
       @fileExt = fileExt
+      @metadata = {}
       if autocreate
         if file_exists?
           readFile
@@ -25,7 +27,6 @@ module ClWiki
     end
 
     def content_is_default?
-      puts "#{@contents.to_s[0..30].inspect} #{default_content.inspect}"
       @contents.to_s == default_content
     end
 
@@ -69,18 +70,28 @@ module ClWiki
       if checkModTime
         # refactor, bring raiseIfMTimeNotEqual back into this class
         ClWiki::Util.raiseIfMTimeNotEqual(@modTimeAtLastRead, fullPathAndName)
-        if not @clientLastReadModTime.nil?
+        unless @clientLastReadModTime.nil?
           ClWiki::Util.raiseIfMTimeNotEqual(@clientLastReadModTime, fullPathAndName)
         end
       end
 
       make_dirs(fullPath)
-      content.gsub!(/\r\n/, "\n") if RUBY_PLATFORM =~ /mswin/
+      ding_mtime
       ::File.open(fullPathAndName, 'w+') do |f|
+        f.print(metadata_to_write)
         f.print(content)
       end
+      ::File.utime(@metadata['mtime'], @metadata['mtime'], fullPathAndName)
       cvs_commit
       readFile
+    end
+
+    def ding_mtime
+      @metadata['mtime'] = Time.now
+    end
+
+    def metadata_to_write
+      @metadata.collect { |k, v| "#{k}: #{v}" }.join("\n") + "\n\n\n"
     end
 
     def make_dirs(dir)
@@ -159,9 +170,39 @@ module ClWiki
 
     def readFile
       ::File.open(fullPathAndName, 'r') do |f|
-        @contents = f.readlines
         @modTimeAtLastRead = f.mtime
+        raw_lines = f.readlines
+        metadata_lines, content = split_metadata(raw_lines)
+        read_metadata(metadata_lines)
+        apply_metadata
+        @contents = content
       end
+    end
+
+    def split_metadata(raw_lines)
+      start_index = 0
+      raw_lines.each_with_index do |ln, index|
+        if ln.chomp.empty?
+          next_line = raw_lines[index+1]
+          if next_line.nil? || next_line.chomp.empty?
+            start_index = index + 2
+            break
+          end
+        end
+      end
+      [raw_lines[0..start_index-3], raw_lines[start_index..-1]]
+    end
+
+    def read_metadata(lines)
+      @metadata = {}
+      lines.each do |ln|
+        key, value = ln.split(': ')
+        @metadata[key] = value
+      end
+    end
+
+    def apply_metadata
+      @modTimeAtLastRead = Time.parse(@metadata['mtime']) if @metadata.keys.include? 'mtime'
     end
 
     def diff

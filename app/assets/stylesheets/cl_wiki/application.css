@@ -78,10 +78,13 @@ a:active {
 }
 
 .findResults {
-text-align: center;
+    text-align: center;
+    width: 50%;
+    margin: auto;
 }
 
 .findResults li {
     list-style-type: none;
-    padding: 5px;
+    padding: 15px;
+    float: left;
 }

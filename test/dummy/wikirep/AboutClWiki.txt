@@ -1,4 +1,7 @@
-If you're used to a more popular wiki, you'll probably be longing for some features that I've managed to do without myself. 
+mtime: 2012-01-20
+
+
+If you're used to a more popular wiki, you'll probably be longing for some features that I've managed to do without myself.
 
 <b>Markup</b> is basic html. Typical wiki things like asterisked lists, indentation, urls being automagically formatted ain't in here. 
 

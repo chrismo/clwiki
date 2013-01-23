@@ -76,6 +76,15 @@ class TestClWikiFile < TestBase
     wiki_file_read.content = "This is new A content."
     assert_equal(["This is new A content."], wiki_file_read.content)
   end
+
+  def test_mtime_metadata
+    # the mtime of the file can be optionally stored as meta data at the top of the file
+    wiki_file = ClWiki::File.new("/PageWithMetaData", @test_wiki_path)
+    file_lines = File.readlines(wiki_file.fullPathAndName)
+    assert_match /^mtime: .+$/, file_lines[0]
+    assert_equal "\n", file_lines[1]
+    assert_equal "\n", file_lines[2]
+  end
 end
 
 class TestCvsUtil < TestBase
