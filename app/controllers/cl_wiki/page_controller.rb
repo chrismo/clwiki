@@ -52,7 +52,16 @@ module ClWiki
     end
 
     def recent
-
+      finder = FindInFile.new($wiki_path)
+      finder.find('.')
+      @pages = finder.files.collect do |filename|
+        p = ClWiki::Page.new(filename.sub($wikiPageExt, ''))
+        p.read_page_attributes
+        p
+      end
+      # Rails.logger.debug @pages.map(&:mtime).inspect
+      @pages = @pages.sort { |a, b| b.mtime <=> a.mtime }[0..9]
+      @pages.each { |p| p.read_content }
     end
 
     def front_page_name

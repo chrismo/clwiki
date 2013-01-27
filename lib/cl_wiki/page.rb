@@ -21,7 +21,6 @@ module ClWiki
     # ClWiki must know it, and it should be storage independent
     def initialize(fullName, wiki_path=$wiki_path)
       @full_name = fullName
-      raise 'fullName must start with /' if fullName[0..0] != '/'
       @wiki_path = wiki_path
       @wikiFile = ClWiki::File.new(@full_name, @wiki_path)
       @pagePath = @wikiFile.pagePath

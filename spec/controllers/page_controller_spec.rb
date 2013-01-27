@@ -120,9 +120,11 @@ describe ClWiki::PageController do
     PageFixture.write_page('FooBar', 'foobar')
     sleep 0.1
     PageFixture.write_page('BazQuux', 'bazquux')
-    # $wiki_conf.publishTag.should be_nil
+    $wiki_conf.publishTag.should be_nil
 
     get :recent, use_route: :cl_wiki
+
+    assigns(:pages).map(&:full_name).should == ['BazQuux', 'FooBar']
   end
 end
 
