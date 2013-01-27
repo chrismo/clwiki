@@ -69,10 +69,15 @@ class TestClWikiFile < TestBase
     # running into a problem where I can't edit a page that was last edited outside
     # of DST when I'm in DST ... it raises ClWiki::FileModifiedSinceRead
     wiki_file = ClWiki::File.new("/UpdateDstPage", @test_wiki_path)
-    assert_equal(["Describe UpdateDstPage here."], wiki_file.content)
-    File.utime(Time.now, Time.local(2011, "jan", 1), wiki_file.fullPathAndName)
+    def wiki_file.ding_mtime
+      @metadata['mtime'] = Time.local(2011, 'jan', 1)
+    end
+    wiki_file.content = 'New content'
 
     wiki_file_read = ClWiki::File.new("/UpdateDstPage", @test_wiki_path)
+    def wiki_file_read.ding_mtime
+      @metadata['mtime'] = Time.local(2011, 'jun', 1)
+    end
     wiki_file_read.content = "This is new A content."
     assert_equal(["This is new A content."], wiki_file_read.content)
   end

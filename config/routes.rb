@@ -7,6 +7,8 @@ ClWiki::Engine.routes.draw do
   get '/find' => 'page#find', as: 'page_find'
   post '/find' => 'page#find'
 
+  get '/recent' => 'page#recent', as: 'recent'
+
   get '/:page_name' => 'page#show', as: 'page_show'
   get '/:page_name/edit' => 'page#edit', as: 'page_edit'
   post '/:page_name' => 'page#update'

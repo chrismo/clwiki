@@ -51,6 +51,10 @@ module ClWiki
       end
     end
 
+    def recent
+
+    end
+
     def front_page_name
       '/FrontPage'
     end

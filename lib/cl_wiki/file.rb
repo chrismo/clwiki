@@ -12,7 +12,7 @@ module ClWiki
       # fullPageName must start with / ?
       @wikiRootPath = wikiRootPath
       fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
-      raise 'fullPageName must start with /' if fullPageName[0..0] != '/'
+      fullPageName.ensure_slash_prefix
       @pagePath, @name = ::File.split(fullPageName)
       @pagePath = '/' if @pagePath == '.'
       @fileExt = fileExt

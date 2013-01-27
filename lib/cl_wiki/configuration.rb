@@ -151,7 +151,7 @@ module ClWiki
           :recent_changes_name => "Recent Changes",
           :stats_name => "Hit Counts",
           :useGmt => false,
-          :publishTag => '<publish>',
+          :publishTag => nil,
           :useIndexForPageExists => false,
           :enable_cvs => false,
           :showSourceLink => false,

@@ -113,7 +113,16 @@ describe ClWiki::PageController do
 
     assigns(:formatter).should be_a ClWiki::PageFormatter
     assigns(:search_text).should == 'sheep'
-    assigns(:results).should == ['BaaRamEwe']
+    assigns(:results).should == ["<a href='BaaRamEwe'>BaaRamEwe</a>"]
+  end
+
+  it 'should render recent pages view' do
+    PageFixture.write_page('FooBar', 'foobar')
+    sleep 0.1
+    PageFixture.write_page('BazQuux', 'bazquux')
+    # $wiki_conf.publishTag.should be_nil
+
+    get :recent, use_route: :cl_wiki
   end
 end
 

@@ -22,11 +22,11 @@ class TestClWikiPage < TestBase
 
   def do_test_convert_to_link(pageName, pagePath='/FrontPage')
     f = ClWiki::PageFormatter.new(nil, pagePath)
-    fullPageName = f.expand_path(pageName, pagePath)
+    # fullPageName = f.expand_path(pageName, pagePath)
     ClWiki::Page.set_page_exists(false)
     $wiki_conf.editable = true
     assert_equal(
-      pageName + "<a href=clwikicgi.rb?page=" + fullPageName + "&edit=true>?</a>",
+      pageName + "<a href='#{pageName}/edit'>?</a>",
       f.convertToLink(pageName))
     $wiki_conf.editable = false
     assert_equal(
@@ -76,85 +76,50 @@ class TestClWikiPage < TestBase
     do_test_convert_to_link("SubPage/NotherSubPage", "/TestPage/SubPage/SubPage")
   end
 
-  def test_page_expand_path
-    f = ClWiki::PageFormatter.new
-    # This group never happens, because there's always a root page, not just a root dir
-    # assert_equal("/a",               f.expand_path("a", "/"))
-    # assert_equal("/a",               f.expand_path("//a", "/"))
-    # assert_equal("/a",               f.expand_path("/a", "/"))
-
-    assert_equal("/b",               f.expand_path("b", "/a"))
-    assert_equal("/b",               f.expand_path("//b", "/a"))
-    assert_equal("/a/b",             f.expand_path("/b", "/a"))
-
-    assert_equal("/a/c",             f.expand_path("c", "/a/b"))
-    assert_equal("/c",               f.expand_path("//c", "/a/b"))
-    assert_equal("/a/b/c",           f.expand_path("/c", "/a/b"))
-
-    assert_equal("/a/b/d",           f.expand_path("d", "/a/b/c"))
-    assert_equal("/d",               f.expand_path("//d", "/a/b/c"))
-    assert_equal("/a/b/c/d",         f.expand_path("/d", "/a/b/c"))
-
-    assert_equal("/a/b/c",           f.expand_path("b/c", "/a/b/c/d/e"))
-    assert_equal("/b/c",             f.expand_path("//b/c", "/a/b/c/d/e"))
-    assert_equal("/a/b",             f.expand_path("b", "/a/b/c/d/e"))
-    assert_equal("/a/b/c/f",         f.expand_path("b/c/f", "/a/b/c/d/e"))
-    assert_equal("/a/b/c/d/m/n/o",   f.expand_path("m/n/o", "/a/b/c/d/e"))
-    assert_equal("/a/b/c/a/b/d",     f.expand_path("a/b/d", "/a/b/c/a/b/c"))
-    assert_equal("/a/b",             f.expand_path("/a/b", "/"))
-    assert_equal("/m/n",             f.expand_path("//m/n", "/a/b"))
-  end
-
   def test_gsub_words
     original =
-      'test page PageName ' +
-      'PageName/SubPage PageName\SubPage\SubPage ' +
-      '/PageName/SubPage \PageName\SubPage\SubPage ' +
-      'test.thing test, <tagger> </tagger> oops>whoops ' +
-      'oops<thing>bleh hen<butter '
-    expectedResults =
-      ['test', 'page', 'PageName',
-       'PageName/SubPage', 'PageName\SubPage\SubPage',
-       '/PageName/SubPage', '\PageName\SubPage\SubPage',
-       'test', 'thing', 'test', '<tagger>', '</tagger>', 'oops', 'whoops',
-       'oops', '<thing>', 'bleh', 'hen', 'butter']
+        'test page PageName ' +
+            'PageName/SubPage PageName\SubPage\SubPage ' +
+            '/PageName/SubPage \PageName\SubPage\SubPage ' +
+            'test.thing test, <tagger> </tagger> oops>whoops ' +
+            'oops<thing>bleh hen<butter '
 
-    actualResults = Array.new
+    expected_results =
+        %w(test page PageName
+           PageName SubPage PageName SubPage SubPage PageName SubPage PageName SubPage SubPage
+           test thing test <tagger> </tagger> oops whoops
+           oops <thing> bleh hen butter)
+
+    actual_results = Array.new
     f = ClWiki::PageFormatter.new(original)
-    f.gsubWords { |word| actualResults << word }
-    assert_equal(expectedResults, actualResults)
+    f.gsubWords { |word| actual_results << word }
+    assert_equal(expected_results, actual_results)
   end
 
-  def do_test_format_links(content, expectedContent, currentPagePath='/FrontPage', pageExists=true, pageGloballyExists=false)
-    if pageGloballyExists
-      globalFullPageName = '/GlobalRoot/' + content
-    else
-      globalFullPageName = nil
-    end
-
+  def do_test_format_links(content, expected_content, page_exists=true)
     $wiki_conf.editable = true
-    f = ClWiki::PageFormatter.new(content, currentPagePath)
-    ClWiki::Page.set_page_exists(pageExists)
-    assert_equal(expectedContent, f.formatLinks, "content: #{content} pageExists: #{pageExists} pageGloballyExists: #{pageGloballyExists} editable")
+    f = ClWiki::PageFormatter.new(content, nil)
+    ClWiki::Page.set_page_exists(page_exists)
+    assert_equal(expected_content, f.formatLinks, "content: #{content} page_exists: #{page_exists} editable")
 
     $wiki_conf.editable = false
-    f = ClWiki::PageFormatter.new(content, currentPagePath)
-    ClWiki::Page.set_page_exists(pageExists)
-    if !pageExists
-      assert_equal(content, f.formatLinks, "content: #{content} pageExists: #{pageExists} pageGloballyExists: #{pageGloballyExists} not editable")
+    f = ClWiki::PageFormatter.new(content, nil)
+    ClWiki::Page.set_page_exists(page_exists)
+    if page_exists
+      assert_equal(expected_content, f.formatLinks, "content: #{content} page_exists: #{page_exists} not editable")
     else
-      assert_equal(expectedContent, f.formatLinks, "content: #{content} pageExists: #{pageExists} pageGloballyExists: #{pageGloballyExists} not editable")
+      assert_equal(content, f.formatLinks, "content: #{content} page_exists: #{page_exists} not editable")
     end
   end
 
   def test_format_link_pages
-    do_test_format_links('TestPage', "TestPage<a href=clwikicgi.rb?page=/TestPage&edit=true>?</a>", '/FrontPage', false)
-    do_test_format_links('TestPage', "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>", '/FrontPage', true)
+    do_test_format_links('TestPage', "TestPage<a href='TestPage/edit'>?</a>", false)
+    do_test_format_links('TestPage', "<a href='TestPage'>TestPage</a>", true)
 
     # this is an important test. The scanning includes some punctuation
     # as word characters, but not others. Comma ain't one of them, so this
     # makes sure the division of characters is working right.
-    do_test_format_links('TestPage,', "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>,", '/FrontPage', true)
+    do_test_format_links('TestPage,', "<a href='TestPage'>TestPage</a>,", true)
 
     # the current parsing skips over the brackets, so the tags
     # are returned intact. IE 5 just ignores them.
@@ -165,39 +130,10 @@ class TestClWikiPage < TestBase
     # No WikiLinks within < >, to avoid problems with href
     do_test_format_links('<a href="www.NotAWikiPage.com">some link</a>', '<a href="www.NotAWikiPage.com">some link</a>')
 
-    do_test_format_links('/TestPage',
-                      "/<a href=clwikicgi.rb?page=/FrontPage/TestPage>TestPage</a>",
-                      '/FrontPage', true)
-    do_test_format_links('TestPage/TestSubPage',
-                      "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
-                      '/FrontPage', true)
-    do_test_format_links('TestPage/TestSubPage',
-                      "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
-                      '/SubRoot', true)
-    do_test_format_links('/TestPage/TestSubPage',
-                      "/<a href=clwikicgi.rb?page=/SubRoot/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/SubRoot/TestPage/TestSubPage>TestSubPage</a>",
-                      '/SubRoot', true)
-    do_test_format_links('//TestPage/TestSubPage',
-                      "//<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
-                      '/SubRoot', true)
-    do_test_format_links('TestPage/TestSubPage',
-                      "<a href=clwikicgi.rb?page=/SubRootA/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/SubRootA/TestPage/TestSubPage>TestSubPage</a>",
-                      '/SubRootA/SubRootB', true)
-    do_test_format_links('/TestPage/TestSubPage',
-                      "/<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage/TestSubPage>TestSubPage</a>",
-                      '/SubRootA/SubRootB', true)
-    do_test_format_links('//TestPage/TestSubPage',
-                      "//<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
-                      '/SubRootA/SubRootB', true)
-    do_test_format_links('TestPage\TestSubPage',
-                      "<a href=clwikicgi.rb?page=/TestPage>TestPage</a>/<a href=clwikicgi.rb?page=/TestPage/TestSubPage>TestSubPage</a>",
-                      '/FrontPage', true)
-    do_test_format_links('TestPage',
-                      "<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage>TestPage</a>",
-                      '/SubRootA/SubRootB/TestPage', true)
-    do_test_format_links('TestPage',
-                      "TestPage<a href=clwikicgi.rb?page=/SubRootA/SubRootB/TestPage&edit=true>?</a>",
-                      '/SubRootA/SubRootB/MasterTestPage', false)
+    do_test_format_links('/TestPage', "/<a href='TestPage'>TestPage</a>", true)
+    do_test_format_links('TestPage/TestSubPage', "<a href='TestPage'>TestPage</a>/<a href='TestSubPage'>TestSubPage</a>", true)
+    do_test_format_links('/TestPage/TestSubPage', "/<a href='TestPage'>TestPage</a>/<a href='TestSubPage'>TestSubPage</a>", true)
+    do_test_format_links('//TestPage/TestSubPage', "//<a href='TestPage'>TestPage</a>/<a href='TestSubPage'>TestSubPage</a>", true)
   end
 
   def test_is_wiki_name

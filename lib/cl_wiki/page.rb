@@ -176,13 +176,13 @@ module ClWiki
       end
     end
 
-    def self.page_exists?(fullPageName)
+    def self.page_exists?(page_name)
       if ($wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO) &&
           ($wiki_conf.useIndexForPageExists)
-        res = ClWiki::Page.wikiIndexClient.page_exists?(fullPageName)
+        res = ClWiki::Page.wikiIndexClient.page_exists?(page_name)
       else
-        wikiFile = ClWiki::File.new(fullPageName, $wiki_path, $wikiPageExt, false)
-        res = wikiFile.file_exists?
+        wiki_file = ClWiki::File.new(page_name, $wiki_path, $wikiPageExt, false)
+        res = wiki_file.file_exists?
       end
       res
     end
@@ -305,7 +305,7 @@ module ClWiki
     end
 
     def gsubWords
-      @content.gsub(/<.+?>|<\/.+?>|[\w\\\/]+/) { |word| yield word }
+      @content.gsub(/<.+?>|<\/.+?>|\w+/) { |word| yield word }
     end
 
     def convert_relative_wikinames_to_absolute
@@ -380,110 +380,6 @@ module ClWiki
       (path[0..0] == '/') || (path[0..1] == '//')
     end
 
-    def do_file_expand_path(partial, reference)
-      # expand_path works differently on Windows/*nix, so we have to force
-      # path separators to be forward slash for consistency
-      partial.gsub!(/\\/, '/')
-      reference.gsub!(/\\/, '/')
-      res = ::File.expand_path(partial, reference)
-
-      # 1.6.8 did not put on the drive letter at the front of the path. 1.8
-      # does, so we need to strip it off, because we're not really looking
-      # for file system pathing here.
-      res = res[2..-1] if res[0..1] =~ /.:/
-
-      res
-    end
-
-    def expand_path(partial, reference)
-      if !starts_with_path_char(partial)
-        # sibling
-        # "" is in [0] if partial is an absolute
-        partial_pieces = partial.split('/').delete_if { |p| p == "" }
-        match_found = false
-        result = ''
-        (partial_pieces.length-1).downto(0) do |i|
-          this_partial = '/' + partial_pieces[0..i].join('/')
-          match_loc = (reference.rindex(/#{this_partial}/))
-          if match_loc
-            match_found = true
-            # isn't next line stored in a Regexp globals? pre-match and match, right?
-            result = reference[0..(match_loc + this_partial.length-1)]
-            partial_remainder = partial_pieces[(i+1)..-1]
-            result = ::File.join(result, partial_remainder)
-            result.chop! if result[-1..-1] == '/'
-            break
-          end
-        end
-        unless match_found
-          # take off last entry on reference path to force a sibling
-          # or refactor elsewhere to pass nothing but paths into this
-          # method.
-          reference, = ::File.split(reference)
-          result = do_file_expand_path(partial, (reference.empty? ? '/' : reference))
-        end
-      else
-        # to get File.expand_path to do what I need:
-        #   change // to /
-        #   change /  to ./
-        if partial[0..1] == '//'
-          partial = partial[1..-1]
-        else
-          partial = '.' + partial
-        end
-        result = do_file_expand_path(partial, reference)
-      end
-
-      # if ('/a/b', '/') passed, then '//' ends up at front because
-      # this is not illegal at the very first in File.expand_path
-      result = result[1..-1] if result[0..1] == '//'
-      result
-    end
-
-    def do_fullparts_displayparts_assertion(fullparts, displayparts)
-      # this is complicated, unfortunately. expand_path does not ever return
-      # // at the front of an absolute path, though it should. I can't change
-      # it right now cuz that's a major change.
-
-      # in the case where the display name is absolute with //, the full
-      # name will only have one slash up front, so we need to tweak that case
-      # temporarily to get this assertion to work
-
-      # we also need to eliminate slash positions, which shows as empty
-      # strings in these arrays
-      afullparts = fullparts.dup
-      afullparts.delete_if do |part|
-        part.empty?
-      end
-
-      adispparts = displayparts.dup
-      adispparts.delete_if do |part|
-        part.empty?
-      end
-
-      if afullparts[(-adispparts.length)..-1] != adispparts
-        raise "assertion failed. displayparts <#{adispparts.inspect}> should be " +
-                  "tail end of fullparts <#{afullparts.inspect}>"
-      end
-    end
-
-    def format_for_dir_and_page_links(pageFullName, pageName)
-      fullparts = pageFullName.split('/')
-      displayparts = pageName.split('/')
-      do_fullparts_displayparts_assertion(fullparts, displayparts)
-      result = ''
-      displayparts.each do |part|
-        if !part.empty?
-          fullpagelink = fullparts[0..fullparts.index(part)].join('/')
-          result << '/' if !result.empty? && result[-1..-1] != '/'
-          result << "<a href=#{cgifn}?page=#{fullpagelink}>#{part}</a>"
-        else
-          result << '/'
-        end
-      end
-      result
-    end
-
     def cgifn
       $wiki_conf.cgifn if $wiki_conf
     end
@@ -492,35 +388,32 @@ module ClWiki
       ($wiki_conf.url_prefix + cgifn) if $wiki_conf
     end
 
-    def convertToLink(pageName)
-      # We need to calculate its fullPageName based on the ref fullName in case
-      # the pageName is a relative reference
-      pageFullName = expand_path(pageName, @full_name)
-      if ClWiki::Page.page_exists?(pageFullName)
-        format_for_dir_and_page_links(pageFullName, pageName)
+    def convertToLink(page_name)
+      if ClWiki::Page.page_exists?(page_name)
+        "<a href='#{page_name.strip_slash_prefix}'>#{page_name.strip_slash_prefix}</a>"
       else
         if $wiki_conf.useIndex == ClWiki::Configuration::USE_INDEX_NO
           finder = FindInFile.new($wiki_path)
-          finder.find(pageName, FindInFile::FILE_NAME_ONLY)
+          finder.find(page_name, FindInFile::FILE_NAME_ONLY)
           hits = finder.files.collect { |f| f.sub($wikiPageExt, '') }
         else
           @wikiIndex = ClWiki::IndexClient.new if @wikiIndex.nil?
           titles_only = true
-          hits = @wikiIndex.search(pageName, titles_only)
-          hits = GlobalHitReducer.reduce_to_exact_if_exists(pageName, hits)
+          hits = @wikiIndex.search(page_name, titles_only)
+          hits = GlobalHitReducer.reduce_to_exact_if_exists(page_name, hits)
         end
 
         case hits.length
           when 0
-            result = pageName
+            result = page_name
           when 1
-            result = "<a href=#{cgifn}?page=#{hits[0]}>#{pageName}</a>"
+            result = "<a href='#{hits[0]}'>#{page_name}</a>"
           else
-            result = "<a href=#{cgifn}?find=true&searchText=#{pageName}&type=title>#{pageName}</a>"
+            result = "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
         end
 
         if ($wiki_conf.editable) && ((hits.length == 0) || ($wiki_conf.global_edits))
-          result << "<a href=#{cgifn}?page=" + pageFullName + "&edit=true>?</a>"
+          result << "<a href='#{page_name}/edit'>?</a>"
         end
         result
       end
