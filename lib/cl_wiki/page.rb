@@ -4,7 +4,7 @@ require 'singleton'
 require File.dirname(__FILE__) + '/file'
 require File.dirname(__FILE__) + '/find_in_file'
 
-$FIND_PAGE_NAME = "Find Page"
+$FIND_PAGE_NAME = "Find"
 $FIND_RESULTS_NAME = "Find Results"
 
 module ClWiki

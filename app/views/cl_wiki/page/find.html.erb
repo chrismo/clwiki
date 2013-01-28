@@ -1,16 +1,20 @@
-<%= @formatter.header("Find Page").html_safe %>
-
-<div class='findDetails'>
-  <span>"this that" => <i><b>this</b></i> and <b><i>that</i></b></span><br/>
-  <span>"the" => <i><b>the</b></i>, <i><b>the</b>ater</i>, <i>soo<b>the</b></i>, <i>o<b>the</b>r</i></span>
-</div>
+<%= @formatter.header("Find").html_safe %>
 
 <div class='findInput'>
-  <%= form_tag(page_find_path) do %>
-    <%= text_field_tag 'search_text', @search_text %>
-    <%= submit_tag 'Find', name: 'find' %>
-  <% end %>
+  <div class='findForm'>
+    <%= form_tag(page_find_path) do %>
+      <%= text_field_tag 'search_text', @search_text %>
+      <%= submit_tag 'Find', name: 'find' %>
+    <% end %>
+  </div>
+
+  <div class='findDetails'>
+    <span>"this that" => <i><b>this</b></i> and <b><i>that</i></b></span><br/>
+    <span>"the" => <i><b>the</b></i>, <i><b>the</b>ater</i>, <i>soo<b>the</b></i>, <i>o<b>the</b>r</i></span>
+  </div>
 </div>
+
+<div style='clear: left'></div>
 
 <div class='findResults'>
   <ul>
@@ -20,4 +24,4 @@
   </ul>
 </div>
 
-<%= @formatter.footer("Find Page").html_safe %>
+<%= @formatter.footer("Find").html_safe %>
