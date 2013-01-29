@@ -61,7 +61,8 @@ module ClWiki
       end
       # Rails.logger.debug @pages.map(&:mtime).inspect
       @pages = @pages.sort { |a, b| b.mtime <=> a.mtime }[0..9]
-      @pages.each { |p| p.read_content }
+      without_header_and_footer = false
+      @pages.each { |p| p.read_content(without_header_and_footer) }
     end
 
     def front_page_name

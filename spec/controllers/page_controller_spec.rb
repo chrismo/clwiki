@@ -136,6 +136,8 @@ describe ClWiki::PageController do
     get :recent, use_route: :cl_wiki
 
     assigns(:pages).map(&:full_name).should == ['FooBar']
+    # view should call get_header without footer, so those shouldn't be mixed into content
+    assigns(:pages)[0].content.should_not start_with "<div class='wikiHeader'>"
   end
 end
 

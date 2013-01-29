@@ -1,3 +1,4 @@
 <% @pages.each do |page| %>
+  <%= page.get_header.html_safe %>
   <%= page.content.html_safe %>
 <% end %>
