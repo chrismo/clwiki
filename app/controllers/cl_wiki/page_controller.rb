@@ -53,7 +53,7 @@ module ClWiki
 
     def recent
       finder = FindInFile.new($wiki_path)
-      finder.find('.')
+      finder.find($wiki_conf.publishTag || '.')
       @pages = finder.files.collect do |filename|
         p = ClWiki::Page.new(filename.sub($wikiPageExt, ''))
         p.read_page_attributes

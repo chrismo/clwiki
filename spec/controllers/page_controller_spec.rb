@@ -120,11 +120,22 @@ describe ClWiki::PageController do
     PageFixture.write_page('FooBar', 'foobar')
     sleep 0.1
     PageFixture.write_page('BazQuux', 'bazquux')
-    $wiki_conf.publishTag.should be_nil
+    $wiki_conf.publishTag = nil
 
     get :recent, use_route: :cl_wiki
 
     assigns(:pages).map(&:full_name).should == ['BazQuux', 'FooBar']
+  end
+
+  it 'should render recent pages view with matching publish tags' do
+    PageFixture.write_page('FooBar', "<publish>\nfoobar")
+    sleep 0.1
+    PageFixture.write_page('BazQuux', 'bazquux')
+    $wiki_conf.publishTag = '<publish>'
+
+    get :recent, use_route: :cl_wiki
+
+    assigns(:pages).map(&:full_name).should == ['FooBar']
   end
 end
 

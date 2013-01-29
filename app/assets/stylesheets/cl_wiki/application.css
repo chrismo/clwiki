@@ -90,11 +90,6 @@ a:active {
     padding-bottom: 10px;
 }
 
-.findDetails b {
-    text-decoration: underline;
-    font-weight: normal;
-}
-
 .findResults {
     text-align: center;
     width: 50%;
