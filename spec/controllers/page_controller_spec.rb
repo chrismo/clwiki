@@ -139,6 +139,17 @@ describe ClWiki::PageController do
     # view should call get_header without footer, so those shouldn't be mixed into content
     assigns(:pages)[0].content.should_not start_with "<div class='wikiHeader'>"
   end
+
+  it 'should render recent pages view with rss format' do
+    PageFixture.write_page('FooBar', "<publish>\nfoobar")
+    sleep 0.1
+    PageFixture.write_page('BazQuux', 'bazquux')
+    $wiki_conf.publishTag = '<publish>'
+
+    get :recent, use_route: :cl_wiki, :format => 'rss'
+
+    assigns(:pages).map(&:full_name).should == ['FooBar']
+  end
 end
 
 def build_expected_content(full_page_name, content = "")

@@ -63,6 +63,11 @@ module ClWiki
       @pages = @pages.sort { |a, b| b.mtime <=> a.mtime }[0..9]
       without_header_and_footer = false
       @pages.each { |p| p.read_content(without_header_and_footer) }
+
+      respond_to do |format|
+        format.html
+        format.rss { render :layout => false }
+      end
     end
 
     def front_page_name

@@ -36,14 +36,10 @@ production:
 
   # template mytemplate.htm
 
-  # <publish> is the default tag to flag a page for display via Blogki.
-  # You can customize this here. This is especially useful for setting up
-  # multiple Blogki's all using the same clWiki repository.
+  # If you want to restrict the Recent view to only published pages, you
+  # can configure a custom tag here. If this isn't defined, then every
+  # page will appear on the Recent view.
   #
-  # To auto-publish every page, use *
-  #
-  #  publishTag *
-
   # publishTag <publish>
 
   # showSourceLink can be turned on to add a page link in the footer that
