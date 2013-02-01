@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/clwiki_test_helper'
 require 'page'
+require 'tmpdir'
 
 # stub this out for testing
 class ClWiki::Page
@@ -156,10 +157,38 @@ class TestClWikiPage < TestBase
     assert(!f.is_wiki_name?('WikiName/WikiName/Notwikiname'))
     assert(!f.is_wiki_name?('/'))
     assert(!f.is_wiki_name?('//'))
-    # Should these be WikiNames?
-    #  EmpACT
-    #  HelP
-    # ... they're not in the c2.com wiki
+  end
+
+  def test_custom_formatter
+    page = ClWiki::Page.new('MyPage')
+    page.update_content("[]\n[/]", page.mtime)
+    assert_match /#{Regexp.escape("<blockquote>\n</blockquote>")}/, page.read_content(false)
+  end
+
+  def test_custom_formatter_path_config
+    Dir.mktmpdir do |dir|
+      $wiki_conf.custom_formatter_load_path << dir
+      File.open(File.join(dir, 'format.reverser.rb'), 'w') do |f|
+        f.print <<-RUBY
+          class ReverseText < ClWiki::CustomFormatter
+            def ReverseText.match_re
+              /.*/
+            end
+
+            def ReverseText.format_content(content, page)
+              if content
+                content.reverse
+              end
+            end
+          end
+
+          ClWiki::CustomFormatters.instance.register(ReverseText)
+        RUBY
+      end
+      page = ClWiki::Page.new('RevPage')
+      page.update_content("awesome", page.mtime)
+      assert_match /emosewa/, page.read_content(false)
+    end
   end
 end
 

@@ -51,12 +51,17 @@ production:
   #
   page_update_format: '%B %d, %Y'
 
+  # Add directories containing optional custom formatters here.
+  #
+  custom_formatter_load_path: []
+
 test:
   wiki_path: tmp/testrep
   useIndex: 0
   useIndexForPageExists: false
   editable: true
   page_update_format: '%B %d, %Y'
+  custom_formatter_load_path: []
 
 development:
   # path to the root directory that stores the page files
@@ -65,3 +70,4 @@ development:
   useIndexForPageExists: false
   editable: true
   page_update_format: '%B %d, %Y'
+  custom_formatter_load_path: []

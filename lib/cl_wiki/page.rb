@@ -120,8 +120,11 @@ module ClWiki
     end
 
     def process_custom_renderers
-      Dir[::File.join(::File.dirname(__FILE__), 'format', 'format.*')].each do |fn|
-        require fn
+      root_dirs = [::File.join(::File.dirname(__FILE__), 'format')] + $wiki_conf.custom_formatter_load_path
+      root_dirs.each do |root_dir|
+        Dir[::File.join(root_dir, 'format.*')].each do |fn|
+          require fn
+        end
       end
 
       ClWiki::CustomFormatters.instance.process_formatters(@content, self)
