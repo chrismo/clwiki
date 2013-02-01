@@ -91,11 +91,3 @@ class TestClWikiFile < TestBase
     assert_equal "\n", file_lines[2]
   end
 end
-
-class TestCvsUtil < TestBase
-  def test_rev_inc
-    assert_equal('1.1', CLabs::Util::Cvs.inc_rev('1.0', 1))
-    assert_equal('1.0.0.1', CLabs::Util::Cvs.inc_rev('1.0.0.0', 1))
-    assert_equal('1.1', CLabs::Util::Cvs.inc_rev('1.2', -1))
-  end
-end

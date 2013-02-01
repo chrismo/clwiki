@@ -44,19 +44,8 @@ production:
 
   # showSourceLink can be turned on to add a page link in the footer that
   # is a file:// url direct to the raw page. Default is false.
-
+  #
   # showSourceLink true
-
-  # set enable_cvs to true to have page writes committed to cvs. To get
-  # this working, you must have cvs.exe on the path and your wiki repository
-  # must be a checked out copy from cvs.
-  #
-  enable_cvs: false
-
-  # log file for cvs output. If none is specified, of course, no logging
-  # will occur
-  #
-  # cvs_log clwiki.cvs.log
 
   # time format for display of last page update
   #
@@ -67,7 +56,6 @@ test:
   useIndex: 0
   useIndexForPageExists: false
   editable: true
-  enable_cvs: false
   page_update_format: '%B %d, %Y'
 
 development:
@@ -76,5 +64,4 @@ development:
   useIndex: 0
   useIndexForPageExists: false
   editable: true
-  enable_cvs: false
   page_update_format: '%B %d, %Y'

@@ -320,9 +320,6 @@ module ClWiki
 
     def search(term, titles_only=false)
       hits = @indexer.search(term).flatten
-      hits.delete_if do |fullName|
-        fullName =~ /\/CVS\//
-      end
       if titles_only
         hits.delete_if do |fullName|
           !(fullName =~ /#{term}/i)

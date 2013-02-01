@@ -31,7 +31,6 @@ module ClWiki
     end
 
     def delete
-      cvs_remove
       File.delete(fullPathAndName) if File.exists?(fullPathAndName)
     end
 
@@ -82,7 +81,6 @@ module ClWiki
         f.print(content)
       end
       ::File.utime(@metadata['mtime'], @metadata['mtime'], fullPathAndName)
-      cvs_commit
       readFile
     end
 
@@ -102,69 +100,6 @@ module ClWiki
       make_dirs parent unless FileTest.directory? parent
       if ::File.basename(dir) != ""
         Dir.mkdir dir, 0755
-        do_cvs_commit(::File.dirname(dir), ::File.basename(dir))
-      end
-    end
-
-    def cvs_commit
-      if $wiki_conf.enable_cvs
-        dir = ::File.dirname(fullPathAndName)
-        fn = ::File.basename(fullPathAndName)
-        do_cvs_commit(dir, fn)
-      end
-    end
-
-    def cvs_remove
-      if $wiki_conf.enable_cvs
-        dir = File.dirname(fullPathAndName)
-        fn = File.basename(fullPathAndName)
-        do_cvs_remove(dir, fn)
-      end
-    end
-
-    def do_cvs_commit(dir, item_name)
-      if $wiki_conf.enable_cvs
-        cvsout = ''
-        Dir.chdir(dir) do
-          # always adding for now. If it exists, no worries ... could be
-          # performance drag, but it's a sure thang for now.
-          cvsout << "\n" << Time.now.to_s << "\n"
-          cvsout << dir << "\n"
-          cvsout << 'CVS_RSH = ' + ENV['CVS_RSH'].inspect << "\n"
-          cmd = "cvs.exe add -m auto #{item_name} 2>&1"
-          cvsout << cmd << "\n"
-          cvsout << `#{cmd}`
-          cmd = "cvs.exe commit -m auto #{item_name} 2>&1"
-          cvsout << cmd << "\n"
-          cvsout << `#{cmd}`
-        end
-        cvs_log(cvsout)
-      end
-    end
-
-    def do_cvs_remove(dir, item_name)
-      if $wiki_conf.enable_cvs
-        cvsout = ''
-        Dir.chdir(dir) do
-          cvsout << "\n" << Time.now.to_s << "\n"
-          cvsout << dir << "\n"
-          cvsout << 'CVS_RSH = ' + ENV['CVS_RSH'].inspect << "\n"
-          cmd = "cvs.exe remove -f #{item_name} 2>&1"
-          cvsout << cmd << "\n"
-          cvsout << `#{cmd}`
-          cmd = "cvs.exe commit -m \"removing unused page\" #{item_name} 2>&1"
-          cvsout << cmd << "\n"
-          cvsout << `#{cmd}`
-        end
-        cvs_log(cvsout)
-      end
-    end
-
-    def cvs_log(log_content)
-      if $wiki_conf.cvs_log
-        File.open($wiki_conf.cvs_log, 'a+') do |f|
-          f.puts log_content
-        end
       end
     end
 
@@ -204,33 +139,6 @@ module ClWiki
     def apply_metadata
       @modTimeAtLastRead = Time.parse(@metadata['mtime']) if @metadata.keys.include? 'mtime'
     end
-
-    def diff
-      get_diff
-    end
-
-    def get_diff
-      if $wiki_conf.enable_cvs
-        stat_out = ''; cvs_pwd = ''
-        fn = File.basename(fullPathAndName)
-        Dir.chdir(fullPath) do
-          stat_out = `cvs status #{fn}`
-        end
-        cvs_log(stat_out)
-        cur_rev = stat_out.scan(/Working revision:\t(\S*)/).to_s
-        prev_rev = CLabs::Util::Cvs.inc_rev(cur_rev, -1)
-
-        diff = ''
-        Dir.chdir(fullPath) do
-          cmd = "cvs diff -r #{prev_rev} -r #{cur_rev} #{fn}"
-          cvs_log(cmd)
-          diff = `#{cmd}`
-          diff.gsub!(/^\\ No newline at end of file\n/, '')
-          cvs_log(diff)
-        end
-        diff
-      end
-    end
   end
 
   class Util
@@ -259,18 +167,5 @@ module ClWiki
   end
 
   class FileMustUseWriteNewContent < FileError
-  end
-end
-
-module CLabs
-  module Util
-    class Cvs
-      def Cvs.inc_rev(rev_str, inc)
-        rev_parts = rev_str.split('.')
-        pre, post = [rev_parts[0..-2].join('.'), rev_parts[-1].to_i]
-        post += inc
-        pre + '.' + post.to_s
-      end
-    end
   end
 end

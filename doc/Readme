@@ -29,36 +29,6 @@ line at the bottom of the formatter file.
 Check for the ClWikiCustomFormatters.instance.register line in the format
 file. (Should probably make this a .conf option).
 
-===About CVS Integration
-
-ClWiki assumes that the wiki repository is an active CVS working directory.
-It also assumes that whatever account your web server runs under has the
-ability to do cvs adds and commits without any prompts. This could, for 
-example, mean you need to setup a SetEnv variable in your Apache .conf to
-properly set CVS_RSH and also handle any private key files to make sure
-the web process is not faced with any prompts for logins and whatnot.
-
-In one install on Windows, with Apache and PuTTy, Apache's conf file needed:
-
-  SetEnv CVS_RSH c:\tools\putty\plink.bat
-  
-... and the plink.bat file looked like:
-
-  c:\tools\putty\plink.exe -i C:\home\privkeys\identity.ppk %1 %2 %3 %4 %5 %6 %7 %8 %9
-
-... in order to get everything working. In addition, Apache had to be 
-configured to run under a specific account other than LocalSystem to make
-sure the prompt for the server fingerprint could be taken care of. 
-
-If cvs integration isn't working, be sure to check your web server error
-logs for additional pointers to what may be falling down.
-
-ClWiki also assumes it will be the only one doing commits on the content, 
-as it expects the revision numbers to always be increasing when figuring
-diffs. It knows nothing of branching or any such fancy stuff. If you get
-unexpected results in the diff output, and you do branching on the Wiki
-content outside the cvs calls ClWiki makes, then there's your problem.   
-
 ===About GraphViz Integration
 
 see the graphviz/readme.txt file for what files to place in that directory

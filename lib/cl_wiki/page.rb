@@ -258,16 +258,6 @@ module ClWiki
 
       wiki_name = page.full_name
 
-      #TODO: rip out all CVS stuff
-      #if (wiki_name != $FIND_PAGE_NAME) and
-      #    (wiki_name != $FIND_RESULTS_NAME) and
-      #    (wiki_name != $wiki_conf.recent_changes_name) and
-      #    (wiki_name != $wiki_conf.stats_name)
-      #  if $wiki_conf.enable_cvs
-      #    update = "<a href=#{cgifn}?page=" + wiki_name + "&diff=true>diff</a> | " + update
-      #  end
-      #end
-
       # refactor string constants
       footer = "<div class='wikiFooter'>"
       footer << "<ul>"

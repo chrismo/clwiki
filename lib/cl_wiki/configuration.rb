@@ -53,14 +53,6 @@ module ClWiki
       @edit_cols = value.to_i
     end
 
-    def cvs_log
-      @cvs_log
-    end
-
-    def cvs_log=(value)
-      @cvs_log = ::File.expand_path(value) if value
-    end
-
     def useIndexForPageExists
       @useIndexForPageExists
     end
@@ -70,18 +62,6 @@ module ClWiki
         @useIndexForPageExists = (value =~ /true/i)
       else
         @useIndexForPageExists = value
-      end
-    end
-
-    def enable_cvs
-      @enable_cvs
-    end
-
-    def enable_cvs=(value)
-      if value.class == String
-        @enable_cvs = (value =~ /true/i)
-      else
-        @enable_cvs = value
       end
     end
 
@@ -153,7 +133,6 @@ module ClWiki
           :useGmt => false,
           :publishTag => nil,
           :useIndexForPageExists => false,
-          :enable_cvs => false,
           :showSourceLink => false,
           :cgifn_from_rss => 'blogki.rb',
           :edit_rows => 25,
