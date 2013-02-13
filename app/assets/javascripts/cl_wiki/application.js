@@ -14,3 +14,11 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require_tree .
+
+$(window).ready(function () {
+  if ($('.findResults li').length > 0) {
+    $('.findResults li:first a').focus();
+  } else {
+    $(".findForm input[type='text']").focus();
+  }
+});
