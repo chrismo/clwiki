@@ -15,10 +15,15 @@
 //= require turbolinks
 //= require_tree .
 
-$(window).ready(function () {
+
+function findFocus() {
   if ($('.findResults li').length > 0) {
     $('.findResults li:first a').focus();
   } else {
     $(".findForm input[type='text']").focus();
   }
-});
+}
+
+// to cope with rails 4 turbolinks
+$(document).ready(findFocus);
+$(document).on('page:change', findFocus);
