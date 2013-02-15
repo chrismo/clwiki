@@ -18,11 +18,8 @@ describe ClWiki::PageController do
   it 'should render /FrontPage by default' do
     get :show, use_route: :cl_wiki
 
-    page = assigns(:page)
-    page.full_name.should == '/FrontPage'
+    assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
-
-  it 'should render blog view by default if configured'
 
   it 'should render /NewPage with new content prompt' do
     get :show, use_route: :cl_wiki, :page_name => 'NewPage'
@@ -69,19 +66,15 @@ describe ClWiki::PageController do
   it 'should redirect to front page on bad page name' do
     get :show, use_route: :cl_wiki, :page_name => 'notavalidname'
 
-    page = assigns(:page)
-    page.full_name.should == '/FrontPage'
+    assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
 
   it 'should redirect to front page on non-existent page if not editable' do
     $wiki_conf.editable = false
     get :show, use_route: :cl_wiki, :page_name => 'NewPage'
 
-    page = assigns(:page)
-    page.full_name.should == '/FrontPage'
+    assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
-
-  it 'should render header on edit' # <= view spec?
 
   it 'should render find entry page' do
     get :find, use_route: :cl_wiki
@@ -90,19 +83,6 @@ describe ClWiki::PageController do
     assigns(:search_text).should == nil
     assigns(:results).should == []
   end
-
-  it 'should render find page with results with index'
-  #do
-  #  $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_LOCAL
-  #  PageFixture.write_page('FooBar', 'foobar > QuuxBaz')
-  #  PageFixture.write_page('QuuxBaz', 'quux baz rules')
-  #
-  #  post :find, use_route: :cl_wiki, :search_text => 'quux'
-  #
-  #  assigns(:formatter).should be_a ClWiki::PageFormatter
-  #  assigns(:search_text).should == 'quux'
-  #  assigns(:results).should == ['FooBar', 'QuuxBaz']
-  #end
 
   it 'should render find page with results without index' do
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO

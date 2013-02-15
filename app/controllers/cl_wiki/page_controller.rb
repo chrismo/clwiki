@@ -4,7 +4,8 @@ module ClWiki
   class PageController < ApplicationController
     before_filter :redirect_legacy_cgi_urls
     before_filter :initialize_formatter
-    before_filter :front_page_if_bad_name
+    before_filter :assign_page_name
+    before_filter :redirect_to_front_page_if_bad_name, :only => :show
 
     def show
       @page = ClWiki::Page.new(@page_name)
@@ -71,7 +72,7 @@ module ClWiki
     end
 
     def front_page_name
-      '/FrontPage'
+      'FrontPage'
     end
 
     def redirect_legacy_cgi_urls
@@ -86,16 +87,17 @@ module ClWiki
       end
     end
 
-    def front_page_if_bad_name
-      page_name = params[:page_name]
-      @page_name = if (page_name.blank?) || (!@formatter.is_wiki_name?(page_name))
-                     front_page_name
-                   elsif !$wiki_conf.editable && !ClWiki::Page.page_exists?(page_name.ensure_slash_prefix)
-                     front_page_name
-                   else
-                     page_name
-                   end
-      @page_name = @page_name.ensure_slash_prefix
+    def assign_page_name
+      @page_name = params[:page_name]
+      @page_name = @page_name.ensure_slash_prefix if @page_name
+    end
+
+    def redirect_to_front_page_if_bad_name
+      if ((@page_name.blank?) || (!@formatter.is_wiki_name?(@page_name))) ||
+          (!$wiki_conf.editable && !ClWiki::Page.page_exists?(@page_name.ensure_slash_prefix))
+        redirect_to page_show_url(:page_name => front_page_name)
+        return
+      end
     end
 
     def initialize_formatter
