@@ -93,7 +93,7 @@ module ClWiki
           pg_content = pg.raw_content
           fwd_full_page_name = get_forward_ref(pg_content)
           if fwd_full_page_name
-            pg_content = "Auto forwarded from /" + this_pg_name + "<hr>" + "/" + fwd_full_page_name + ":\n\n"
+            pg_content = "Auto forwarded from #{this_pg_name.strip_slash_prefix}<br><br>#{fwd_full_page_name}<br><br>"
             stack.push fwd_full_page_name
           else
             final_page_name = this_pg_name
@@ -142,12 +142,7 @@ module ClWiki
 
     def get_forward_ref(content)
       content_ary = content.split("\n")
-      res = (content_ary.collect { |ln|
-        if ln.strip.empty?;
-          nil;
-        else
-          ln;
-        end }.compact.length == 1)
+      res = (content_ary.collect { |ln| ln.strip.empty? ? nil : ln }.compact.length == 1)
       if res
         res = content_ary[0] =~ /^see (.*)/i
       end
@@ -155,7 +150,6 @@ module ClWiki
       if res
         page_name = $1
         f = ClWiki::PageFormatter.new(content, @full_name)
-        page_name = f.expand_path(page_name, @full_name)
         res = f.is_wiki_name?(page_name)
         if res
           res = ClWiki::Page.page_exists?(page_name)
