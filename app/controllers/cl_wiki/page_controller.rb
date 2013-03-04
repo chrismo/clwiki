@@ -79,9 +79,9 @@ module ClWiki
         page_name = (params[:page] || front_page_name).split('/')[-1]
         case
           when request.query_parameters.include?('edit')
-            redirect_to page_edit_url(:page_name => page_name)
+            redirect_to page_edit_url(:page_name => page_name), status: '301'
           else
-            redirect_to page_show_url(:page_name => page_name)
+            redirect_to page_show_url(:page_name => page_name), status: '301'
         end
       end
     end
