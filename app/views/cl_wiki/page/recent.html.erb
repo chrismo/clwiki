@@ -1,4 +1,4 @@
 <% @pages.each do |page| %>
-  <%= page.get_header.html_safe %>
+  <%= @formatter.convertToLink(page.name).html_safe %>
   <%= page.content.html_safe %>
 <% end %>

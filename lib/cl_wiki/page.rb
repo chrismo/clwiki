@@ -210,24 +210,23 @@ module ClWiki
       page_path = '/' if page_path == '.'
       dirs = page_path.split('/')
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
-      fulldirs =
-      (0..dirs.length-1).each { |i| fulldirs[i] = ('/' + dirs[0..i].join('/')) }
-      head = "<div class='wikiHeader'>"
+      full_dirs = (0..dirs.length-1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
+      head = '<div class=\'wikiHeader\'>'
       if (full_page_name != $FIND_PAGE_NAME) and
           (full_page_name != $FIND_RESULTS_NAME) and
           (full_page_name != $wiki_conf.recent_changes_name) and
           (full_page_name != $wiki_conf.stats_name)
         head << "<span class='pageName'><a href='find?search_text=#{search_text}'>#{page_name}</a></span><br/>"
-        fulldirs.each do |dir|
-          head << "<span class='pageTag'>"
+        full_dirs.each do |dir|
+          head << '<span class=\'pageTag\'>'
           head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a></span>"
         end
-        head << "<br/>"
+        head << '<br/>'
         head << "<span class='wikiPageData'>#{page_update_time(page)}</span><br/>" if page
       else
-        head << "<span class='pageName'>" + full_page_name + "</span>"
+        head << '<span class=\'pageName\'>' + full_page_name + '</span>'
       end
-      head << "</div>"
+      head << '</div>'
     end
 
     def page_update_time(page)
