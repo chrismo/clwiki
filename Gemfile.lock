@@ -122,7 +122,7 @@ GIT
 PATH
   remote: .
   specs:
-    clwiki (2.0.0)
+    clwiki (2.0.1)
       clindex
       clutil
 
