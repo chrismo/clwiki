@@ -1,7 +1,7 @@
 <%= form_tag(page_show_path(:page_name => @page.full_name)) do %>
   <%= hidden_field_tag 'client_mod_time', @page.mtime.to_i.to_s %>
 
-  <%= text_area_tag 'page_content', CGI.escapeHTML(@page.raw_content), rows: $wiki_conf.edit_rows, cols: $wiki_conf.edit_cols %>
+  <%= text_area_tag 'page_content', @page.raw_content, rows: $wiki_conf.edit_rows, cols: $wiki_conf.edit_cols %>
   <br/>
   <%= submit_tag 'Save', name: 'save' %>
   <%= submit_tag 'Save and Continue Editing', name: 'save_and_edit' %>
