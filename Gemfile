@@ -2,18 +2,17 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'rails',     github: 'rails/rails'
-gem 'arel',      github: 'rails/arel'
-gem 'activerecord-deprecated_finders', github: 'rails/activerecord-deprecated_finders'
+gem 'rails', '~> 4.2'
+# gem 'activerecord-deprecated_finders', github: 'rails/activerecord-deprecated_finders'
 gem 'sqlite3'
 
 
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
-  gem 'sprockets-rails', github: 'rails/sprockets-rails'
-  gem 'sass-rails',   github: 'rails/sass-rails'
-  gem 'coffee-rails', github: 'rails/coffee-rails'
+  gem 'sprockets-rails'
+  gem 'sass-rails'
+  gem 'coffee-rails'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
   # gem 'therubyracer', platforms: :ruby
@@ -27,11 +26,11 @@ gem 'jquery-rails'
 gem 'turbolinks'
 
 group :development, :test do
-  gem "rspec-rails",        :git => "git://github.com/rspec/rspec-rails.git"
-  gem "rspec",              :git => "git://github.com/rspec/rspec.git"
-  gem "rspec-core",         :git => "git://github.com/rspec/rspec-core.git"
-  gem "rspec-expectations", :git => "git://github.com/rspec/rspec-expectations.git"
-  gem "rspec-mocks",        :git => "git://github.com/rspec/rspec-mocks.git"
+  gem 'rspec-rails'
+  gem 'rspec'
+  gem 'rspec-core'
+  gem 'rspec-expectations'
+  gem 'rspec-mocks'
 end
 
 # To use ActiveModel has_secure_password

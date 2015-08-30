@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require_relative '../spec_helper'
 
 require 'tmpdir'
 
@@ -6,6 +6,8 @@ describe ClWiki::PageController do
   before do
     $wiki_path = Dir.mktmpdir
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+
+    @routes = ClWiki::Engine.routes
   end
 
   after do
@@ -16,13 +18,13 @@ describe ClWiki::PageController do
   end
 
   it 'should render /FrontPage by default' do
-    get :show, use_route: :cl_wiki
+    get :show
 
     assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
 
   it 'should render /NewPage with new content prompt' do
-    get :show, use_route: :cl_wiki, :page_name => 'NewPage'
+    get :show, :page_name => 'NewPage'
 
     page = assigns(:page)
     page.full_name.should == '/NewPage'
@@ -30,7 +32,7 @@ describe ClWiki::PageController do
   end
 
   it 'should allow editing of a page' do
-    get :edit, use_route: :cl_wiki, :page_name => 'NewPage'
+    get :edit, :page_name => 'NewPage'
 
     page = assigns(:page)
     page.full_name.should == '/NewPage'
@@ -38,10 +40,10 @@ describe ClWiki::PageController do
   end
 
   it 'should accept posted changes to a page' do
-    get :edit, use_route: :cl_wiki, :page_name => 'NewPage'
+    get :edit, :page_name => 'NewPage'
     page = assigns(:page)
 
-    post :update, use_route: :cl_wiki, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i
+    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i
 
     page = assigns(:page)
     page.read_raw_content
@@ -50,10 +52,10 @@ describe ClWiki::PageController do
   end
 
   it 'should also accept posted changes to a page and continue editing' do
-    get :edit, use_route: :cl_wiki, :page_name => 'NewPage'
+    get :edit, :page_name => 'NewPage'
     page = assigns(:page)
 
-    post :update, use_route: :cl_wiki, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i, :save_and_edit => true
+    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i, :save_and_edit => true
 
     page = assigns(:page)
     page.read_raw_content
@@ -64,20 +66,20 @@ describe ClWiki::PageController do
   it 'should handle multiple edit situation' # see legacy test test_multi_user_edit below
 
   it 'should redirect to front page on bad page name' do
-    get :show, use_route: :cl_wiki, :page_name => 'notavalidname'
+    get :show, :page_name => 'notavalidname'
 
     assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
 
   it 'should redirect to front page on non-existent page if not editable' do
     $wiki_conf.editable = false
-    get :show, use_route: :cl_wiki, :page_name => 'NewPage'
+    get :show, :page_name => 'NewPage'
 
     assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
 
   it 'should render find entry page' do
-    get :find, use_route: :cl_wiki
+    get :find
 
     assigns(:formatter).should be_a ClWiki::PageFormatter
     assigns(:search_text).should == nil
@@ -89,7 +91,7 @@ describe ClWiki::PageController do
     PageFixture.write_page('BarFoo', 'foobar')
     PageFixture.write_page('BaaRamEwe', 'sheep foobar')
 
-    post :find, use_route: :cl_wiki, :search_text => 'sheep'
+    post :find, :search_text => 'sheep'
 
     assigns(:formatter).should be_a ClWiki::PageFormatter
     assigns(:search_text).should == 'sheep'
@@ -102,7 +104,7 @@ describe ClWiki::PageController do
     PageFixture.write_page('BazQuux', 'bazquux')
     $wiki_conf.publishTag = nil
 
-    get :recent, use_route: :cl_wiki
+    get :recent
 
     assigns(:pages).map(&:full_name).should == ['BazQuux', 'FooBar']
   end
@@ -113,7 +115,7 @@ describe ClWiki::PageController do
     PageFixture.write_page('BazQuux', 'bazquux')
     $wiki_conf.publishTag = '<publish>'
 
-    get :recent, use_route: :cl_wiki
+    get :recent
 
     assigns(:pages).map(&:full_name).should == ['FooBar']
     # view should call get_header without footer, so those shouldn't be mixed into content
@@ -126,7 +128,7 @@ describe ClWiki::PageController do
     PageFixture.write_page('BazQuux', 'bazquux')
     $wiki_conf.publishTag = '<publish>'
 
-    get :recent, use_route: :cl_wiki, :format => 'rss'
+    get :recent, :format => 'rss'
 
     assigns(:pages).map(&:full_name).should == ['FooBar']
   end
