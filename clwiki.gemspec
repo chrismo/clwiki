@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = %w(chrismo)
   s.email       = %w(chrismo@clabs.org)
   s.homepage    = 'http://github.com/chrismo/clwiki'
-  s.summary     = 'Old, tired, crappy wiki, semi-reborn as a Rails 4 Engine.'
-  s.description = 'Old, tired, crappy wiki, semi-reborn as a Rails 4 Engine.'
+  s.summary     = 'Old, tired, crappy wiki, reborn as a Rails 4 Engine.'
+  s.description = 'Old, tired, crappy wiki, reborn as a Rails 4 Engine.'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.rdoc']
   s.test_files = Dir['test/**/*']
