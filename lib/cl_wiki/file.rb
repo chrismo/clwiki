@@ -149,7 +149,7 @@ module ClWiki
         f.mtime
       end
       if mtime_to_compare != current_mtime
-        raise FileModifiedSinceRead, "File has been modified since it was last read."
+        raise FileModifiedSinceRead, "File has been modified since it was last read. #{mtime_to_compare} != #{current_mtime}"
       end
     end
 

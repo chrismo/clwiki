@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    clwiki (2.1.1)
+    clwiki (2.1.2)
       clindex
       clutil
 
