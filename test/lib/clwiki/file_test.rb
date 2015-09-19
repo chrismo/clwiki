@@ -1,6 +1,6 @@
-require File.dirname(__FILE__) + '/clwiki_test_helper'
+require_relative 'clwiki_test_helper'
+require_relative 'test_base'
 require 'file'
-require File.dirname(__FILE__) + '/test_base'
 
 class TestClWikiFile < TestBase
   # refactor: shouldn't be dealing with page paths at this level, should be at
@@ -89,5 +89,14 @@ class TestClWikiFile < TestBase
     assert_match /^mtime: .+$/, file_lines[0]
     assert_equal "\n", file_lines[1]
     assert_equal "\n", file_lines[2]
+  end
+
+  def test_compare_ignores_usec
+    a = Time.now
+    b = Time.new(a.year, a.month, a.day, a.hour, a.min, a.sec)
+    assert a.usec != 0
+    assert_equal 0, b.usec
+
+    ClWiki::Util.compare_read_times!(a, b)
   end
 end

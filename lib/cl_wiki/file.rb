@@ -150,8 +150,15 @@ module ClWiki
       current_mtime = ::File.open(file_name) do |f|
         f.mtime
       end
-      if mtime_to_compare != current_mtime
-        raise FileModifiedSinceRead, "File has been modified since it was last read. #{dump_time(mtime_to_compare)} != #{dump_time(current_mtime)}"
+      compare_read_times!(mtime_to_compare, current_mtime)
+    end
+
+    def self.compare_read_times!(a, b)
+      # ignore usec
+      a = Time.new(a.year, a.month, a.day, a.hour, a.min, a.sec)
+      b = Time.new(b.year, b.month, b.day, b.hour, b.min, b.sec)
+      if a != b
+        raise FileModifiedSinceRead, "File has been modified since it was last read. #{dump_time(a)} != #{dump_time(b)}"
       end
     end
 
