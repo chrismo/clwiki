@@ -151,7 +151,14 @@ module ClWiki
         f.mtime
       end
       if mtime_to_compare != current_mtime
-        raise FileModifiedSinceRead, "File has been modified since it was last read. #{mtime_to_compare} != #{current_mtime}"
+        raise FileModifiedSinceRead, "File has been modified since it was last read. #{dump_time(mtime_to_compare)} != #{dump_time(current_mtime)}"
+      end
+    end
+
+    def self.dump_time(time)
+      ''.tap do |s|
+        s << "#{time}"
+        s << ".#{time.usec}" if time.respond_to?(:usec)
       end
     end
 
