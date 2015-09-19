@@ -1,6 +1,8 @@
 require 'fileutils'
 require 'time'
 
+require_relative 'page'
+
 $wikiPageExt = '.txt'
 
 module ClWiki
