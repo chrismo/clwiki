@@ -465,6 +465,10 @@ module ClWiki
       @formatters << class_ref
     end
 
+    def unregister(class_ref)
+      @formatters.delete(class_ref)
+    end
+
     def process_formatters(content, page)
       @formatters.each do |f|
         if content =~ f.match_re

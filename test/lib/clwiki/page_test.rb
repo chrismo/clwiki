@@ -167,9 +167,10 @@ class TestClWikiPage < TestBase
 
   def test_custom_formatter_path_config
     Dir.mktmpdir do |dir|
-      $wiki_conf.custom_formatter_load_path << dir
-      File.open(File.join(dir, 'format.reverser.rb'), 'w') do |f|
-        f.print <<-RUBY
+      begin
+        $wiki_conf.custom_formatter_load_path << dir
+        File.open(File.join(dir, 'format.reverser.rb'), 'w') do |f|
+          f.print <<-RUBY
           class ReverseText < ClWiki::CustomFormatter
             def ReverseText.match_re
               /.*/
@@ -183,11 +184,16 @@ class TestClWikiPage < TestBase
           end
 
           ClWiki::CustomFormatters.instance.register(ReverseText)
-        RUBY
+          RUBY
+        end
+        page = ClWiki::Page.new('RevPage')
+        page.update_content("awesome", page.mtime)
+        assert_match /emosewa/, page.read_content(false)
+      ensure
+        ClWiki::CustomFormatters.instance.unregister(ReverseText)
+        Object.send(:remove_const, :ReverseText)
+        $wiki_conf.custom_formatter_load_path.delete(dir)
       end
-      page = ClWiki::Page.new('RevPage')
-      page.update_content("awesome", page.mtime)
-      assert_match /emosewa/, page.read_content(false)
     end
   end
 end

@@ -99,4 +99,14 @@ class TestClWikiFile < TestBase
 
     ClWiki::Util.compare_read_times!(a, b)
   end
+
+  def test_reads_no_metadata_file
+    File.open(File.join(@test_wiki_path, 'LegacyPage.txt'), 'w') do |f|
+      f.puts "First line"
+      f.puts "\n\n"
+      f.puts "After the big break"
+    end
+    wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
+    assert_equal "First line\n\n\nAfter the big break\n", wiki_file.content.join
+  end
 end

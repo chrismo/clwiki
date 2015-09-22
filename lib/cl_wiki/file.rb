@@ -121,13 +121,18 @@ module ClWiki
       raw_lines.each_with_index do |ln, index|
         if ln.chomp.empty?
           next_line = raw_lines[index+1]
-          if next_line.nil? || next_line.chomp.empty?
+          if (next_line.nil? || next_line.chomp.empty?) &&
+            all_lines_are_metadata_lines(raw_lines[0..index-1])
             start_index = index + 2
             break
           end
         end
       end
       [raw_lines[0..start_index-3], raw_lines[start_index..-1]]
+    end
+
+    def all_lines_are_metadata_lines(lines)
+      lines.map { |ln| ln =~ /\w+: / }.uniq == [0]
     end
 
     def read_metadata(lines)
