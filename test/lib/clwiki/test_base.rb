@@ -15,7 +15,12 @@ class TestBase < TempDirTest
     $wiki_conf.wiki_path = $wiki_path
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
   end
-  
+
+  def override_wiki_path(path)
+    $wiki_path = path
+    $wiki_conf.wiki_path = path
+  end
+
   # to ward off the new Test::Unit detection of classes with no test
   # methods
   def default_test

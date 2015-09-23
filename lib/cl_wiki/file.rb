@@ -7,7 +7,7 @@ $wikiPageExt = '.txt'
 
 module ClWiki
   class File
-    attr_reader :name, :fileExt, :wikiRootPath, :pagePath, :modTimeAtLastRead
+    attr_reader :name, :fileExt, :wikiRootPath, :pagePath, :modTimeAtLastRead, :metadata
     attr_accessor :clientLastReadModTime
 
     def initialize(fullPageName, wikiRootPath, fileExt=$wikiPageExt, autocreate=true)
@@ -19,6 +19,7 @@ module ClWiki
       @pagePath = '/' if @pagePath == '.'
       @fileExt = fileExt
       @metadata = {}
+      @metadata_keys = ['mtime']
       if autocreate
         if file_exists?
           readFile
@@ -121,25 +122,32 @@ module ClWiki
       raw_lines.each_with_index do |ln, index|
         if ln.chomp.empty?
           next_line = raw_lines[index+1]
-          if (next_line.nil? || next_line.chomp.empty?) &&
-            all_lines_are_metadata_lines(raw_lines[0..index-1])
-            start_index = index + 2
+          if next_line.nil? || next_line.chomp.empty?
+            if all_lines_are_metadata_lines(raw_lines[0..index-1])
+              start_index = index + 2
+            end
             break
           end
         end
       end
-      [raw_lines[0..start_index-3], raw_lines[start_index..-1]]
+
+      if start_index > 0
+        [raw_lines[0..start_index-3], raw_lines[start_index..-1]]
+      else
+        [[], raw_lines]
+      end
     end
 
     def all_lines_are_metadata_lines(lines)
-      lines.map { |ln| ln =~ /\w+: / }.uniq == [0]
+      lines.map { |ln| ln.scan(/\A(\w+):?/) }.flatten.
+        map { |k| @metadata_keys.include?(k) }.uniq == [true]
     end
 
     def read_metadata(lines)
       @metadata = {}
       lines.each do |ln|
         key, value = ln.split(': ')
-        @metadata[key] = value
+        @metadata[key] = value if @metadata_keys.include?(key)
       end
     end
 
