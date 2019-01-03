@@ -35,7 +35,7 @@ module ClWiki
 
     def do_puts(text)
       if @fn
-        File.open(@fn, 'a+') do |f|
+        ::File.open(@fn, 'a+') do |f|
           f.puts text
         end
       else
