@@ -168,7 +168,7 @@ module ClWiki
       wikiFile.content = newcontent
       if $wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO
         wikiIndexClient = ClWiki::IndexClient.new
-        wikiIndexClient.reindex_page(@full_name)
+        wikiIndexClient.reindex_page_and_save_async(@full_name)
       end
     end
 

@@ -105,19 +105,19 @@ module ClWiki
     end
 
     def hits_filename
-      ::File.join(::File.expand_path('.'), 'hits.dat')
+      ::File.join(::File.expand_path($wiki_path), 'hits.dat')
     end
 
     def index_filename
-      ::File.join(::File.expand_path('.'), 'index.dat')
+      ::File.join(::File.expand_path($wiki_path), 'index.dat')
     end
 
     def recent_filename
-      ::File.join(::File.expand_path('.'), 'recent.dat')
+      ::File.join(::File.expand_path($wiki_path), 'recent.dat')
     end
 
     def pages_filename
-      ::File.join(::File.expand_path('.'), 'pages.dat')
+      ::File.join(::File.expand_path($wiki_path), 'pages.dat')
     end
 
     def remove_page_from_index(fullPageName)
@@ -309,8 +309,16 @@ module ClWiki
       end
     end
 
-    def reindex_page(fullPageName)
+    def reindex_page_and_save_async(fullPageName)
       @indexer.reindex_and_save_async(fullPageName)
+    end
+
+    def reindex_page(full_page_name)
+      @indexer.reindex_page(full_page_name)
+    end
+
+    def save
+      @indexer.save
     end
 
     def search(term, titles_only=false)
