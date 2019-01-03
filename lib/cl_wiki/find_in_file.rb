@@ -10,7 +10,7 @@ module ClWiki
     end
 
     def find(search_text, scope = FULL_SEARCH)
-      recursive_find_path = ::File.join(@find_path, '**', '*')
+      recursive_find_path = ::File.join(@find_path, '**', "*#{$wikiPageExt}")
       regex = /#{search_text}/i
       @files = Dir[recursive_find_path].grep(regex)
       if scope == FULL_SEARCH
