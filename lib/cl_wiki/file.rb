@@ -42,7 +42,7 @@ module ClWiki
     end
 
     def file_exists?
-      FileTest.exists?(fullPathAndName)
+      FileTest.exist?(fullPathAndName)
     end
 
     def fullPath

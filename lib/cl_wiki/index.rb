@@ -102,7 +102,7 @@ module ClWiki
     def add_to_recent(modTime, fullPageName)
       # remove all other instances of this page, we only need the current modTime
       @recent.remove(fullPageName, WAIT)
-      @recent.add(modTime, fullPageName, WAIT)
+      @recent.add(modTime.strftime("%Y-%m-%dT%H:%M:%S"), fullPageName, WAIT)
     end
 
     def add_to_pages(fullPageName)
@@ -175,17 +175,17 @@ module ClWiki
     def load
       put_status 'Loading' do
         put_status 'Loading Main' do
-          @index.load(index_filename, WAIT) if ::File.exists?(index_filename)
+          @index.load(index_filename, WAIT) if ::File.exist?(index_filename)
         end
         put_status 'Loading Recent' do
-          @recent.load(recent_filename, WAIT) if ::File.exists?(recent_filename)
+          @recent.load(recent_filename, WAIT) if ::File.exist?(recent_filename)
         end
         put_status 'Loading Pages' do
-          @pages.load(pages_filename, WAIT) if ::File.exists?(pages_filename)
+          @pages.load(pages_filename, WAIT) if ::File.exist?(pages_filename)
         end
         if @wiki_conf.access_log_index
           put_status 'Loading Hits' do
-            @hits.load(hits_filename, WAIT) if ::File.exists?(hits_filename)
+            @hits.load(hits_filename, WAIT) if ::File.exist?(hits_filename)
           end
         end
       end

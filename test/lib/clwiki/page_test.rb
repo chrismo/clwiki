@@ -18,7 +18,7 @@ end
 
 class TestClWikiPage < TestBase
   def test_wiki_page
-    newPage = ClWiki::Page.new('/NewPage')
+    ClWiki::Page.new('/NewPage')
   end
 
   def do_test_convert_to_link(pageName, pagePath='/FrontPage')
@@ -162,7 +162,7 @@ class TestClWikiPage < TestBase
   def test_custom_formatter
     page = ClWiki::Page.new('MyPage')
     page.update_content("[]\n[/]", page.mtime)
-    assert_match /#{Regexp.escape("<blockquote>\n</blockquote>")}/, page.read_content(false)
+    assert_match(/#{Regexp.escape("<blockquote>\n</blockquote>")}/, page.read_content(false))
   end
 
   def test_custom_formatter_path_config
@@ -188,7 +188,7 @@ class TestClWikiPage < TestBase
         end
         page = ClWiki::Page.new('RevPage')
         page.update_content("awesome", page.mtime)
-        assert_match /emosewa/, page.read_content(false)
+        assert_match(/emosewa/, page.read_content(false))
       ensure
         ClWiki::CustomFormatters.instance.unregister(ReverseText)
         Object.send(:remove_const, :ReverseText)

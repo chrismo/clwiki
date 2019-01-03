@@ -8,9 +8,9 @@ class TestClWikiFile < TestBase
   def do_test_new_page(fullPageName)
     fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
     fileName = File.expand_path(File.join(@test_wiki_path, fullPageName)) + '.txt'
-    File.delete(fileName) if FileTest.exists?(fileName)
+    File.delete(fileName) if FileTest.exist?(fileName)
     wikiFile = ClWiki::File.new(fullPageName, @test_wiki_path)
-    assert(FileTest.exists?(wikiFile.fullPathAndName))
+    assert(FileTest.exist?(wikiFile.fullPathAndName))
     pagePath, pageName = File.split(fullPageName)
     assert(wikiFile.name == pageName)
     assert_equal(pagePath, wikiFile.pagePath)
@@ -86,7 +86,7 @@ class TestClWikiFile < TestBase
     # the mtime of the file can be optionally stored as meta data at the top of the file
     wiki_file = ClWiki::File.new("/PageWithMetaData", @test_wiki_path)
     file_lines = File.readlines(wiki_file.fullPathAndName)
-    assert_match /^mtime: .+$/, file_lines[0]
+    assert_match(/^mtime: .+$/, file_lines[0])
     assert_equal "\n", file_lines[1]
     assert_equal "\n", file_lines[2]
   end
