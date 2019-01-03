@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    clwiki (2.1.8)
+    clwiki (2.2.0)
       clindex
       clutil
 
@@ -46,7 +46,7 @@ GEM
     builder (3.2.3)
     clindex (1.2.1)
       clutil (>= 2011.138.0)
-    clutil (2015.262.0)
+    clutil (2017.063.0)
       rake
     coffee-rails (4.1.0)
       coffee-script (>= 2.2.0)
