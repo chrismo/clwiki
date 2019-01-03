@@ -80,12 +80,7 @@ module ClWiki
         else
           formatter = ClWiki::PageFormatter.new(pg.raw_content, fullName)
           formatter.formatLinks do |word|
-            if formatter.is_wiki_name?(word)
-              word = formatter.expand_path(word, fullName)
-            else
-              word.downcase!
-            end
-            add_to_index(word, fullName)
+            add_to_index(word.downcase, fullName)
           end
           add_to_index(fullName, fullName)
           add_to_pages(fullName)
