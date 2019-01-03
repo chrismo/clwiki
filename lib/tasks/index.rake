@@ -5,6 +5,7 @@ def pct_done(done, total)
   pct.to_s.rjust(3) + '%'
 end
 
+desc 'Reindex the wiki pages.'
 task reindex: :environment do
   indexer = ClWiki::IndexClient.new
 
