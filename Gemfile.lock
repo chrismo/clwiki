@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    clwiki (2.2.0)
-      clindex
+    clwiki (2.2.1)
+      clindex (~> 2.0)
       clutil
 
 GEM
@@ -44,7 +44,7 @@ GEM
       tzinfo (~> 1.1)
     arel (6.0.4)
     builder (3.2.3)
-    clindex (1.2.1)
+    clindex (2.0.0)
       clutil (>= 2011.138.0)
     clutil (2017.063.0)
       rake
