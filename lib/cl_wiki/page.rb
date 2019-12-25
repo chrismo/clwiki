@@ -33,18 +33,18 @@ module ClWiki
     # converting \n to <br>\n is the culprit here. I did this for more readable
     # html, but that does screw up <pre> sections, so it's put back now.
     def convert_newline_to_br
-      newcontent = ""
+      new_content = ""
       insideHtmlTags = false
       @content.each_line do |substr|
-        insideHtmlTags = true if (substr =~ /#{$HTML_START}/)
-        insideHtmlTags = false if (substr =~ /#{$HTML_END}/)
+        insideHtmlTags = true if (substr =~ /#{'<html>'}/)
+        insideHtmlTags = false if (substr =~ /#{'</html>'}/)
         if ((!ClWiki::PageFormatter.only_html(substr)) or (substr == "\n")) and !insideHtmlTags
-          newcontent = newcontent + substr.gsub(/\n/, "<br>")
+          new_content = new_content + substr.gsub(/\n/, "<br>")
         else
-          newcontent = newcontent + substr
+          new_content = new_content + substr
         end
       end
-      @content = newcontent
+      @content = new_content
     end
 
     def self.wikiIndexClient
