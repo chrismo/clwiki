@@ -2,10 +2,8 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'rails', '~> 4.2'
-# gem 'activerecord-deprecated_finders', github: 'rails/activerecord-deprecated_finders'
+gem 'rails', '~> 6.0'
 gem 'sqlite3'
-
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -26,7 +24,9 @@ gem 'jquery-rails'
 gem 'turbolinks'
 
 group :development, :test do
-  gem 'rspec-rails'
+  gem 'rails-controller-testing'
+
+  gem 'rspec-rails', '4.0.0.beta3'
   gem 'rspec'
   gem 'rspec-core'
   gem 'rspec-expectations'
