@@ -24,7 +24,7 @@ describe ClWiki::PageController do
   end
 
   it 'should render /NewPage with new content prompt' do
-    get :show, :page_name => 'NewPage'
+    get :show, params: {:page_name => 'NewPage'}
 
     page = assigns(:page)
     page.full_name.should == '/NewPage'
@@ -32,7 +32,7 @@ describe ClWiki::PageController do
   end
 
   it 'should allow editing of a page' do
-    get :edit, :page_name => 'NewPage'
+    get :edit, params: {:page_name => 'NewPage'}
 
     page = assigns(:page)
     page.full_name.should == '/NewPage'
@@ -40,10 +40,10 @@ describe ClWiki::PageController do
   end
 
   it 'should accept posted changes to a page' do
-    get :edit, :page_name => 'NewPage'
+    get :edit, params: {:page_name => 'NewPage'}
     page = assigns(:page)
 
-    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i
+    post :update, params: {:page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i}
 
     page = assigns(:page)
     page.read_raw_content
@@ -52,10 +52,10 @@ describe ClWiki::PageController do
   end
 
   it 'should also accept posted changes to a page and continue editing' do
-    get :edit, :page_name => 'NewPage'
+    get :edit, params: {:page_name => 'NewPage'}
     page = assigns(:page)
 
-    post :update, :page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i, :save_and_edit => true
+    post :update, params: {:page_name => 'NewPage', :page_content => 'NewPage content', :client_mod_time => page.mtime.to_i, :save_and_edit => true}
 
     page = assigns(:page)
     page.read_raw_content
@@ -66,14 +66,14 @@ describe ClWiki::PageController do
   it 'should handle multiple edit situation' # see legacy test test_multi_user_edit below
 
   it 'should redirect to front page on bad page name' do
-    get :show, :page_name => 'notavalidname'
+    get :show, params: {:page_name => 'notavalidname'}
 
     assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
 
   it 'should redirect to front page on non-existent page if not editable' do
     $wiki_conf.editable = false
-    get :show, :page_name => 'NewPage'
+    get :show, params: {:page_name => 'NewPage'}
 
     assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end
@@ -91,7 +91,7 @@ describe ClWiki::PageController do
     PageFixture.write_page('BarFoo', 'foobar')
     PageFixture.write_page('BaaRamEwe', 'sheep foobar')
 
-    post :find, :search_text => 'sheep'
+    post :find, params: {:search_text => 'sheep'}
 
     assigns(:formatter).should be_a ClWiki::PageFormatter
     assigns(:search_text).should == 'sheep'

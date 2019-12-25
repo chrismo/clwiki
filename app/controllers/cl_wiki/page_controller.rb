@@ -2,10 +2,10 @@ require 'cl_wiki/page'
 
 module ClWiki
   class PageController < ApplicationController
-    before_filter :redirect_legacy_cgi_urls
-    before_filter :initialize_formatter
-    before_filter :assign_page_name
-    before_filter :redirect_to_front_page_if_bad_name, :only => :show
+    before_action :redirect_legacy_cgi_urls
+    before_action :initialize_formatter
+    before_action :assign_page_name
+    before_action :redirect_to_front_page_if_bad_name, :only => :show
 
     def show
       @page = ClWiki::Page.new(@page_name)
