@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/clwiki_test_helper'
+require_relative 'clwiki_test_helper'
 
 require 'rubygems'
 gem 'clutil'
@@ -30,38 +30,38 @@ class TestFindInFile < TempDirTest
   end
 
   def test_simple_find_content
-    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
     assert_equal(1, @find_in_file.find('only'))
     assert_equal(1, @find_in_file.files.length)
-    assert_equal('TestA', @find_in_file.files[0])
+    assert_equal('TestA.txt', @find_in_file.files[0])
   end
 
   def test_simple_find_filename
-    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
     assert_equal(1, @find_in_file.find('tA'))
     assert_equal(1, @find_in_file.files.length)
-    assert_equal('TestA', @find_in_file.files[0])
+    assert_equal('TestA.txt', @find_in_file.files[0])
   end
 
   def test_simple_find_content_case_insensitive
-    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
     assert_equal(1, @find_in_file.find('oNly'))
     assert_equal(1, @find_in_file.files.length)
-    assert_equal('TestA', @find_in_file.files[0])
+    assert_equal('TestA.txt', @find_in_file.files[0])
   end
 
   def test_simple_find_filename_case_insensitive
-    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
     assert_equal(1, @find_in_file.find('Ta'))
     assert_equal(1, @find_in_file.files.length)
-    assert_equal('TestA', @find_in_file.files[0])
+    assert_equal('TestA.txt', @find_in_file.files[0])
   end
 
   def test_match_in_file_name_and_content
-    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
     assert_equal(1, @find_in_file.find('test'))
     assert_equal(1, @find_in_file.files.length)
-    assert_equal('TestA', @find_in_file.files[0])
+    assert_equal('TestA.txt', @find_in_file.files[0])
   end
 
   def test_subdir_search
@@ -71,15 +71,15 @@ class TestFindInFile < TempDirTest
   end
 
   def test_title_only_search
-    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
     create_test_file(@test_wiki_path + '/blah', 'this is only a test')
     assert_equal(1, @find_in_file.find('test', ClWiki::FindInFile::FILE_NAME_ONLY))
     assert_equal(1, @find_in_file.files.length)
-    assert_equal('TestA', @find_in_file.files[0])
+    assert_equal('TestA.txt', @find_in_file.files[0])
   end
 
   def xtest_mini_load_test
-    create_test_file(@test_wiki_path + '/TestA', 'this is only a test')
+    create_test_file(@test_wiki_path + '/TestA.txt', 'this is only a test')
     content = ''
     1000.times do
       content << 'this is a sample file'

@@ -1,5 +1,4 @@
 require_relative 'clwiki_test_helper'
-require_relative 'test_base'
 require 'file'
 
 class TestClWikiFile < TestBase
