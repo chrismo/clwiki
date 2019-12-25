@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/clwiki_test_helper'
+require_relative 'clwiki_test_helper'
 
 require 'rubygems'
 gem 'clutil'
