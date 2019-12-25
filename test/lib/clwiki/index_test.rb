@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/clwiki_test_helper'
+require_relative 'clwiki_test_helper'
 require 'index'
 
 class TestClWikiIndex < TestBase
@@ -13,8 +13,8 @@ class TestClWikiIndex < TestBase
     end
     # couldn't find a way to set the mtime quickly, so just trusting
     # the above code will run within the same second...
-    assert_in_delta(File.mtime(file_a), File.mtime(file_b), 1.second)
-    assert_in_delta(File.mtime(file_a), File.mtime(file_c), 1.second)
+    assert_in_delta(File.mtime(file_a), File.mtime(file_b), 1)
+    assert_in_delta(File.mtime(file_a), File.mtime(file_c), 1)
     @mtime = File.mtime(file_a)
     @i = ClWiki::Indexer.new
     $wiki_conf.access_log_index = false
