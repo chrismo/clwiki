@@ -1,20 +1,16 @@
-Page and File classes need to support this option. This can't just be a
-formatter plugin. Formatter plugins alter content read from disk, but aren't
-involved in the writing process.
+This can't just be a formatter plugin. Formatter plugins alter content read from
+disk, but aren't involved in the writing process.
 
-Should there be a plugin for this?
+`<encrypt>` tag at top of content will be the flag for the Page class to
+encrypt. How will it know to decrypt? Encrypted contents have a byte marker?
 
-Maybe just Page has support for this, File class should write/read the encrypted
-content. Page will encrypt/decrypt.
+Devise? Um - devise is for one-way digests. We need enc/dec - Lockbox.
 
-The Rails app can add user authentication somehow (something basic). Wiki should
-still work without any auth for pages that haven't been encrypted.
+Ah, how about an optional `encrypted: true` metadata? Then most of how the tests
+and everything work doesn't have to be changed, it can work with some encrypted,
+some not.
 
-Cookie/session storage should have the key to decrypt.
+Encrypt tag would work for formatter plugin, if plugins could be expanded to
+support writing as well.
 
-`<encrypt>` tag at top of content will be the flag for the Page class to encrypt.
-How will it know to decrypt? Encrypted contents have a byte marker?
-
-=== Devise?
-
-Is devise too heavy? I used devise with cashew, right?
+That allows user to control without any additional UI.

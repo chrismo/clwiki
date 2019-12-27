@@ -1,6 +1,8 @@
 require 'fileutils'
 require 'time'
 
+require 'lockbox'
+
 require_relative 'page'
 
 $wikiPageExt = '.txt'
@@ -19,7 +21,7 @@ module ClWiki
       @pagePath = '/' if @pagePath == '.'
       @fileExt = fileExt
       @metadata = {}
-      @metadata_keys = ['mtime']
+      @metadata_keys = %w[mtime encrypted]
       if autocreate
         if file_exists?
           readFile
@@ -68,8 +70,8 @@ module ClWiki
       writeToFile(newContent)
     end
 
-    def writeToFile(content, checkModTime=true)
-      if checkModTime
+    def writeToFile(content, check_mod_time = true)
+      if check_mod_time
         # refactor, bring raiseIfMTimeNotEqual back into this class
         ClWiki::Util.raiseIfMTimeNotEqual(@modTimeAtLastRead, fullPathAndName)
         unless @clientLastReadModTime.nil?
@@ -79,10 +81,15 @@ module ClWiki
 
       make_dirs(fullPath)
       ding_mtime
-      ::File.open(fullPathAndName, 'w+') do |f|
-        f.print(metadata_to_write)
-        f.print(content)
+      file_contents = ''.tap do |s|
+        s << metadata_to_write
+        if content_encrypted?
+          s << lock_box.encrypt(content)
+        else
+          s << content
+        end
       end
+      ::File.binwrite(fullPathAndName, file_contents)
       ::File.utime(@metadata['mtime'], @metadata['mtime'], fullPathAndName)
       readFile
     end
@@ -107,16 +114,26 @@ module ClWiki
     end
 
     def readFile
-      ::File.open(fullPathAndName, 'r') do |f|
-        @modTimeAtLastRead = f.mtime
-        raw_lines = f.readlines
-        metadata_lines, content = split_metadata(raw_lines)
-        read_metadata(metadata_lines)
-        apply_metadata
-        @contents = content
+      @modTimeAtLastRead = ::File.mtime(fullPathAndName)
+
+      # positive lookbehind regex is used here to retain the end of line
+      # newline, because this used to just be `File.readlines` which also keeps
+      # the newline characters.
+      raw_lines = ::File.binread(fullPathAndName).split(/(?<=\n)/)
+
+      metadata_lines, raw_content = split_metadata(raw_lines)
+      read_metadata(metadata_lines)
+      apply_metadata
+
+      if content_encrypted?
+        decrypted_content = lock_box.decrypt_str(raw_content.join)
+        @contents = decrypted_content
+      else
+        @contents = raw_content
       end
     end
 
+    # TODO: this implementation seems quite tortured
     def split_metadata(raw_lines)
       start_index = 0
       raw_lines.each_with_index do |ln, index|
@@ -147,12 +164,26 @@ module ClWiki
       @metadata = {}
       lines.each do |ln|
         key, value = ln.split(': ')
-        @metadata[key] = value if @metadata_keys.include?(key)
+        @metadata[key] = value.chomp if @metadata_keys.include?(key)
       end
     end
 
     def apply_metadata
       @modTimeAtLastRead = Time.parse(@metadata['mtime']) if @metadata.keys.include? 'mtime'
+    end
+
+    def content_encrypted?
+      @metadata['encrypted'] == 'true'
+    end
+
+    def encrypt_content!
+      @metadata['encrypted'] = 'true'
+    end
+
+    private
+
+    def lock_box
+      Lockbox.new(key: '0' * 64)
     end
   end
 
