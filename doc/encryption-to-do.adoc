@@ -1,16 +1,46 @@
+== Encrypting the file data
+
+=== Mechanism to encrypt/decrypt
+
+Lockbox. Devise is for a one-way hashing of password.
+
+=== Mechanism to manage the master key
+
+Hardcoded so far - but that won't do
+
+=== Mechanism to base encryption key off user password?
+
+https://github.com/ankane/lockbox/issues/1#issuecomment-566209690[Lockbox
+discussion on this - use Argon2 to do it]
+
+=== Mechanism to indicate what content is encrypted?
+
+==== custom tag to encrypt contents inside?
+
 This can't just be a formatter plugin. Formatter plugins alter content read from
 disk, but aren't involved in the writing process.
 
 `<encrypt>` tag at top of content will be the flag for the Page class to
 encrypt. How will it know to decrypt? Encrypted contents have a byte marker?
 
-Devise? Um - devise is for one-way digests. We need enc/dec - Lockbox.
+- Could just encrypt inside the tags, tags are still plaintext
 
-Ah, how about an optional `encrypted: true` metadata? Then most of how the tests
-and everything work doesn't have to be changed, it can work with some encrypted,
-some not.
+- This option is done at a higher level then, which isn't as desirable?
 
 Encrypt tag would work for formatter plugin, if plugins could be expanded to
 support writing as well.
 
 That allows user to control without any additional UI.
+
+==== file metadata key
+
+Ah, how about an optional `encrypted: true` metadata? Then most of how the tests
+and everything work doesn't have to be changed, it can work with some encrypted,
+some not.
+
+- This is implemented now, dunno if we'll stick with it.
+
+- could add a check box to the edit UI, that has a global option to be on by
+default or not.
+
+
