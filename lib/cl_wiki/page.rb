@@ -162,10 +162,10 @@ module ClWiki
       end
     end
 
-    def update_content(newcontent, mtime)
+    def update_content(new_content, mtime)
       wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
       wikiFile.clientLastReadModTime = mtime
-      wikiFile.content = newcontent
+      wikiFile.content = new_content
       if $wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO
         wikiIndexClient = ClWiki::IndexClient.new
         wikiIndexClient.reindex_page_and_save_async(@full_name)
