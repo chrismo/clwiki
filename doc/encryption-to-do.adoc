@@ -1,17 +1,42 @@
 == Encrypting the file data
 
+Two goals:
+
+- data at rest on the hard drive is not plaintext.
+
+- data via the app requires a login so anyone stumbling over the wiki
+  has to authenticate themselves.
+
 === Mechanism to encrypt/decrypt
 
 Lockbox. Devise is for a one-way hashing of password.
 
 === Mechanism to manage the master key
 
-Hardcoded so far - but that won't do
+Hardcoded so far - but that won't do. I do want to keep it simple, so that
+if it's lost, it can be re-discovered easily enough.
 
 === Mechanism to base encryption key off user password?
 
 https://github.com/ankane/lockbox/issues/1#issuecomment-566209690[Lockbox
-discussion on this - use Argon2 to do it]
+discussion on this - use Argon2 to do it]. I'm not sure I fully understand
+it though.
+
+=== Mechanism for id-ing the user
+
+This is an engine - should it be implemented here, or in the hosting Rails
+app? If it's implemented here, then basing encryption key off a user thing
+would be possible.
+
+several articles on rolling it yourself, vs. devise. roll myself should be
+fine - it's only for myself, I don't need robust features (forgot password,
+signups).
+
+I don't have a database. So, where do I store the password hash? File
+system.
+
+Is that any different than nginx auth then? Well, I'll have access to it in
+the app, which I need.
 
 === Mechanism to indicate what content is encrypted?
 
@@ -43,4 +68,7 @@ some not.
 - could add a check box to the edit UI, that has a global option to be on by
 default or not.
 
+- this would be simpler than always having to use an encrypt tag.
+
+- simpler to backfill a script for this on all Journal* pages.
 
