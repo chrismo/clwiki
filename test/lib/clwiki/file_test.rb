@@ -123,12 +123,12 @@ class TestClWikiFile < TestBase
   end
 
   def test_encrypted_contents
-    wiki_file = ClWiki::File.new("/EncryptedPage", @test_wiki_path)
+    wiki_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path)
     wiki_file.encrypt_content!
     expected_content = "This is my\n<b>awesome</b>\ncontent!"
     wiki_file.content = expected_content
 
-    read_file = ClWiki::File.new("/EncryptedPage", @test_wiki_path)
+    read_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path)
     assert_equal expected_content, read_file.content
   end
 end

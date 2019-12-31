@@ -10,7 +10,7 @@ $FIND_RESULTS_NAME = "Find Results"
 module ClWiki
   class Page
     attr_reader :content, :mtime, :name, :full_name, :pagePath, :raw_content,
-                :fileFullPathAndName
+                :file_full_path_and_name
 
     @@wikiIndexClient = nil
 
@@ -72,9 +72,9 @@ module ClWiki
     end
 
     def read_page_attributes
-      wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
-      @mtime = wikiFile.modTimeAtLastRead
-      @fileFullPathAndName = wikiFile.fullPathAndName
+      wiki_file = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
+      @mtime = wiki_file.mod_time_at_last_read
+      @file_full_path_and_name = wiki_file.fullPathAndName
     end
 
     def read_raw_content_with_forwarding(full_page_name)
@@ -163,12 +163,12 @@ module ClWiki
     end
 
     def update_content(new_content, mtime)
-      wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
-      wikiFile.clientLastReadModTime = mtime
-      wikiFile.content = new_content
+      wiki_file = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
+      wiki_file.clientLastReadModTime = mtime
+      wiki_file.content = new_content
       if $wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO
-        wikiIndexClient = ClWiki::IndexClient.new
-        wikiIndexClient.reindex_page_and_save_async(@full_name)
+        wiki_index_client = ClWiki::IndexClient.new
+        wiki_index_client.reindex_page_and_save_async(@full_name)
       end
     end
 

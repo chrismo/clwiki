@@ -13,7 +13,7 @@ class Updater
       f.readFile
       meta_mtime = f.instance_variable_get("@metadata")['mtime']
       if meta_mtime
-        p [f.name, f.modTimeAtLastRead, meta_mtime, File.mtime(path_fn)]
+        p [f.name, f.mod_time_at_last_read, meta_mtime, File.mtime(path_fn)]
         File.utime(File.atime(path_fn), Time.parse(meta_mtime), path_fn)
       end
     end

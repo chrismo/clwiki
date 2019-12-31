@@ -9,7 +9,7 @@ $wikiPageExt = '.txt'
 
 module ClWiki
   class File
-    attr_reader :name, :fileExt, :wikiRootPath, :pagePath, :modTimeAtLastRead, :metadata
+    attr_reader :name, :fileExt, :wikiRootPath, :pagePath, :mod_time_at_last_read, :metadata
     attr_accessor :clientLastReadModTime
 
     def initialize(fullPageName, wikiRootPath, fileExt=$wikiPageExt, autocreate=true)
@@ -73,7 +73,7 @@ module ClWiki
     def writeToFile(content, check_mod_time = true)
       if check_mod_time
         # refactor, bring raiseIfMTimeNotEqual back into this class
-        ClWiki::Util.raiseIfMTimeNotEqual(@modTimeAtLastRead, fullPathAndName)
+        ClWiki::Util.raiseIfMTimeNotEqual(@mod_time_at_last_read, fullPathAndName)
         unless @clientLastReadModTime.nil?
           ClWiki::Util.raiseIfMTimeNotEqual(@clientLastReadModTime, fullPathAndName)
         end
@@ -83,11 +83,7 @@ module ClWiki
       ding_mtime
       file_contents = ''.tap do |s|
         s << metadata_to_write
-        if content_encrypted?
-          s << lock_box.encrypt(content)
-        else
-          s << content
-        end
+        s << (content_encrypted? ? lock_box.encrypt(content) : content)
       end
       ::File.binwrite(fullPathAndName, file_contents)
       ::File.utime(@metadata['mtime'], @metadata['mtime'], fullPathAndName)
@@ -114,7 +110,7 @@ module ClWiki
     end
 
     def readFile
-      @modTimeAtLastRead = ::File.mtime(fullPathAndName)
+      @mod_time_at_last_read = ::File.mtime(fullPathAndName)
 
       # positive lookbehind regex is used here to retain the end of line
       # newline, because this used to just be `File.readlines` which also keeps
@@ -168,9 +164,11 @@ module ClWiki
       end
     end
 
+    # rubocop:disable Rails/TimeZone
     def apply_metadata
-      @modTimeAtLastRead = Time.parse(@metadata['mtime']) if @metadata.keys.include? 'mtime'
+      @mod_time_at_last_read = Time.parse(@metadata['mtime']) if @metadata.key? 'mtime'
     end
+    # rubocop:enable Rails/TimeZone
 
     def content_encrypted?
       @metadata['encrypted'] == 'true'
