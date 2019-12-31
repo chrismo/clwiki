@@ -10,15 +10,21 @@ Gem::Specification.new do |s|
   s.authors     = %w(chrismo)
   s.email       = %w(chrismo@clabs.org)
   s.homepage    = 'http://github.com/chrismo/clwiki'
-  s.summary     = 'Old, tired, crappy wiki, reborn as a Rails 4 Engine.'
-  s.description = 'Old, tired, crappy wiki, reborn as a Rails 4 Engine.'
+  s.summary     = 'Old, tired, crappy wiki, reborn as a Rails 4+ Engine.'
+  s.description = 'Old, tired, crappy wiki, reborn as a Rails 4+ Engine.'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.rdoc']
   s.test_files = Dir['test/**/*']
 
+  s.add_dependency 'bcrypt', '~> 3.1'
   s.add_dependency 'clutil'
   s.add_dependency 'clindex', '~> 2.0'
   s.add_dependency 'lockbox'
+
+  s.add_development_dependency 'rubocop'
+  s.add_development_dependency 'rubocop-performance'
+  s.add_development_dependency 'rubocop-rails'
+  s.add_development_dependency 'rubocop_lineup'
 
   # s.add_dependency "rails", git: 'git://github.com/rails/rails.git'
   # s.add_dependency "jquery-rails"

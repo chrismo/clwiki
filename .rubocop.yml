@@ -1,0 +1,152 @@
+require:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop_lineup
+
+AllCops:
+  TargetRubyVersion: 2.5
+  Exclude:
+    - test/dummy/**/*.rb
+
+Layout/ClassStructure:
+  Enabled: true
+  Categories:
+    module_inclusion:
+      - include
+      - prepend
+      - extend
+    association:
+      - has_many
+      - has_one
+      - belongs_to
+      - has_and_belongs_to_many
+    validations:
+      - validate
+      - validates_inclusion_of
+      - validates_presence_of
+    callbacks:
+      - before_initialize
+      - before_validation
+      - before_save
+      - before_create
+      - before_update
+      - before_destroy
+      - after_save
+      - after_create
+      - after_validation
+      - after_initialize
+      - after_update
+      - after_destroy
+    enums:
+      - enum
+    scopes:
+      - scope
+  ExpectedOrder:
+    - association
+    - module_inclusion
+    - validations
+    - constants
+    - enums
+    - callbacks
+    - scopes
+    - public_class_methods
+    - initializer
+    - public_methods
+    - protected_methods
+    - private_methods
+
+Layout/DotPosition:
+  EnforcedStyle: trailing
+
+Layout/LineLength:
+  Enabled: false
+  Max: 120
+  AllowHeredoc: true
+  AllowURI: true
+  URISchemes: http, https
+
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
+
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: false
+
+Metrics:
+  Enabled: true
+
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
+    - 'test/**/*.rb'
+  ExcludedMethods: ['included', 'namespace']
+
+Metrics/ClassLength:
+  Exclude:
+    - 'Rakefile'
+    - 'spec/**/*.rb'
+    - 'test/**/*.rb'
+
+Metrics/MethodLength:
+  CountComments: false  # count full line comments?
+  Max: 15
+
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+Rails/Date:
+  Enabled: true
+  EnforcedStyle: flexible
+
+Rails/RefuteMethods:
+  Enabled: true
+
+Rails/TimeZone:
+  Enabled: true
+  EnforcedStyle: flexible
+
+Style/BlockComments:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/DocumentationMethod:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: always
+  Enabled: true
+
+# I know, I know. Legacy ¯\_(ツ)_/¯
+Style/GlobalVars:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+# Technically this performs better, and I got no problem with it.
+Style/ParallelAssignment:
+  Enabled: false
+
+Style/RedundantSelf:
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
+Style/WhenThen:
+  Enabled: true
+
+Style/WordArray:
+  Enabled: false

@@ -2,7 +2,7 @@ require_relative '../spec_helper'
 
 require 'tmpdir'
 
-describe ClWiki::PageController do
+RSpec.describe ClWiki::PageController do
   before do
     $wiki_path = Dir.mktmpdir
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
