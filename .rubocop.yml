@@ -118,6 +118,9 @@ Style/Documentation:
 Style/DocumentationMethod:
   Enabled: false
 
+Style/EmptyMethod:
+  Enabled: false
+
 Style/FrozenStringLiteralComment:
   EnforcedStyle: always
   Enabled: true
