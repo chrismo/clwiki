@@ -3,7 +3,7 @@ require 'time'
 
 require 'lockbox'
 
-require_relative 'page'
+require File.expand_path('page', __dir__)
 
 $wikiPageExt = '.txt'
 

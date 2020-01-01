@@ -1,4 +1,6 @@
-require 'cl_wiki/configuration'
+# frozen_string_literal: true
+
+require_dependency 'cl_wiki/configuration'
 
 filename = File.join(File.dirname(__FILE__), '..', '..', 'config', 'clwiki.yml')
 

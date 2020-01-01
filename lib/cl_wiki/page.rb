@@ -1,8 +1,8 @@
 require 'cgi'
 require 'singleton'
 
-require File.dirname(__FILE__) + '/file'
-require File.dirname(__FILE__) + '/find_in_file'
+require File.expand_path('file', __dir__)
+require File.expand_path('find_in_file', __dir__)
 
 $FIND_PAGE_NAME = "Find"
 $FIND_RESULTS_NAME = "Find Results"

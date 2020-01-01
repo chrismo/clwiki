@@ -1,7 +1,7 @@
 require 'rubygems'
 
-require File.dirname(__FILE__) + '/page'
-require File.dirname(__FILE__) + '/configuration'
+require File.expand_path('page', __dir__)
+require File.expand_path('configuration', __dir__)
 require 'cl/util/progress'
 require 'cl/util/console'
 

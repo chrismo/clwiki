@@ -1,4 +1,6 @@
-require_relative 'clwiki_test_helper'
+# frozen_string_literal: true
+
+require File.expand_path('clwiki_test_helper', __dir__)
 
 require 'rubygems'
 gem 'clutil'
