@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../spec_helper'
 
 require 'tmpdir'
@@ -8,6 +9,9 @@ RSpec.describe ClWiki::PageController do
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
 
     @routes = ClWiki::Engine.routes
+
+    user = AuthFixture.create_test_user
+    get :show, params: {}, session: {username: user.username}
   end
 
   after do
@@ -18,7 +22,7 @@ RSpec.describe ClWiki::PageController do
   end
 
   it 'should render /FrontPage by default' do
-    get :show
+    get :show, params: {}, session: {username: 'testy'}
 
     assert_redirected_to page_show_path(:page_name => 'FrontPage')
   end

@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe "Legacy CGI url support" do
+  before do
+    user = AuthFixture.create_test_user
+    post login_url, params: {username: user.username, password: user.password}
+  end
+
   it "should redirect legacy show url with leading slash" do
     get "/wiki/clwikicgi.rb", params: {:page => '/ChrisMorris'}
 

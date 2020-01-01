@@ -22,6 +22,14 @@ module ClWiki
       end
     end
 
+    def self.create(username, password)
+      self.new.tap do |u|
+        u.username = username
+        u.password = password
+        u.save
+      end
+    end
+
     def self.find(username)
       user_file = users_root("#{username}.json")
       if ::File.exist?(user_file)

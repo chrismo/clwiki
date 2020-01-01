@@ -5,3 +5,9 @@ class PageFixture
     $wiki_conf.wait_on_threads
   end
 end
+
+class AuthFixture
+  def self.create_test_user
+    ClWiki::User.create('testy', 'red pill')
+  end
+end
