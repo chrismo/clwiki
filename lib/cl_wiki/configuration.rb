@@ -14,7 +14,7 @@ module ClWiki
 
     attr_accessor :wiki_path, :cgifn, :indexPort, :cssHref, :template, :useGmt,
                   :publishTag, :url_prefix, :global_edits, :cgifn_from_rss, :stats_name,
-                  :index_log_fn, :page_update_format, :use_authentication
+                  :index_log_fn, :page_update_format
     attr_reader   :custom_formatter_load_path
 
     def wait_on_threads
@@ -127,23 +127,22 @@ module ClWiki
 
     def default_hash
       {
-        url_prefix: '/',
-        indexPort: ClWiki::Indexer.defaultPort,
-        cgifn: 'clwikicgi.rb',
-        default_recent_changes_name: 'Recent Changes',
-        recent_changes_name: 'Recent Changes',
-        stats_name: 'Hit Counts',
-        useGmt: false,
-        publishTag: nil,
-        useIndexForPageExists: false,
-        showSourceLink: false,
-        cgifn_from_rss: 'blogki.rb',
-        edit_rows: 25,
-        edit_cols: 80,
-        access_log_index: false,
-        index_log_fn: nil,
-        custom_formatter_load_path: [],
-        use_authentication: false
+          :url_prefix => '/',
+          :indexPort => ClWiki::Indexer.defaultPort,
+          :cgifn => 'clwikicgi.rb',
+          :default_recent_changes_name => "Recent Changes",
+          :recent_changes_name => "Recent Changes",
+          :stats_name => "Hit Counts",
+          :useGmt => false,
+          :publishTag => nil,
+          :useIndexForPageExists => false,
+          :showSourceLink => false,
+          :cgifn_from_rss => 'blogki.rb',
+          :edit_rows => 25,
+          :edit_cols => 80,
+          :access_log_index => false,
+          :index_log_fn => nil,
+          :custom_formatter_load_path => []
       }
     end
 
