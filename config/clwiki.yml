@@ -34,18 +34,18 @@ production:
   # BETA option -- probably not even a sample.template.htm included in the
   # distribution)
 
-  # template mytemplate.htm
+  # template: mytemplate.htm
 
   # If you want to restrict the Recent view to only published pages, you
   # can configure a custom tag here. If this isn't defined, then every
   # page will appear on the Recent view.
   #
-  # publishTag <publish>
+  # publishTag: <publish>
 
   # showSourceLink can be turned on to add a page link in the footer that
   # is a file:// url direct to the raw page. Default is false.
   #
-  # showSourceLink true
+  # showSourceLink: true
 
   # time format for display of last page update
   #
@@ -54,6 +54,10 @@ production:
   # Add directories containing optional custom formatters here.
   #
   custom_formatter_load_path: []
+
+  # Require a user account to access the wiki. Defaults to false.
+  #
+  # use_authentication: false
 
 test:
   wiki_path: tmp/testrep

@@ -8,6 +8,7 @@ RSpec.describe ClWiki::ApplicationController, type: :request do
   before do
     $wiki_path = Dir.mktmpdir
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+    $wiki_conf.use_authentication = true
 
     @routes = ClWiki::Engine.routes
 
@@ -19,18 +20,30 @@ RSpec.describe ClWiki::ApplicationController, type: :request do
     $wiki_path = $wiki_conf.wiki_path
     $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+    $wiki_conf.use_authentication = true
   end
 
-  it 'should redirect if not logged in' do
-    get root_path
-    assert_redirected_to login_path
+  describe 'use authentication' do
+    it 'should redirect if not logged in' do
+      get root_path
+      assert_redirected_to login_path
+    end
+
+    it 'login and nav to home' do
+      get login_path
+      assert_template :new
+
+      post login_path, params: {username: 'testy', password: 'red pill'}
+      assert_redirected_to root_path
+    end
   end
 
-  it 'login and nav to home' do
-    get login_path
-    assert_template :new
+  describe 'do not use authentication' do
+    it 'should not care if not logged in' do
+      $wiki_conf.use_authentication = false
 
-    post login_path, params: {username: 'testy', password: 'red pill'}
-    assert_redirected_to root_path
+      get page_show_path(page_name: 'FrontPage')
+      assert_template :show
+    end
   end
 end
