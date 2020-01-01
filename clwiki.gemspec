@@ -21,11 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'clindex', '~> 2.0'
   s.add_dependency 'lockbox'
 
-  s.add_development_dependency 'rubocop'
-  s.add_development_dependency 'rubocop-performance'
-  s.add_development_dependency 'rubocop-rails'
-  s.add_development_dependency 'rubocop_lineup'
-
+  # See Gemfile...
   # s.add_dependency "rails", git: 'git://github.com/rails/rails.git'
   # s.add_dependency "jquery-rails"
 end
