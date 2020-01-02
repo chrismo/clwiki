@@ -16,6 +16,14 @@ Lockbox. Devise is for a one-way hashing of password.
 Hardcoded so far - but that won't do. I do want to keep it simple, so that
 if it's lost, it can be re-discovered easily enough.
 
+Even if the lockbox key is based off the user password hash, all of those
+values are still on the box itself, along with the encrypted data. I could
+require the master key to be entered manually when I launch the Rails server,
+so it's only in memory.
+
+Even going with a KMS, there will need to be some sort of retrieval of that
+key, with another key, right?
+
 === Mechanism to base encryption key off user password?
 
 https://github.com/ankane/lockbox/issues/1#issuecomment-566209690[Lockbox

@@ -128,6 +128,8 @@ class TestClWikiFile < TestBase
     expected_content = "This is my\n<b>awesome</b>\ncontent!"
     wiki_file.content = expected_content
 
+    refute_match(/awesome/, ::File.read(wiki_file.fullPathAndName, mode: 'rb'))
+
     read_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path)
     assert_equal expected_content, read_file.content
   end

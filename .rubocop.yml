@@ -103,7 +103,7 @@ Rails/Date:
   EnforcedStyle: flexible
 
 Rails/RefuteMethods:
-  Enabled: true
+  Enabled: false
 
 Rails/TimeZone:
   Enabled: true

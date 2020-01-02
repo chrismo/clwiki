@@ -51,5 +51,24 @@ module ClWiki
       root = FileUtils.makedirs(::File.join($wiki_path, 'users'))
       ::File.join(root, dirs)
     end
+
+    # Generate a consistent key that can be used with Lockbox for encrypting
+    # content, and that is not persisted anywhere.
+    def encryption_key(password)
+      if authenticate(password)
+        pass = 'secret'
+        salt = 'static salt' # so the same key is derived each time
+        iter = 10_000
+        hash = OpenSSL::Digest::SHA256.new
+        len = hash.digest_length
+        OpenSSL::KDF.pbkdf2_hmac(pass,
+                                 salt: salt,
+                                 iterations: iter,
+                                 length: len,
+                                 hash: hash)
+      else
+        raise 'Could not authenticate password'
+      end
+    end
   end
 end
