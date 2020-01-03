@@ -7,93 +7,13 @@ Two goals:
 - data via the app requires a login so anyone stumbling over the wiki
   has to authenticate themselves.
 
-=== Mechanism to encrypt/decrypt
+=== TODO
 
-Lockbox. Devise is for a one-way hashing of password.
-
-=== Mechanism to manage the master key
-
-Hardcoded so far - but that won't do. I do want to keep it simple, so that
-if it's lost, it can be re-discovered easily enough.
-
-Even if the lockbox key is based off the user password hash, all of those
-values are still on the box itself, along with the encrypted data. I could
-require the master key to be entered manually when I launch the Rails server,
-so it's only in memory.
-
-Even going with a KMS, there will need to be some sort of retrieval of that
-key, with another key, right?
-
-...
-
-So ... decided to dig into the next thing, and now have a suitable use case
-coded using PBKDF2 in OpenSSL. But ... now's the trick of re-designing the code
-to link the user's Lockbox key through the Page class to the File class.
-
-AND ... what to do about indexing.
-
-- we shouldn't index the contents from an encrypted page into an index
-persisted unencrypted on disk.
-
-- so ... we could encrypt the index on disk (good thing I'm not going for
-  multi-user support here).
-
-- or I could maybe only spin up an in-memory index after logging in. It's
-  not a lot of data.
-
-=== Mechanism to base encryption key off user password?
-
-https://github.com/ankane/lockbox/issues/1#issuecomment-566209690[Lockbox
-discussion on this - use Argon2 to do it]. I'm not sure I fully understand
-it though.
-
-=== Mechanism for id-ing the user
-
-This is an engine - should it be implemented here, or in the hosting Rails
-app? If it's implemented here, then basing encryption key off a user thing
-would be possible.
-
-several articles on rolling it yourself, vs. devise. roll myself should be
-fine - it's only for myself, I don't need robust features (forgot password,
-signups).
-
-I don't have a database. So, where do I store the password hash? File
-system.
-
-Is that any different than nginx auth then? Well, I'll have access to it in
-the app, which I need.
-
-=== Mechanism to indicate what content is encrypted?
-
-==== custom tag to encrypt contents inside?
-
-This can't just be a formatter plugin. Formatter plugins alter content read from
-disk, but aren't involved in the writing process.
-
-`<encrypt>` tag at top of content will be the flag for the Page class to
-encrypt. How will it know to decrypt? Encrypted contents have a byte marker?
-
-- Could just encrypt inside the tags, tags are still plaintext
-
-- This option is done at a higher level then, which isn't as desirable?
-
-Encrypt tag would work for formatter plugin, if plugins could be expanded to
-support writing as well.
-
-That allows user to control without any additional UI.
-
-==== file metadata key
-
-Ah, how about an optional `encrypted: true` metadata? Then most of how the tests
-and everything work doesn't have to be changed, it can work with some encrypted,
-some not.
-
-- This is implemented now, dunno if we'll stick with it.
-
-- could add a check box to the edit UI, that has a global option to be on by
-default or not.
-
-- this would be simpler than always having to use an encrypt tag.
-
-- simpler to backfill a script for this on all Journal* pages.
-
+- design user lockbox to be accessible by the File class
+- UI to toggle on/off encrypted metadata
+- config setting to have encrypted be the default option or not
+  * how does this square with the existing enabling option?
+- do not allow use of any index other than in-memory if encryption on
+- do not allow more than one user?! :D
+- need to backfill encrypting existing pages, including user password
+- updated the README (any other docs?)
