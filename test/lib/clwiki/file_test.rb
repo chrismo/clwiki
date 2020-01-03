@@ -4,32 +4,24 @@ require 'file'
 class TestClWikiFile < TestBase
   # refactor: shouldn't be dealing with page paths at this level, should be at
   # the ClWikiPage level
-  def do_test_new_page(fullPageName)
-    fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
-    fileName = File.expand_path(File.join(@test_wiki_path, fullPageName)) + '.txt'
-    File.delete(fileName) if FileTest.exist?(fileName)
-    wikiFile = ClWiki::File.new(fullPageName, @test_wiki_path)
-    assert(FileTest.exist?(wikiFile.fullPathAndName))
-    pagePath, pageName = File.split(fullPageName)
-    assert(wikiFile.name == pageName)
-    assert_equal(pagePath, wikiFile.pagePath)
-    assert(wikiFile.wikiRootPath == @test_wiki_path)
-    assert_equal(fileName, wikiFile.fullPathAndName)
-    assert_equal(["Describe " + pageName + " here."], wikiFile.content)
-    newWikiFile = ClWiki::File.new(fullPageName, @test_wiki_path)
-    assert_equal(["Describe " + pageName + " here."], newWikiFile.content)
+  def do_test_new_page(full_page_name)
+    full_page_name = ClWiki::Util.convert_to_native_path(full_page_name)
+    file_name = File.expand_path(File.join(@test_wiki_path, full_page_name)) + '.txt'
+    File.delete(file_name) if FileTest.exist?(file_name)
+    wiki_file = ClWiki::File.new(full_page_name, @test_wiki_path)
+    assert(FileTest.exist?(wiki_file.full_path_and_name))
+    page_path, page_name = File.split(full_page_name)
+    assert(wiki_file.name == page_name)
+    assert_equal(page_path, wiki_file.page_path)
+    assert(wiki_file.wiki_root_path == @test_wiki_path)
+    assert_equal(file_name, wiki_file.full_path_and_name)
+    assert_equal(["Describe " + page_name + " here."], wiki_file.content)
+    new_wiki_file = ClWiki::File.new(full_page_name, @test_wiki_path)
+    assert_equal(["Describe " + page_name + " here."], new_wiki_file.content)
   end
 
   def test_new_root_page
     do_test_new_page('/NewPage')
-  end
-
-  def test_new_sub_page_forward_slash
-    do_test_new_page('/NewPage/NewSubPage')
-  end
-
-  def test_new_sub_page_back_slash
-    do_test_new_page("\\NewPage\\NewSubPage")
   end
 
   def test_update_page
@@ -60,7 +52,7 @@ class TestClWikiFile < TestBase
       # don do anythain, issa wha shoo 'appen
     end
 
-    wiki_file_b.readFile
+    wiki_file_b.read_file
     assert_equal(["This is new A content."], wiki_file_b.content)
   end
 
@@ -84,7 +76,7 @@ class TestClWikiFile < TestBase
   def test_mtime_metadata
     # the mtime of the file can be optionally stored as meta data at the top of the file
     wiki_file = ClWiki::File.new("/PageWithMetaData", @test_wiki_path)
-    file_lines = File.readlines(wiki_file.fullPathAndName)
+    file_lines = File.readlines(wiki_file.full_path_and_name)
     assert_match(/^mtime: .+$/, file_lines[0])
     assert_equal "\n", file_lines[1]
     assert_equal "\n", file_lines[2]
@@ -128,7 +120,7 @@ class TestClWikiFile < TestBase
     expected_content = "This is my\n<b>awesome</b>\ncontent!"
     wiki_file.content = expected_content
 
-    refute_match(/awesome/, ::File.read(wiki_file.fullPathAndName, mode: 'rb'))
+    refute_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
 
     read_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path)
     assert_equal expected_content, read_file.content

@@ -10,23 +10,18 @@ module ClWiki
   FILE_EXT = '.txt'
 
   class File
-    attr_reader :name, :wikiRootPath, :pagePath, :mod_time_at_last_read, :metadata
-    attr_accessor :clientLastReadModTime
+    attr_reader :name, :wiki_root_path, :page_path, :mod_time_at_last_read, :metadata
+    attr_accessor :client_last_read_mod_time
 
-    def initialize(fullPageName, wikiRootPath, auto_create: true)
-      @wikiRootPath = wikiRootPath
-      fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
-      fullPageName.ensure_slash_prefix
-      @pagePath, @name = ::File.split(fullPageName)
-      @pagePath = '/' if @pagePath == '.'
+    def initialize(full_page_name, wiki_root_path, auto_create: true)
+      @wiki_root_path = wiki_root_path
+      full_page_name = ClWiki::Util.convert_to_native_path(full_page_name).ensure_slash_prefix
+      @page_path, @name = ::File.split(full_page_name)
+      @page_path = '/' if @page_path == '.'
       @metadata = {}
       @metadata_keys = %w[mtime encrypted]
       if auto_create
-        if file_exists?
-          readFile
-        else
-          writeToFile(default_content, false)
-        end
+        file_exists? ? read_file : write_to_file(default_content, false)
       end
     end
 
@@ -36,7 +31,7 @@ module ClWiki
     end
 
     def delete
-      File.delete(fullPathAndName) if File.exists?(fullPathAndName)
+      File.delete(full_path_and_name) if File.exists?(full_path_and_name)
     end
 
     def default_content
@@ -44,51 +39,38 @@ module ClWiki
     end
 
     def file_exists?
-      FileTest.exist?(fullPathAndName)
+      FileTest.exist?(full_path_and_name)
     end
 
-    # TODO: make private and/or remove outright.
-    def fullPath
-      res = ::File.expand_path(::File.join(@wikiRootPath, @pagePath))
-      raise 'no dirs in fullPath' if res.split('/').empty?
-      res
-    end
-
-    def fullPathAndName
-      ::File.expand_path(@name + FILE_EXT, fullPath)
-    end
-
-    def fileName
-      raise Exception, 'ClWikiFile.fileName is deprecated, use fullPathAndName'
-      # fullPathAndName
+    def full_path_and_name
+      ::File.expand_path(@name + FILE_EXT, ::File.expand_path(::File.join(@wiki_root_path, @page_path)))
     end
 
     def content
       @contents
     end
 
-    def content=(newContent)
-      writeToFile(newContent)
+    def content=(new_content)
+      write_to_file(new_content)
     end
 
-    def writeToFile(content, check_mod_time = true)
+    def write_to_file(content, check_mod_time = true)
       if check_mod_time
-        # refactor, bring raiseIfMTimeNotEqual back into this class
-        ClWiki::Util.raiseIfMTimeNotEqual(@mod_time_at_last_read, fullPathAndName)
-        unless @clientLastReadModTime.nil?
-          ClWiki::Util.raiseIfMTimeNotEqual(@clientLastReadModTime, fullPathAndName)
+        # refactor, bring raise_if_mtime_not_equal back into this class
+        ClWiki::Util.raise_if_mtime_not_equal(@mod_time_at_last_read, full_path_and_name)
+        unless @client_last_read_mod_time.nil?
+          ClWiki::Util.raise_if_mtime_not_equal(@client_last_read_mod_time, full_path_and_name)
         end
       end
 
-      make_dirs(fullPath)
       ding_mtime
       file_contents = ''.tap do |s|
         s << metadata_to_write
         s << (content_encrypted? ? lock_box.encrypt(content) : content)
       end
-      ::File.binwrite(fullPathAndName, file_contents)
-      ::File.utime(@metadata['mtime'], @metadata['mtime'], fullPathAndName)
-      readFile
+      ::File.binwrite(full_path_and_name, file_contents)
+      ::File.utime(@metadata['mtime'], @metadata['mtime'], full_path_and_name)
+      read_file
     end
 
     def ding_mtime
@@ -99,59 +81,36 @@ module ClWiki
       @metadata.collect { |k, v| "#{k}: #{v}" }.join("\n") + "\n\n\n"
     end
 
-    # TODO: remove, we don't support full hierarchy anymore.
-    def make_dirs(dir)
-      # need to commit each dir as we make it, which is why we just don't
-      # call File::makedirs. Core code copied from ftools.rb
-      parent = ::File.dirname(dir)
-      return if parent == dir or FileTest.directory? dir
-      make_dirs parent unless FileTest.directory? parent
-      if ::File.basename(dir) != ""
-        Dir.mkdir dir, 0755
-      end
-    end
-
-    def readFile
-      @mod_time_at_last_read = ::File.mtime(fullPathAndName)
+    def read_file
+      @mod_time_at_last_read = ::File.mtime(full_path_and_name)
 
       # positive lookbehind regex is used here to retain the end of line
       # newline, because this used to just be `File.readlines` which also keeps
       # the newline characters.
-      raw_lines = ::File.binread(fullPathAndName).split(/(?<=\n)/)
+      raw_lines = ::File.binread(full_path_and_name).split(/(?<=\n)/)
 
       metadata_lines, raw_content = split_metadata(raw_lines)
       read_metadata(metadata_lines)
       apply_metadata
 
-      if content_encrypted?
-        decrypted_content = lock_box.decrypt_str(raw_content.join)
-        @contents = decrypted_content
-      else
-        @contents = raw_content
-      end
+      content_encrypted? ? @contents = lock_box.decrypt_str(raw_content.join) : @contents = raw_content
     end
 
     # TODO: this implementation seems quite tortured
     # TODO: metadata should go into its own class
     def split_metadata(raw_lines)
-      start_index = 0
+      st_idx = 0
       raw_lines.each_with_index do |ln, index|
         if ln.chomp.empty?
           next_line = raw_lines[index+1]
           if next_line.nil? || next_line.chomp.empty?
-            if all_lines_are_metadata_lines(raw_lines[0..index-1])
-              start_index = index + 2
-            end
+            st_idx = index + 2 if all_lines_are_metadata_lines(raw_lines[0..index-1])
             break
           end
         end
       end
 
-      if start_index > 0
-        [raw_lines[0..start_index-3], raw_lines[start_index..-1]]
-      else
-        [[], raw_lines]
-      end
+      (st_idx > 0) ? [raw_lines[0..st_idx - 3], raw_lines[st_idx..-1]] : [[], raw_lines]
     end
 
     def all_lines_are_metadata_lines(lines)
@@ -181,15 +140,13 @@ module ClWiki
       @metadata['encrypted'] = 'true'
     end
 
-    private
-
     def lock_box
       Lockbox.new(key: '0' * 64)
     end
   end
 
   class Util
-    def self.raiseIfMTimeNotEqual(mtime_to_compare, file_name)
+    def self.raise_if_mtime_not_equal(mtime_to_compare, file_name)
       # reading the instance .mtime appears to take Windows DST into account,
       # whereas the static File.mtime(filename) method does not
       current_mtime = ::File.open(file_name) do |f|
@@ -214,10 +171,8 @@ module ClWiki
       end
     end
 
-    def self.convertToNativePath(path)
-      newpath = path.gsub(/\//, ::File::SEPARATOR)
-      newpath = newpath.gsub(/\\/, ::File::SEPARATOR)
-      return newpath
+    def self.convert_to_native_path(path)
+      path.gsub(/\//, ::File::SEPARATOR).gsub(/\\/, ::File::SEPARATOR)
     end
   end
 
