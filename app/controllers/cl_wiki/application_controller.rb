@@ -8,6 +8,10 @@ module ClWiki
       User.find(session[:username])
     end
 
+    def current_user_lockbox
+      Lockbox.new(key: session[:encryption_key]) if logged_in?
+    end
+
     def logged_in?
       !current_user.nil?
     end
