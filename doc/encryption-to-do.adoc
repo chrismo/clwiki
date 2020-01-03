@@ -24,6 +24,23 @@ so it's only in memory.
 Even going with a KMS, there will need to be some sort of retrieval of that
 key, with another key, right?
 
+...
+
+So ... decided to dig into the next thing, and now have a suitable use case
+coded using PBKDF2 in OpenSSL. But ... now's the trick of re-designing the code
+to link the user's Lockbox key through the Page class to the File class.
+
+AND ... what to do about indexing.
+
+- we shouldn't index the contents from an encrypted page into an index
+persisted unencrypted on disk.
+
+- so ... we could encrypt the index on disk (good thing I'm not going for
+  multi-user support here).
+
+- or I could maybe only spin up an in-memory index after logging in. It's
+  not a lot of data.
+
 === Mechanism to base encryption key off user password?
 
 https://github.com/ankane/lockbox/issues/1#issuecomment-566209690[Lockbox
