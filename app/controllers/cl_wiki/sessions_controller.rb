@@ -10,8 +10,10 @@ module ClWiki
 
     def create
       @user = User.find(params[:username])
-      if @user&.authenticate(params[:password])
+      password = params[:password]
+      if @user&.authenticate(password)
         session[:username] = @user.username
+        session[:encryption_key] = @user.encryption_key(password)
         redirect_to root_url
       else
         redirect_to login_url
