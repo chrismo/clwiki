@@ -10,20 +10,18 @@ module ClWiki
   FILE_EXT = '.txt'
 
   class File
-    attr_reader :name, :fileExt, :wikiRootPath, :pagePath, :mod_time_at_last_read, :metadata
+    attr_reader :name, :wikiRootPath, :pagePath, :mod_time_at_last_read, :metadata
     attr_accessor :clientLastReadModTime
 
-    def initialize(fullPageName, wikiRootPath, fileExt=FILE_EXT, autocreate=true)
+    def initialize(fullPageName, wikiRootPath, auto_create: true)
       @wikiRootPath = wikiRootPath
       fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
       fullPageName.ensure_slash_prefix
       @pagePath, @name = ::File.split(fullPageName)
       @pagePath = '/' if @pagePath == '.'
-      # TODO: remove fileExt as constructor param. It's never different.
-      @fileExt = fileExt
       @metadata = {}
       @metadata_keys = %w[mtime encrypted]
-      if autocreate
+      if auto_create
         if file_exists?
           readFile
         else
@@ -57,7 +55,7 @@ module ClWiki
     end
 
     def fullPathAndName
-      ::File.expand_path(@name + @fileExt, fullPath)
+      ::File.expand_path(@name + FILE_EXT, fullPath)
     end
 
     def fileName

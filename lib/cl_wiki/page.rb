@@ -163,7 +163,7 @@ module ClWiki
           ($wiki_conf.useIndexForPageExists)
         res = ClWiki::IndexClient.new.page_exists?(page_name)
       else
-        wiki_file = ClWiki::File.new(page_name, $wiki_path, ClWiki::FILE_EXT, false)
+        wiki_file = ClWiki::File.new(page_name, $wiki_path, auto_create: false)
         res = wiki_file.file_exists?
       end
 

@@ -9,7 +9,7 @@ class Updater
     glob = File.join("#{@wiki_root_path}", "*#{ClWiki::FILE_EXT}")
     results = Dir[glob]
     results.each do |path_fn|
-      f = ClWiki::File.new(File.basename(path_fn, ClWiki::FILE_EXT), @wiki_root_path, ClWiki::FILE_EXT, false)
+      f = ClWiki::File.new(File.basename(path_fn, ClWiki::FILE_EXT), @wiki_root_path, auto_create: false)
       f.readFile
       meta_mtime = f.instance_variable_get("@metadata")['mtime']
       if meta_mtime
