@@ -14,11 +14,6 @@ module ClWiki
 
     @@wikiIndexClient = nil
 
-    #Refactor clwikifile out of here into a storage class that will
-    # require in the appropriate storage file clwikifile, clwikisql
-
-    # refactor away wikiPath ... should be taken care of elsewhere, otherwise
-    # ClWiki must know it, and it should be storage independent
     def initialize(fullName, wiki_path=$wiki_path)
       @full_name = fullName
       @wiki_path = wiki_path
