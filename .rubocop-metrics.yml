@@ -1,0 +1,28 @@
+inherit_from: .rubocop-metrics-todo.yml
+
+require:
+  - rubocop-performance
+
+AllCops:
+  DisabledByDefault: true
+  Exclude:
+   - 'Rakefile'
+   - spec/**/*.rb
+   - test/lib/**/*.rb
+  TargetRubyVersion: 2.5
+
+Metrics:
+  Enabled: true
+
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/ClassLength:
+  Enabled: true
+
+Metrics/MethodLength:
+  CountComments: false
+  Max: 15
+
+Metrics/ModuleLength:
+  Enabled: true
