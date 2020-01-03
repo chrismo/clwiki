@@ -5,15 +5,15 @@ require 'lockbox'
 
 require File.expand_path('page', __dir__)
 
-# TODO: change to constant
-$wikiPageExt = '.txt'
 
 module ClWiki
+  FILE_EXT = '.txt'
+
   class File
     attr_reader :name, :fileExt, :wikiRootPath, :pagePath, :mod_time_at_last_read, :metadata
     attr_accessor :clientLastReadModTime
 
-    def initialize(fullPageName, wikiRootPath, fileExt=$wikiPageExt, autocreate=true)
+    def initialize(fullPageName, wikiRootPath, fileExt=FILE_EXT, autocreate=true)
       @wikiRootPath = wikiRootPath
       fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
       fullPageName.ensure_slash_prefix

@@ -48,8 +48,7 @@ module ClWiki
       @record_hits = false
       begin
         fileCount = 0
-        raise '$wikiPageExt not set' if $wikiPageExt.empty? # for debugging only, really
-        files = Dir[::File.join(@rootDir, '**/*' + $wikiPageExt)]
+        files = Dir[::File.join(@rootDir, '**/*' + ClWiki::FILE_EXT)]
         if limit == -1
           p = Progress.new(files.length)
         else
@@ -61,7 +60,7 @@ module ClWiki
           break if (limit > -1) && (fileCount >= limit)
           fileCount += 1
           fullName = fn.sub(@rootDir, '')
-          fullName = fullName.sub(/#{$wikiPageExt}/, '')
+          fullName = fullName.sub(/#{ClWiki::FILE_EXT}/, '')
           index_page(fullName, purge)
           do_puts p.progress(true)
         end

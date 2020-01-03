@@ -1,4 +1,8 @@
 module ClWiki
+  # TODO: clients of this class have to do too much. Push more functionality
+  # into here, or go all in on the in-memory index, and get rid of most (all?)
+  # usages of this class. Look for all of the usages of FILE_EXT in places that
+  # should have to care about the file extension.
   class FindInFile
     FULL_SEARCH = 0
     FILE_NAME_ONLY = 1
@@ -10,7 +14,7 @@ module ClWiki
     end
 
     def find(search_text, scope = FULL_SEARCH)
-      recursive_find_path = ::File.join(@find_path, '**', "*#{$wikiPageExt}")
+      recursive_find_path = ::File.join(@find_path, '**', "*#{ClWiki::FILE_EXT}")
       regex = /#{search_text}/i
       @files = Dir[recursive_find_path].grep(regex)
       if scope == FULL_SEARCH

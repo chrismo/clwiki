@@ -45,7 +45,7 @@ module ClWiki
           finder = FindInFile.new($wiki_path)
           finder.find(text)
           finder.files.collect do |filename|
-            filename.sub($wikiPageExt, '')
+            filename.sub(ClWiki::FILE_EXT, '')
           end
         else
           ClWiki::IndexClient.new.search(text)
@@ -56,7 +56,7 @@ module ClWiki
       finder = FindInFile.new($wiki_path)
       finder.find($wiki_conf.publishTag || '.')
       @pages = finder.files.collect do |filename|
-        p = ClWiki::Page.new(filename.sub($wikiPageExt, ''))
+        p = ClWiki::Page.new(filename.sub(ClWiki::FILE_EXT, ''))
         p.read_page_attributes
         p
       end

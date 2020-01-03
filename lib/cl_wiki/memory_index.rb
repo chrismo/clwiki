@@ -44,12 +44,13 @@ module ClWiki
     private
 
     def build
-      files = Dir[::File.join(@root_dir, '**/*' + $wikiPageExt)]
+      # TODO: change to use FindInFile
+      files = Dir[::File.join(@root_dir, '**/*' + ClWiki::FILE_EXT)]
       files.each do |fn|
         next unless ::File.file?(fn)
 
         full_name = fn.sub(@root_dir, '')
-        full_name = full_name.sub(/#{$wikiPageExt}/, '')
+        full_name = full_name.sub(/#{ClWiki::FILE_EXT}/, '')
         index_page(full_name)
       end
     end

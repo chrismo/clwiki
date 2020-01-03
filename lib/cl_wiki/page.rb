@@ -57,11 +57,6 @@ module ClWiki
       @wikiFile.delete
     end
 
-    def self.read_file_full_path_and_name(full_name, wiki_path=$wiki_path)
-      wiki_file = ClWikiFile.new(full_name, wiki_path, $wikiPageExt, false)
-      wiki_file.fullPathAndName
-    end
-
     def read_page_attributes
       wiki_file = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
       @mtime = wiki_file.mod_time_at_last_read
@@ -168,7 +163,7 @@ module ClWiki
           ($wiki_conf.useIndexForPageExists)
         res = ClWiki::IndexClient.new.page_exists?(page_name)
       else
-        wiki_file = ClWiki::File.new(page_name, $wiki_path, $wikiPageExt, false)
+        wiki_file = ClWiki::File.new(page_name, $wiki_path, ClWiki::FILE_EXT, false)
         res = wiki_file.file_exists?
       end
 
@@ -372,7 +367,7 @@ module ClWiki
         if $wiki_conf.useIndex == ClWiki::Configuration::USE_INDEX_NO
           finder = FindInFile.new($wiki_path)
           finder.find(page_name, FindInFile::FILE_NAME_ONLY)
-          hits = finder.files.collect { |f| f.sub($wikiPageExt, '') }
+          hits = finder.files.collect { |f| f.sub(ClWiki::FILE_EXT, '') }
         else
           @wikiIndex = ClWiki::IndexClient.new if @wikiIndex.nil?
           titles_only = true
