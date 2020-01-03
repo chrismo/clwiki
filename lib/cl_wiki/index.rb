@@ -2,6 +2,7 @@ require 'rubygems'
 
 require File.expand_path('page', __dir__)
 require File.expand_path('configuration', __dir__)
+require File.expand_path('memory_index', __dir__)
 require 'cl/util/progress'
 require 'cl/util/console'
 
@@ -268,9 +269,7 @@ module ClWiki
     end
 
     def page_exists?(fullPageName)
-      exists = false
-      exists = @pages.term_exists?(fullPageName, WAIT)
-      exists
+      @pages.term_exists?(fullPageName, WAIT)
     end
 
     def add_hit(fullPageName)
@@ -296,16 +295,19 @@ module ClWiki
   end
 
   class IndexClient
-    def initialize(wiki_conf=$wiki_conf)
+    def initialize(wiki_conf = $wiki_conf)
       case wiki_conf.useIndex
-        when ClWiki::Configuration::USE_INDEX_NO
-          raise 'wikiConf.useIndex says to not use an index'
-        when ClWiki::Configuration::USE_INDEX_DRB
-          DRb.start_service()
-          @indexer = DRbObject.new(nil, "druby://localhost:#{wiki_conf.indexPort}")
-        when ClWiki::Configuration::USE_INDEX_LOCAL
-          $indexer ||= ClWiki::Indexer.new(wiki_conf, wiki_conf.index_log_fn)
-          @indexer = $indexer
+      when ClWiki::Configuration::USE_INDEX_NO
+        raise 'wikiConf.useIndex says to not use an index'
+      when ClWiki::Configuration::USE_INDEX_DRB
+        DRb.start_service()
+        @indexer = DRbObject.new(nil, "druby://localhost:#{wiki_conf.indexPort}")
+      when ClWiki::Configuration::USE_INDEX_LOCAL
+        $indexer ||= ClWiki::Indexer.new(wiki_conf, wiki_conf.index_log_fn)
+        @indexer = $indexer
+      when ClWiki::Configuration::USE_INDEX_MEMORY
+        $indexer ||= ClWiki::MemoryIndexer.new(wiki_conf)
+        @indexer = $indexer
       end
     end
 

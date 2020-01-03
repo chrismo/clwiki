@@ -42,15 +42,10 @@ module ClWiki
       @content = new_content
     end
 
-    def self.wikiIndexClient
-      @@wikiIndexClient = ClWikiIndexClient.new if !@@wikiIndexClient
-      @@wikiIndexClient
-    end
-
     def read_raw_content
       @raw_content = @wikiFile.content.join.gsub(/\r\n/, "\n")
       read_page_attributes
-      ClWiki::Page.wikiIndexClient.add_hit(@full_name) if $wiki_conf.access_log_index
+      ClWiki::IndexClient.new.add_hit(@full_name) if $wiki_conf.access_log_index
     end
 
     def content_never_edited?
@@ -170,11 +165,12 @@ module ClWiki
     def self.page_exists?(page_name)
       if ($wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO) &&
           ($wiki_conf.useIndexForPageExists)
-        res = ClWiki::Page.wikiIndexClient.page_exists?(page_name)
+        res = ClWiki::IndexClient.new.page_exists?(page_name)
       else
         wiki_file = ClWiki::File.new(page_name, $wiki_path, $wikiPageExt, false)
         res = wiki_file.file_exists?
       end
+
       res
     end
   end

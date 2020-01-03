@@ -11,6 +11,7 @@ module ClWiki
     USE_INDEX_NO = 0
     USE_INDEX_DRB = 1
     USE_INDEX_LOCAL = 2
+    USE_INDEX_MEMORY = 3
 
     attr_accessor :wiki_path, :cgifn, :indexPort, :cssHref, :template, :useGmt,
                   :publishTag, :url_prefix, :global_edits, :cgifn_from_rss, :stats_name,
