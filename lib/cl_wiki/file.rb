@@ -5,6 +5,7 @@ require 'lockbox'
 
 require File.expand_path('page', __dir__)
 
+# TODO: change to constant
 $wikiPageExt = '.txt'
 
 module ClWiki
@@ -13,12 +14,12 @@ module ClWiki
     attr_accessor :clientLastReadModTime
 
     def initialize(fullPageName, wikiRootPath, fileExt=$wikiPageExt, autocreate=true)
-      # fullPageName must start with / ?
       @wikiRootPath = wikiRootPath
       fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
       fullPageName.ensure_slash_prefix
       @pagePath, @name = ::File.split(fullPageName)
       @pagePath = '/' if @pagePath == '.'
+      # TODO: remove fileExt as constructor param. It's never different.
       @fileExt = fileExt
       @metadata = {}
       @metadata_keys = %w[mtime encrypted]
@@ -31,6 +32,7 @@ module ClWiki
       end
     end
 
+    # TODO: consider removing
     def content_is_default?
       @contents.to_s == default_content
     end
@@ -47,6 +49,7 @@ module ClWiki
       FileTest.exist?(fullPathAndName)
     end
 
+    # TODO: make private and/or remove outright.
     def fullPath
       res = ::File.expand_path(::File.join(@wikiRootPath, @pagePath))
       raise 'no dirs in fullPath' if res.split('/').empty?
@@ -98,6 +101,7 @@ module ClWiki
       @metadata.collect { |k, v| "#{k}: #{v}" }.join("\n") + "\n\n\n"
     end
 
+    # TODO: remove, we don't support full hierarchy anymore.
     def make_dirs(dir)
       # need to commit each dir as we make it, which is why we just don't
       # call File::makedirs. Core code copied from ftools.rb
@@ -130,6 +134,7 @@ module ClWiki
     end
 
     # TODO: this implementation seems quite tortured
+    # TODO: metadata should go into its own class
     def split_metadata(raw_lines)
       start_index = 0
       raw_lines.each_with_index do |ln, index|
@@ -222,8 +227,5 @@ module ClWiki
   end
 
   class FileModifiedSinceRead < FileError
-  end
-
-  class FileMustUseWriteNewContent < FileError
   end
 end

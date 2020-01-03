@@ -254,6 +254,7 @@ module ClWiki
       end
     end
 
+    # TODO: remove this method out to dot script.
     def pages_out(rootPage)
       all = @index.all_terms(rootPage, WAIT)
       #all.delete_if do |term|

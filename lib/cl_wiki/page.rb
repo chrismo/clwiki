@@ -48,6 +48,7 @@ module ClWiki
       ClWiki::IndexClient.new.add_hit(@full_name) if $wiki_conf.access_log_index
     end
 
+    # TODO: consider removing
     def content_never_edited?
       @wikiFile.content_is_default?
     end
