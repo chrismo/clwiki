@@ -8,19 +8,19 @@ module ClWiki
     before_action :redirect_to_front_page_if_bad_name, :only => :show
 
     def show
-      @page = ClWiki::Page.new(@page_name)
+      @page = instantiate_page
       @page.read_content
       @page
     end
 
     def edit
-      @page = ClWiki::Page.new(@page_name)
+      @page = instantiate_page
       @page.read_raw_content
       @page
     end
 
     def update
-      @page = ClWiki::Page.new(@page_name)
+      @page = instantiate_page
       @page.update_content(params[:page_content], Time.at(params[:client_mod_time].to_s.to_i))
       redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.full_name.strip_slash_prefix) : page_show_url(:page_name => @page.full_name.strip_slash_prefix)
     end
@@ -101,6 +101,12 @@ module ClWiki
 
     def initialize_formatter
       @formatter = ClWiki::PageFormatter.new
+    end
+
+    private
+
+    def instantiate_page
+      ClWiki::Page.new(@page_name)
     end
   end
 end
