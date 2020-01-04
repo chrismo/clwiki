@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
   s.test_files = Dir['test/**/*']
 
   s.add_dependency 'bcrypt', '~> 3.1'
-  s.add_dependency 'clutil'
   s.add_dependency 'clindex', '~> 2.0'
   s.add_dependency 'lockbox'
 

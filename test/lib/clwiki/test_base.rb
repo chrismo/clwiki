@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
+require 'fileutils'
+
+require 'minitest'
+
 require File.expand_path('clwiki_test_helper', __dir__)
 
-require 'rubygems'
-gem 'clutil'
-require 'cl/util/test'
 require 'configuration'
 
-# TODO: Refactor away to module or somesuch
-class TestBase < TempDirTest
+class TestBase < MiniTest::Test
   def set_temp_dir
     @temp_dir = '/tmp/clwiki'
     @test_wiki_path = @temp_dir
@@ -18,15 +18,13 @@ class TestBase < TempDirTest
     $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
   end
 
-  def override_wiki_path(path)
-    $wiki_path = path
-    $wiki_conf.wiki_path = path
+  def setup
+    set_temp_dir
+    FileUtils::makedirs(@temp_dir)
   end
 
-  # to ward off the new Test::Unit detection of classes with no test
-  # methods
-  def default_test
-    super unless(self.class == TestBase)
-  end  
+  def teardown
+    FileUtils.remove_entry_secure(@temp_dir)
+  end
 end
 
