@@ -12,8 +12,6 @@ class TestClWikiFile < TestBase
     assert(FileTest.exist?(wiki_file.full_path_and_name))
     page_path, page_name = File.split(full_page_name)
     assert(wiki_file.name == page_name)
-    assert_equal(page_path, wiki_file.page_path)
-    assert(wiki_file.wiki_root_path == @test_wiki_path)
     assert_equal(file_name, wiki_file.full_path_and_name)
     assert_equal(["Describe " + page_name + " here."], wiki_file.content)
     new_wiki_file = ClWiki::File.new(full_page_name, @test_wiki_path)
@@ -22,6 +20,13 @@ class TestClWikiFile < TestBase
 
   def test_new_root_page
     do_test_new_page('/NewPage')
+  end
+
+  def test_file_delete
+    file = ClWiki::File.new('NewPage', @test_wiki_path)
+    assert file.file_exists?
+    file.delete
+    refute file.file_exists?
   end
 
   def test_update_page

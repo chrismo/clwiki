@@ -36,6 +36,8 @@ group :development, :test do
   gem 'rubocop-performance'
   gem 'rubocop-rails'
   gem 'rubocop_lineup'
+
+  gem 'simplecov'
 end
 
 # To use ActiveModel has_secure_password

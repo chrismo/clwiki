@@ -73,6 +73,7 @@ module ClWiki
       put_status "indexing #{fullName}" do
         pg = ClWiki::Page.new(fullName, @rootDir)
         pg.read_raw_content
+        # TODO: move purging these pages to its own script
         if purge && pg.content_never_edited?
           put_status("purging #{fullName}")
           pg.delete

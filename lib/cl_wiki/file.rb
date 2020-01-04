@@ -10,14 +10,13 @@ module ClWiki
   FILE_EXT = '.txt'
 
   class File
-    attr_reader :name, :wiki_root_path, :page_path, :mod_time_at_last_read, :metadata
+    attr_reader :name, :mod_time_at_last_read, :metadata
     attr_accessor :client_last_read_mod_time
 
     def initialize(full_page_name, wiki_root_path, auto_create: true)
       @wiki_root_path = wiki_root_path
       full_page_name = ClWiki::Util.convert_to_native_path(full_page_name).ensure_slash_prefix
-      @page_path, @name = ::File.split(full_page_name)
-      @page_path = '/' if @page_path == '.'
+      _, @name = ::File.split(full_page_name)
       @metadata = {}
       @metadata_keys = %w[mtime encrypted]
       if auto_create
@@ -31,7 +30,7 @@ module ClWiki
     end
 
     def delete
-      File.delete(full_path_and_name) if File.exists?(full_path_and_name)
+      ::File.delete(full_path_and_name) if file_exists?
     end
 
     def default_content
@@ -43,7 +42,7 @@ module ClWiki
     end
 
     def full_path_and_name
-      ::File.expand_path(@name + FILE_EXT, ::File.expand_path(::File.join(@wiki_root_path, @page_path)))
+      ::File.expand_path(@name + FILE_EXT, @wiki_root_path)
     end
 
     def content
