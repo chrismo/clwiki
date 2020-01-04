@@ -82,9 +82,8 @@ module ClWiki
       # newline, because this used to just be `File.readlines` which also keeps
       # the newline characters.
       raw_lines = ::File.binread(full_path_and_name).split(/(?<=\n)/)
+      @metadata, raw_content = Metadata.split_file_contents(raw_lines)
 
-      metadata_lines, raw_content = @metadata.split_metadata_and_content(raw_lines)
-      read_metadata(metadata_lines)
       apply_metadata
 
       content_encrypted? ? @contents = lock_box.decrypt_str(raw_content.join) : @contents = raw_content
@@ -114,9 +113,34 @@ module ClWiki
   end
 
   class Metadata
+    def self.split_file_contents(lines)
+      st_idx = 0
+      lines.each_with_index do |ln, index|
+        if ln.chomp.empty?
+          next_line = lines[index+1]
+          if next_line.nil? || next_line.chomp.empty?
+            st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index-1])
+            break
+          end
+        end
+      end
+
+      m, c = (st_idx > 0) ? [lines[0..st_idx - 3], lines[st_idx..-1]] : [[], lines]
+      [self.new(m), c]
+    end
+
+    def self.all_lines_are_metadata_lines(lines)
+      lines.map { |ln| ln.scan(/\A(\w+):?/) }.flatten.
+        map { |k| supported_keys.include?(k) }.uniq == [true]
+    end
+
+    def self.supported_keys
+      %w[mtime encrypted]
+    end
+
     def initialize(lines=[])
       @hash = {}
-      @keys = %w[mtime encrypted]
+      @keys = Metadata.supported_keys
       parse_lines(lines)
     end
 
@@ -141,22 +165,6 @@ module ClWiki
       @hash
     end
 
-    # TODO: this implementation seems quite tortured
-    def split_metadata_and_content(lines)
-      st_idx = 0
-      lines.each_with_index do |ln, index|
-        if ln.chomp.empty?
-          next_line = lines[index+1]
-          if next_line.nil? || next_line.chomp.empty?
-            st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index-1])
-            break
-          end
-        end
-      end
-
-      (st_idx > 0) ? [lines[0..st_idx - 3], lines[st_idx..-1]] : [[], lines]
-    end
-
     private
 
     def parse_lines(lines)
@@ -164,11 +172,6 @@ module ClWiki
         key, value = ln.split(': ')
         @hash[key] = value.chomp if @keys.include?(key)
       end
-    end
-
-    def all_lines_are_metadata_lines(lines)
-      lines.map { |ln| ln.scan(/\A(\w+):?/) }.flatten.
-        map { |k| @keys.include?(k) }.uniq == [true]
     end
   end
 
