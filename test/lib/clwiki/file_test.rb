@@ -1,7 +1,7 @@
 require_relative 'clwiki_test_helper'
 require 'file'
 
-class TestClWikiFile < TestBase
+class ClWikiFileTest < TestBase
   # refactor: shouldn't be dealing with page paths at this level, should be at
   # the ClWikiPage level
   def do_test_new_page(full_page_name)
