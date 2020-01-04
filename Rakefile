@@ -50,4 +50,14 @@ task :tests do
   end
 end
 
+task :rubocop do
+  sh 'bundle exec rubocop'
+end
+
+task :rubocop_metrics do
+  sh 'bundle exec rubocop -c .rubocop-metrics.yml'
+end
+
 task default: :tests
+task default: :rubocop
+task default: :rubocop_metrics
