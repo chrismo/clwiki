@@ -104,7 +104,7 @@ class TestClWikiFile < TestBase
     end
     wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
     assert_equal "First line\n\n\nAfter the big break\n", wiki_file.content.join
-    assert_equal({}, wiki_file.metadata)
+    assert_equal({}, wiki_file.metadata.to_h)
   end
 
   def test_mid_mtime_not_parsed_as_metadata
@@ -116,7 +116,7 @@ class TestClWikiFile < TestBase
     end
     wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
     assert_equal "a\nmtime: 2015-09-22\n\n\nb\n", wiki_file.content.join
-    assert_equal({}, wiki_file.metadata)
+    assert_equal({}, wiki_file.metadata.to_h)
   end
 
   def test_encrypted_contents

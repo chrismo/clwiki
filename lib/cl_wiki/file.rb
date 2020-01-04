@@ -15,10 +15,9 @@ module ClWiki
 
     def initialize(full_page_name, wiki_root_path, auto_create: true)
       @wiki_root_path = wiki_root_path
-      full_page_name = ClWiki::Util.convert_to_native_path(full_page_name).ensure_slash_prefix
-      _, @name = ::File.split(full_page_name)
-      @metadata = {}
-      @metadata_keys = %w[mtime encrypted]
+      path_file_name = ClWiki::Util.convert_to_native_path(full_page_name).ensure_slash_prefix
+      _, @name = ::File.split(path_file_name)
+      @metadata = Metadata.new
       if auto_create
         file_exists? ? read_file : write_to_file(default_content, false)
       end
@@ -64,7 +63,7 @@ module ClWiki
 
       ding_mtime
       file_contents = ''.tap do |s|
-        s << metadata_to_write
+        s << @metadata.to_s
         s << (content_encrypted? ? lock_box.encrypt(content) : content)
       end
       ::File.binwrite(full_path_and_name, file_contents)
@@ -76,10 +75,6 @@ module ClWiki
       @metadata['mtime'] = Time.now
     end
 
-    def metadata_to_write
-      @metadata.collect { |k, v| "#{k}: #{v}" }.join("\n") + "\n\n\n"
-    end
-
     def read_file
       @mod_time_at_last_read = ::File.mtime(full_path_and_name)
 
@@ -88,46 +83,20 @@ module ClWiki
       # the newline characters.
       raw_lines = ::File.binread(full_path_and_name).split(/(?<=\n)/)
 
-      metadata_lines, raw_content = split_metadata(raw_lines)
+      metadata_lines, raw_content = @metadata.split_metadata_and_content(raw_lines)
       read_metadata(metadata_lines)
       apply_metadata
 
       content_encrypted? ? @contents = lock_box.decrypt_str(raw_content.join) : @contents = raw_content
     end
 
-    # TODO: this implementation seems quite tortured
-    # TODO: metadata should go into its own class
-    def split_metadata(raw_lines)
-      st_idx = 0
-      raw_lines.each_with_index do |ln, index|
-        if ln.chomp.empty?
-          next_line = raw_lines[index+1]
-          if next_line.nil? || next_line.chomp.empty?
-            st_idx = index + 2 if all_lines_are_metadata_lines(raw_lines[0..index-1])
-            break
-          end
-        end
-      end
-
-      (st_idx > 0) ? [raw_lines[0..st_idx - 3], raw_lines[st_idx..-1]] : [[], raw_lines]
-    end
-
-    def all_lines_are_metadata_lines(lines)
-      lines.map { |ln| ln.scan(/\A(\w+):?/) }.flatten.
-        map { |k| @metadata_keys.include?(k) }.uniq == [true]
-    end
-
     def read_metadata(lines)
-      @metadata = {}
-      lines.each do |ln|
-        key, value = ln.split(': ')
-        @metadata[key] = value.chomp if @metadata_keys.include?(key)
-      end
+      @metadata = Metadata.new(lines)
     end
 
     # rubocop:disable Rails/TimeZone
     def apply_metadata
-      @mod_time_at_last_read = Time.parse(@metadata['mtime']) if @metadata.key? 'mtime'
+      @mod_time_at_last_read = Time.parse(@metadata['mtime']) if @metadata.has? 'mtime'
     end
     # rubocop:enable Rails/TimeZone
 
@@ -141,6 +110,65 @@ module ClWiki
 
     def lock_box
       Lockbox.new(key: '0' * 64)
+    end
+  end
+
+  class Metadata
+    def initialize(lines=[])
+      @hash = {}
+      @keys = %w[mtime encrypted]
+      parse_lines(lines)
+    end
+
+    def [](key)
+      @hash[key]
+    end
+
+    def []=(key, value)
+      raise "Unexpected key: #{key}" unless @keys.include?(key)
+      @hash[key] = value
+    end
+
+    def has?(key)
+      @hash.key?(key)
+    end
+
+    def to_s
+      @hash.collect { |k, v| "#{k}: #{v}" }.join("\n") + "\n\n\n"
+    end
+
+    def to_h
+      @hash
+    end
+
+    # TODO: this implementation seems quite tortured
+    def split_metadata_and_content(lines)
+      st_idx = 0
+      lines.each_with_index do |ln, index|
+        if ln.chomp.empty?
+          next_line = lines[index+1]
+          if next_line.nil? || next_line.chomp.empty?
+            st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index-1])
+            break
+          end
+        end
+      end
+
+      (st_idx > 0) ? [lines[0..st_idx - 3], lines[st_idx..-1]] : [[], lines]
+    end
+
+    private
+
+    def parse_lines(lines)
+      lines.each do |ln|
+        key, value = ln.split(': ')
+        @hash[key] = value.chomp if @keys.include?(key)
+      end
+    end
+
+    def all_lines_are_metadata_lines(lines)
+      lines.map { |ln| ln.scan(/\A(\w+):?/) }.flatten.
+        map { |k| @keys.include?(k) }.uniq == [true]
     end
   end
 
