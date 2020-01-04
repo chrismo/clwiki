@@ -10,7 +10,6 @@
 # Configuration parameters: Max.
 Metrics/AbcSize:
   Exclude:
-    - 'lib/cl_wiki/file.rb'
     - 'lib/cl_wiki/index.rb'
     - 'lib/cl_wiki/page.rb'
 

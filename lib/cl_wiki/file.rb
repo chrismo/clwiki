@@ -53,13 +53,7 @@ module ClWiki
     end
 
     def write_to_file(content, check_mod_time = true)
-      if check_mod_time
-        # refactor, bring raise_if_mtime_not_equal back into this class
-        ClWiki::Util.raise_if_mtime_not_equal(@mod_time_at_last_read, full_path_and_name)
-        unless @client_last_read_mod_time.nil?
-          ClWiki::Util.raise_if_mtime_not_equal(@client_last_read_mod_time, full_path_and_name)
-        end
-      end
+      do_mod_time_check if check_mod_time
 
       ding_mtime
       file_contents = ''.tap do |s|
@@ -109,6 +103,15 @@ module ClWiki
 
     def lock_box
       Lockbox.new(key: '0' * 64)
+    end
+
+    private
+
+    def do_mod_time_check
+      ClWiki::Util.raise_if_mtime_not_equal(@mod_time_at_last_read, full_path_and_name)
+      unless @client_last_read_mod_time.nil?
+        ClWiki::Util.raise_if_mtime_not_equal(@client_last_read_mod_time, full_path_and_name)
+      end
     end
   end
 
