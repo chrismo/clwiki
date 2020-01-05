@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClWiki
-  class User
+  class User < ClWiki::UserBase
     include ActiveModel::SecurePassword
     include ActiveModel::Serializers::JSON
 
@@ -54,7 +54,7 @@ module ClWiki
 
     # Generate a consistent key that can be used with Lockbox for encrypting
     # content, and that is not persisted anywhere.
-    def encryption_key(password)
+    def derive_encryption_key(password)
       if authenticate(password)
         pass = 'secret'
         salt = 'static salt' # so the same key is derived each time
@@ -69,6 +69,16 @@ module ClWiki
       else
         raise 'Could not authenticate password'
       end
+    end
+
+    def encryption_key
+      @encryption_key
+    end
+
+    # Never, never, persist this! It needs to be pushed in from the session
+    # store, for usage down deeper in the ClWiki `lib` code.
+    def cached_encryption_key=(value)
+      @encryption_key = value
     end
   end
 end

@@ -5,11 +5,9 @@ module ClWiki
     helper_method :logged_in?
 
     def current_user
-      User.find(session[:username])
-    end
-
-    def current_user_lockbox
-      Lockbox.new(key: session[:encryption_key]) if logged_in?
+      User.find(session[:username])&.tap do |user|
+        user.cached_encryption_key = session[:encryption_key]
+      end
     end
 
     def logged_in?

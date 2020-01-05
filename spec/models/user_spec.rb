@@ -37,14 +37,14 @@ RSpec.describe ClWiki::User do
     u = ClWiki::User.new
     u.username = 'foobar'
     u.password = 'my-password'
-    key = u.encryption_key('my-password')
+    key = u.derive_encryption_key('my-password')
     box = Lockbox.new(key: key)
     encrypted_message = box.encrypt('secret message' * 100)
 
     u = ClWiki::User.new
     u.username = 'foobar'
     u.password = 'my-password'
-    key = u.encryption_key('my-password')
+    key = u.derive_encryption_key('my-password')
     box = Lockbox.new(key: key)
     assert_equal 'secret message' * 100, box.decrypt(encrypted_message)
   end
