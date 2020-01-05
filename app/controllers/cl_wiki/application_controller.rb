@@ -10,6 +10,10 @@ module ClWiki
       end
     end
 
+    def current_owner
+      current_user || ClWiki::PublicUser.new
+    end
+
     def logged_in?
       !current_user.nil?
     end

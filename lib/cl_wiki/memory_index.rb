@@ -56,7 +56,8 @@ module ClWiki
     end
 
     def index_page(full_name)
-      pg = ClWiki::Page.new(full_name, @root_dir)
+      # TODO: Page needs owner
+      pg = ClWiki::Page.new(full_name, wiki_path: @root_dir)
       pg.read_raw_content
       formatter = ClWiki::PageFormatter.new(pg.raw_content, full_name)
       formatter.format_links { |word| @index.add(word.downcase, full_name, WAIT) }

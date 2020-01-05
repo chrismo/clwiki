@@ -71,7 +71,8 @@ module ClWiki
 
     def index_page(fullName, purge=false)
       put_status "indexing #{fullName}" do
-        pg = ClWiki::Page.new(fullName, @rootDir)
+        # TODO: Page needs owner
+        pg = ClWiki::Page.new(fullName, wiki_path: @rootDir)
         pg.read_raw_content
         # TODO: move purging these pages to its own script
         if purge && pg.content_never_edited?

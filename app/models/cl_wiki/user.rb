@@ -80,5 +80,9 @@ module ClWiki
     def cached_encryption_key=(value)
       @encryption_key = value
     end
+
+    def name
+      self.username
+    end
   end
 end

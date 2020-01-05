@@ -16,7 +16,7 @@ class ClWiki::Page
   end
 end
 
-class TestClWikiPage < TestBase
+class PageTest < TestBase
   def test_wiki_page
     ClWiki::Page.new('/NewPage')
   end

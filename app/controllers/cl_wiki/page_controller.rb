@@ -53,6 +53,7 @@ module ClWiki
     end
 
     def recent
+      # TODO: switch to index
       finder = FindInFile.new($wiki_path)
       finder.find($wiki_conf.publishTag || '.')
       @pages = finder.files.collect do |filename|
@@ -106,7 +107,7 @@ module ClWiki
     private
 
     def instantiate_page
-      ClWiki::Page.new(@page_name)
+      ClWiki::Page.new(@page_name, owner: current_owner)
     end
   end
 end

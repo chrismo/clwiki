@@ -3,16 +3,18 @@ require 'singleton'
 
 require File.expand_path('file', __dir__)
 require File.expand_path('find_in_file', __dir__)
+require File.expand_path('public_user', __dir__)
 
 module ClWiki
   class Page
     attr_reader :content, :mtime, :name, :full_name, :raw_content,
                 :file_full_path_and_name
 
-    def initialize(full_name, wiki_path=$wiki_path)
+    def initialize(full_name, wiki_path: $wiki_path, owner: PublicUser.new)
       @full_name = full_name
       @wiki_path = wiki_path
-      @wiki_file = ClWiki::File.new(@full_name, @wiki_path)
+      @owner = owner
+      @wiki_file = ClWiki::File.new(@full_name, @wiki_path, owner: @owner)
       @name = @wiki_file.name
     end
 
@@ -70,7 +72,7 @@ module ClWiki
         if history.index(this_pg_name)
           pg_content = '-= CIRCULAR FORWARDING DETECTED =-'
         else
-          pg = ClWiki::Page.new(this_pg_name)
+          pg = ClWiki::Page.new(this_pg_name, owner: @owner)
           pg.read_raw_content
           pg_content = pg.raw_content
           fwd_full_page_name = get_forward_ref(pg_content)
