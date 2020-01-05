@@ -83,8 +83,9 @@ class ClWikiFileTest < TestBase
     wiki_file = ClWiki::File.new("/PageWithMetaData", @test_wiki_path)
     file_lines = File.readlines(wiki_file.full_path_and_name)
     assert_match(/^mtime: .+$/, file_lines[0])
-    assert_equal "\n", file_lines[1]
+    assert_match(/^owner: .+$/, file_lines[1])
     assert_equal "\n", file_lines[2]
+    assert_equal "\n", file_lines[3]
   end
 
   def test_compare_ignores_usec
@@ -108,26 +109,28 @@ class ClWikiFileTest < TestBase
   end
 
   def test_mid_mtime_not_parsed_as_metadata
-    File.open(File.join(@test_wiki_path, 'LegacyPage.txt'), 'w') do |f|
-      f.puts "a"
-      f.puts "mtime: 2015-09-22"
-      f.puts "\n\n"
-      f.puts "b"
-    end
+    contents = [
+      "a",
+      "mtime: 2015-09-22",
+      "\n",
+      "b",
+    ].join("\n")
+    create_legacy_file('LegacyPage.txt', contents)
+
     wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
     assert_equal "a\nmtime: 2015-09-22\n\n\nb\n", wiki_file.content.join
     assert_equal({}, wiki_file.metadata.to_h)
   end
 
   def test_encrypted_contents
-    wiki_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path)
+    wiki_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path, owner: EncryptingUser.new)
     wiki_file.encrypt_content!
     expected_content = "This is my\n<b>awesome</b>\ncontent!"
     wiki_file.content = expected_content
 
     refute_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
 
-    read_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path)
+    read_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path, owner: EncryptingUser.new)
     assert_equal expected_content, read_file.content
   end
 end

@@ -26,5 +26,11 @@ class TestBase < MiniTest::Test
   def teardown
     FileUtils.remove_entry_secure(@temp_dir)
   end
+
+  def create_legacy_file(filename, contents = 'contents')
+    File.join(@temp_dir, filename).tap do |fn|
+      File.open(fn, 'w+') { |f| f.puts contents }
+    end
+  end
 end
 

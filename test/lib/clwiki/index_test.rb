@@ -1,15 +1,11 @@
 require_relative 'clwiki_test_helper'
 require 'index'
 
-class TestClWikiIndex < TestBase
+class IndexTest < TestBase
   def test_indexing_files_with_same_mod_timestamp
-    file_a = File.join(@temp_dir, 'TestFileA.txt')
-    file_b = File.join(@temp_dir, 'TestFileB.txt')
-    file_c = File.join(@temp_dir, 'TestFileC.txt')
-    [file_a, file_b, file_c].each do |fn|
-      FileUtils.makedirs(File.dirname(fn))
-      File.open(fn, 'w+') do |f| f.puts "sample file" end
-    end
+    file_a = create_legacy_file('TestFileA.txt')
+    file_b = create_legacy_file('TestFileB.txt')
+    file_c = create_legacy_file('TestFileC.txt')
     # couldn't find a way to set the mtime quickly, so just trusting
     # the above code will run within the same second...
     assert_in_delta(File.mtime(file_a), File.mtime(file_b), 1)
@@ -25,7 +21,7 @@ class TestClWikiIndex < TestBase
     assert_equal(1, recent.length)
     first = recent[0]
     assert_equal(2, first.length)
-    assert_equal(@mtime.strftime("%Y-%m-%dT%H:%M:%S"), first[0])
+    assert_equal(@mtime.strftime('%Y-%m-%dT%H:%M:%S'), first[0])
     assert_equal(%w(/TestFileA /TestFileB /TestFileC), first[1].sort)
   end
 end

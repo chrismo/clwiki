@@ -1,20 +1,20 @@
 require 'fileutils'
 require 'time'
 
-require 'lockbox'
-
 require File.expand_path('page', __dir__)
-
+require File.expand_path('public_user', __dir__)
+require File.expand_path('user_base', __dir__)
 
 module ClWiki
   FILE_EXT = '.txt'
 
   class File
-    attr_reader :name, :mod_time_at_last_read, :metadata
+    attr_reader :name, :mod_time_at_last_read, :metadata, :owner
     attr_accessor :client_last_read_mod_time
 
-    def initialize(full_page_name, wiki_root_path, auto_create: true)
+    def initialize(full_page_name, wiki_root_path, auto_create: true, owner: PublicUser.new)
       @wiki_root_path = wiki_root_path
+      @owner = owner
       path_file_name = ClWiki::Util.convert_to_native_path(full_page_name).ensure_slash_prefix
       _, @name = ::File.split(path_file_name)
       @metadata = Metadata.new
@@ -33,7 +33,7 @@ module ClWiki
     end
 
     def default_content
-      "Describe " + @name + " here."
+      "Describe #{@name} here."
     end
 
     def file_exists?
@@ -55,18 +55,14 @@ module ClWiki
     def write_to_file(content, check_mod_time = true)
       do_mod_time_check if check_mod_time
 
-      ding_mtime
+      update_metadata
       file_contents = ''.tap do |s|
         s << @metadata.to_s
-        s << (content_encrypted? ? lock_box.encrypt(content) : content)
+        s << (content_encrypted? ? @owner.lockbox.encrypt(content) : content)
       end
       ::File.binwrite(full_path_and_name, file_contents)
       ::File.utime(@metadata['mtime'], @metadata['mtime'], full_path_and_name)
       read_file
-    end
-
-    def ding_mtime
-      @metadata['mtime'] = Time.now
     end
 
     def read_file
@@ -80,7 +76,7 @@ module ClWiki
 
       apply_metadata
 
-      content_encrypted? ? @contents = lock_box.decrypt_str(raw_content.join) : @contents = raw_content
+      content_encrypted? ? @contents = @owner.lockbox.decrypt_str(raw_content.join) : @contents = raw_content
     end
 
     def read_metadata(lines)
@@ -90,6 +86,7 @@ module ClWiki
     # rubocop:disable Rails/TimeZone
     def apply_metadata
       @mod_time_at_last_read = Time.parse(@metadata['mtime']) if @metadata.has? 'mtime'
+      ensure_same_owner!
     end
     # rubocop:enable Rails/TimeZone
 
@@ -98,11 +95,8 @@ module ClWiki
     end
 
     def encrypt_content!
+      raise "Owner cannot encrypt" unless @owner.can_encrypt?
       @metadata['encrypted'] = 'true'
-    end
-
-    def lock_box
-      Lockbox.new(key: '0' * 64)
     end
 
     private
@@ -111,6 +105,19 @@ module ClWiki
       ClWiki::Util.raise_if_mtime_not_equal(@mod_time_at_last_read, full_path_and_name)
       unless @client_last_read_mod_time.nil?
         ClWiki::Util.raise_if_mtime_not_equal(@client_last_read_mod_time, full_path_and_name)
+      end
+    end
+
+    def update_metadata
+      @metadata['mtime'] = Time.now
+      @metadata['owner'] = @owner.name
+    end
+
+    def ensure_same_owner!
+      meta_owner = @metadata['owner']
+      is_legacy_file = meta_owner.to_s.empty?
+      unless (is_legacy_file && @owner.is_a?(PublicUser)) || meta_owner == @owner.name
+        raise "Owner must match: <#{meta_owner}> - <#{@owner.name}>"
       end
     end
   end
@@ -138,7 +145,7 @@ module ClWiki
     end
 
     def self.supported_keys
-      %w[mtime encrypted]
+      %w[mtime encrypted owner]
     end
 
     def initialize(lines=[])

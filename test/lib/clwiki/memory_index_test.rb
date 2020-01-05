@@ -2,15 +2,11 @@ require_relative 'clwiki_test_helper'
 require 'memory_index'
 
 # rubocop:disable Metrics/AbcSize
-class TestClWikiMemoryIndex < TestBase
+class MemoryIndexTest < TestBase
   def test_with_same_mod_timestamp
-    file_a = File.join(@temp_dir, 'TestFileA.txt')
-    file_b = File.join(@temp_dir, 'TestFileB.txt')
-    file_c = File.join(@temp_dir, 'TestFileC.txt')
-    [file_a, file_b, file_c].each do |fn|
-      FileUtils.makedirs(File.dirname(fn))
-      File.open(fn, 'w+') { |f| f.puts 'sample file' }
-    end
+    file_a = create_legacy_file('TestFileA.txt')
+    file_b = create_legacy_file('TestFileB.txt')
+    file_c = create_legacy_file('TestFileC.txt')
     # couldn't find a way to set the mtime quickly, so just trusting
     # the above code will run within the same second...
     assert_in_delta(File.mtime(file_a), File.mtime(file_b), 1)
@@ -26,22 +22,16 @@ class TestClWikiMemoryIndex < TestBase
   end
 
   def test_search
-    file_a = File.join(@temp_dir, 'TestFileA.txt')
-    file_b = File.join(@temp_dir, 'TestFileB.txt')
-    file_c = File.join(@temp_dir, 'TestFileC.txt')
     terms = %w[foo bar qux thud]
-    [file_a, file_b, file_c].each_with_index do |fn, idx|
-      File.open(fn, 'w+') { |f| f.puts terms[idx..(idx + 1)] }
-    end
+    file_a = create_legacy_file('TestFileA.txt', terms[0..1])
+    file_b = create_legacy_file('TestFileB.txt', terms[1..2])
+    file_c = create_legacy_file('TestFileC.txt', terms[2..3])
     index = ClWiki::MemoryIndexer.new
     assert_equal %w[/TestFileB /TestFileC], index.search('qux').flatten
   end
 
   def test_page_exists
-    file_a = File.join(@temp_dir, 'TestFileA.txt')
-    [file_a].each_with_index do |fn, idx|
-      File.open(fn, 'w+') { |f| f.puts 'test' }
-    end
+    create_legacy_file('TestFileA.txt')
     index = ClWiki::MemoryIndexer.new
     assert index.page_exists?('/TestFileA')
     refute index.page_exists?('/TestFileB')
