@@ -80,7 +80,7 @@ module ClWiki
           remove_page_from_index(fullName)
         else
           formatter = ClWiki::PageFormatter.new(pg.raw_content, fullName)
-          formatter.formatLinks do |word|
+          formatter.format_links do |word|
             add_to_index(word.downcase, fullName)
           end
           add_to_index(fullName, fullName)

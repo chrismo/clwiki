@@ -1,6 +1,6 @@
 <% @pages.each do |page| %>
   <div class='wikiHeader'>
-    <span class='pageName'><%= @formatter.convertToLink(page.name).html_safe %></span>
+    <span class='pageName'><%= @formatter.convert_to_link(page.name).html_safe %></span>
   </div>
   <%= page.content.html_safe %>
 <% end %>

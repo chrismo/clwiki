@@ -33,8 +33,8 @@ module ClWiki
         hits = search(@search_text)
 
         hits.each do |full_name|
-          @formatter.fullName = full_name
-          @results << "#{@formatter.convertToLink(full_name)}"
+          @formatter.full_name = full_name
+          @results << "#{@formatter.convert_to_link(full_name)}"
         end
       end
     end

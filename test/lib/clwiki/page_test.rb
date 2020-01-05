@@ -28,11 +28,11 @@ class TestClWikiPage < TestBase
     $wiki_conf.editable = true
     assert_equal(
       pageName + "<a href='#{pageName}/edit'>?</a>",
-      f.convertToLink(pageName))
+      f.convert_to_link(pageName))
     $wiki_conf.editable = false
     assert_equal(
       pageName,
-      f.convertToLink(pageName))
+      f.convert_to_link(pageName))
     ClWiki::Page.set_page_exists(true)
 
     # now that links serve up a separate link for each page in the
@@ -93,7 +93,7 @@ class TestClWikiPage < TestBase
 
     actual_results = Array.new
     f = ClWiki::PageFormatter.new(original)
-    f.gsubWords { |word| actual_results << word }
+    f.gsub_words { |word| actual_results << word }
     assert_equal(expected_results, actual_results)
   end
 
@@ -101,15 +101,15 @@ class TestClWikiPage < TestBase
     $wiki_conf.editable = true
     f = ClWiki::PageFormatter.new(content, nil)
     ClWiki::Page.set_page_exists(page_exists)
-    assert_equal(expected_content, f.formatLinks, "content: #{content} page_exists: #{page_exists} editable")
+    assert_equal(expected_content, f.format_links, "content: #{content} page_exists: #{page_exists} editable")
 
     $wiki_conf.editable = false
     f = ClWiki::PageFormatter.new(content, nil)
     ClWiki::Page.set_page_exists(page_exists)
     if page_exists
-      assert_equal(expected_content, f.formatLinks, "content: #{content} page_exists: #{page_exists} not editable")
+      assert_equal(expected_content, f.format_links, "content: #{content} page_exists: #{page_exists} not editable")
     else
-      assert_equal(content, f.formatLinks, "content: #{content} page_exists: #{page_exists} not editable")
+      assert_equal(content, f.format_links, "content: #{content} page_exists: #{page_exists} not editable")
     end
   end
 
