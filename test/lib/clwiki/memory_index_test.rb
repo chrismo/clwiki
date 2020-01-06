@@ -1,7 +1,6 @@
 require_relative 'clwiki_test_helper'
 require 'memory_index'
 
-# rubocop:disable Metrics/AbcSize
 class MemoryIndexTest < TestBase
   def test_with_same_mod_timestamp
     file_a = create_legacy_file('TestFileA.txt')
@@ -11,21 +10,16 @@ class MemoryIndexTest < TestBase
     # the above code will run within the same second...
     assert_in_delta(File.mtime(file_a), File.mtime(file_b), 1)
     assert_in_delta(File.mtime(file_a), File.mtime(file_c), 1)
-    @mtime = File.mtime(file_a)
     index = ClWiki::MemoryIndexer.new
     recent = index.recent
-    assert_equal(1, recent.length)
-    first = recent[0]
-    assert_equal(2, first.length)
-    assert_equal(@mtime.strftime('%Y-%m-%dT%H:%M:%S'), first[0])
-    assert_equal(%w[/TestFileA /TestFileB /TestFileC], first[1].sort)
+    assert_equal(%w[/TestFileA /TestFileB /TestFileC], recent.sort)
   end
 
   def test_search
     terms = %w[foo bar qux thud]
-    file_a = create_legacy_file('TestFileA.txt', terms[0..1])
-    file_b = create_legacy_file('TestFileB.txt', terms[1..2])
-    file_c = create_legacy_file('TestFileC.txt', terms[2..3])
+    create_legacy_file('TestFileA.txt', terms[0..1])
+    create_legacy_file('TestFileB.txt', terms[1..2])
+    create_legacy_file('TestFileC.txt', terms[2..3])
     index = ClWiki::MemoryIndexer.new
     assert_equal %w[/TestFileB /TestFileC], index.search('qux').flatten
   end
@@ -36,5 +30,22 @@ class MemoryIndexTest < TestBase
     assert index.page_exists?('/TestFileA')
     refute index.page_exists?('/TestFileB')
   end
+
+  def test_reindex
+    create_legacy_file('FileToReindex.txt', 'foo bar')
+    index = ClWiki::MemoryIndexer.new
+    file = ClWiki::File.new('FileToReindex', @test_wiki_path)
+    file.content = 'bar qux'
+    index.reindex_and_save_async('FileToReindex')
+    $wiki_conf.wait_on_threads
+    assert_equal %w[FileToReindex], index.search('qux').flatten
+  end
+
+  def test_recent_with_search
+    create_legacy_file('TestFileA.txt', 'foo')
+    create_legacy_file('TestFileB.txt', 'bar')
+    create_legacy_file('TestFileC.txt', 'qux')
+    index = ClWiki::MemoryIndexer.new
+    assert_equal %w[/TestFileB], index.recent(3, text: 'bar')
+  end
 end
-# rubocop:enable Metrics/AbcSize

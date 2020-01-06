@@ -1,21 +1,19 @@
 # frozen_string_literal: true
 
-require File.expand_path('index', __dir__)
+require File.expand_path('index_client', __dir__)
 require 'yaml'
 
 $defaultConfFile = 'clwiki.yml'
 
 module ClWiki
+  #noinspection RubyTooManyInstanceVariablesInspection
   class Configuration
 
-    USE_INDEX_NO = 0
-    USE_INDEX_DRB = 1
-    USE_INDEX_LOCAL = 2
     USE_INDEX_MEMORY = 3
 
-    attr_accessor :wiki_path, :cgifn, :indexPort, :cssHref, :template, :useGmt,
-                  :publishTag, :url_prefix, :global_edits, :cgifn_from_rss, :stats_name,
-                  :index_log_fn, :page_update_format, :use_authentication
+    attr_accessor :wiki_path, :cssHref, :template,
+                  :publishTag, :url_prefix, :global_edits,
+                  :page_update_format, :use_authentication
     attr_reader   :custom_formatter_load_path
 
     def wait_on_threads
@@ -23,22 +21,12 @@ module ClWiki
       # threads created should be registered here. The last
       # line of the CGI script should call out to wait_on_threads to make
       # sure nothing running async in the background is terminated too early
-      @threads.each do |thread|
-        thread.join
-      end if !@threads.nil?
+      @threads&.each { |thread| thread.join }
     end
 
     def wait_on_thread(thread)
-      @threads = [] if !@threads
+      @threads ||= []
       @threads << thread
-    end
-
-    def useIndex
-      @useIndex
-    end
-
-    def useIndex=(value)
-      @useIndex = value.to_i
     end
 
     def edit_rows
@@ -55,18 +43,6 @@ module ClWiki
 
     def edit_cols=(value)
       @edit_cols = value.to_i
-    end
-
-    def useIndexForPageExists
-      @useIndexForPageExists
-    end
-
-    def useIndexForPageExists=(value)
-      if value.class == String
-        @useIndexForPageExists = (value =~ /true/i)
-      else
-        @useIndexForPageExists = value
-      end
     end
 
     def access_log_index
@@ -129,20 +105,14 @@ module ClWiki
     def default_hash
       {
         url_prefix: '/',
-        indexPort: ClWiki::Indexer.defaultPort,
-        cgifn: 'clwikicgi.rb',
         default_recent_changes_name: 'Recent Changes',
         recent_changes_name: 'Recent Changes',
-        stats_name: 'Hit Counts',
-        useGmt: false,
         publishTag: nil,
         useIndexForPageExists: false,
         showSourceLink: false,
-        cgifn_from_rss: 'blogki.rb',
         edit_rows: 25,
         edit_cols: 80,
         access_log_index: false,
-        index_log_fn: nil,
         custom_formatter_load_path: [],
         use_authentication: false
       }

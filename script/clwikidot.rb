@@ -66,3 +66,17 @@ else
   end
   do_dot(g, 'wiki.dot')
 end
+
+#     def pages_out(rootPage)
+#      all = @index.all_terms(rootPage, WAIT)
+#      #all.delete_if do |term|
+#      #  term[0..0] != '/' || !ClWikiPage.page_exists?(term.dup)
+#      #end
+#      all.delete_if do |term|
+#        (term[0..0] != '/') || (term == '/') || (term == '//')
+#      end
+#      all.delete_if do |term|
+#        !ClWikiPage.page_exists?(term.dup)
+#      end
+#      all
+#    end

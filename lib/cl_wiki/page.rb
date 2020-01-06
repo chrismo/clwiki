@@ -2,7 +2,6 @@ require 'cgi'
 require 'singleton'
 
 require File.expand_path('file', __dir__)
-require File.expand_path('find_in_file', __dir__)
 require File.expand_path('public_user', __dir__)
 
 module ClWiki
@@ -41,7 +40,6 @@ module ClWiki
     def read_raw_content
       @raw_content = @wiki_file.content.join.gsub(/\r\n/, "\n")
       read_page_attributes
-      ClWiki::IndexClient.new.add_hit(@full_name) if $wiki_conf.access_log_index
     end
 
     # TODO: consider removing
@@ -150,22 +148,21 @@ module ClWiki
       wiki_file = @wiki_file # ClWikiFile.new(@fullName, @wikiPath)
       wiki_file.client_last_read_mod_time = mtime
       wiki_file.content = new_content
-      if $wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO
-        wiki_index_client = ClWiki::IndexClient.new
-        wiki_index_client.reindex_page_and_save_async(@full_name)
-      end
+      wiki_index_client = ClWiki::IndexClient.new(page_owner: @owner)
+      wiki_index_client.reindex_page_and_save_async(@full_name)
     end
 
     def self.page_exists?(page_name)
-      if ($wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO) &&
-          ($wiki_conf.useIndexForPageExists)
-        res = ClWiki::IndexClient.new.page_exists?(page_name)
-      else
-        wiki_file = ClWiki::File.new(page_name, $wiki_path, auto_create: false)
-        res = wiki_file.file_exists?
-      end
-
-      res
+      # TODO: if this is the 1st time the index is instantiated, it won't have owner.
+      # and this will blow up waaay down the stack as it tries to do all of the indexing
+      # without an owner.
+      #
+      # For this query, however, it doesn't need owner, since it's just looking for
+      # existence. Hmmm. The index could be lazy-loaded, with names and metadata
+      # first, and not content if owner doesn't match. But ... I dunno.
+      #
+      # Patching the test for this one for now.
+      ClWiki::IndexClient.new.page_exists?(page_name)
     end
   end
 
@@ -341,16 +338,10 @@ module ClWiki
       if ClWiki::Page.page_exists?(page_name)
         "<a href='#{page_name.strip_slash_prefix}'>#{page_name.strip_slash_prefix}</a>"
       else
-        if $wiki_conf.useIndex == ClWiki::Configuration::USE_INDEX_NO
-          finder = FindInFile.new($wiki_path)
-          finder.find(page_name, FindInFile::FILE_NAME_ONLY)
-          hits = finder.files.collect { |f| f.sub(ClWiki::FILE_EXT, '') }
-        else
-          @wiki_index = ClWiki::IndexClient.new if @wiki_index.nil?
-          titles_only = true
-          hits = @wiki_index.search(page_name, titles_only)
-          hits = GlobalHitReducer.reduce_to_exact_if_exists(page_name, hits)
-        end
+        @wiki_index ||= ClWiki::IndexClient.new
+        titles_only = true
+        hits = @wiki_index.search(page_name, titles_only)
+        hits = GlobalHitReducer.reduce_to_exact_if_exists(page_name, hits)
 
         case hits.length
           when 0

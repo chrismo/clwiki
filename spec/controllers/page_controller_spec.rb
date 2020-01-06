@@ -7,21 +7,27 @@ require 'tmpdir'
 RSpec.describe ClWiki::PageController do
   describe 'use authentication' do
     before do
+      # Yeah, this is ridiculous. One refactor at a time.
+      # Page class uses one global, Index uses the other. :facepalm:
+      @restore_wiki_path = $wiki_path
       $wiki_path = Dir.mktmpdir
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.wiki_path = $wiki_path
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       $wiki_conf.use_authentication = true
 
       @routes = ClWiki::Engine.routes
 
-      user = AuthFixture.create_test_user
-      get :show, params: {}, session: {username: user.username}
+      @user = AuthFixture.create_test_user
+      get :show, params: {}, session: {username: @user.username}
     end
 
     after do
-      FileUtils.remove_entry_secure $wiki_path
-      $wiki_path = $wiki_conf.wiki_path
+      FileUtils.remove_entry_secure $wiki_conf.wiki_path
+      $wiki_path = @restore_wiki_path
+      $wiki_conf.wiki_path = $wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
+      $indexer = nil
     end
 
     it 'should render /FrontPage by default' do
@@ -31,6 +37,8 @@ RSpec.describe ClWiki::PageController do
     end
 
     it 'should render /NewPage with new content prompt' do
+      ClWiki::IndexClient.new(page_owner: @user)
+
       get :show, params: {page_name: 'NewPage'}
 
       page = assigns(:page)
@@ -94,9 +102,9 @@ RSpec.describe ClWiki::PageController do
     end
 
     it 'should render find page with results without index' do
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
-      PageFixture.write_page('BarFoo', 'foobar')
-      PageFixture.write_page('BaaRamEwe', 'sheep foobar')
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
+      PageFixture.write_page('BarFoo', 'foobar', owner: @user)
+      PageFixture.write_page('BaaRamEwe', 'sheep foobar', owner: @user)
 
       post :find, params: {search_text: 'sheep'}
 
@@ -106,38 +114,38 @@ RSpec.describe ClWiki::PageController do
     end
 
     it 'should render recent pages view' do
-      PageFixture.write_page('FooBar', 'foobar')
+      PageFixture.write_page('FooBar', 'foobar', owner: @user)
       sleep 0.1
-      PageFixture.write_page('BazQuux', 'bazquux')
+      PageFixture.write_page('BazQuux', 'bazquux', owner: @user)
       $wiki_conf.publishTag = nil
 
       get :recent
 
-      assigns(:pages).map(&:full_name).should == ['BazQuux', 'FooBar']
+      assigns(:pages).map(&:full_name).sort.should == ['/BazQuux', '/FooBar']
     end
 
     it 'should render recent pages view with matching publish tags' do
-      PageFixture.write_page('FooBar', "<publish>\nfoobar")
+      PageFixture.write_page('FooBar', "<publish>\nfoobar", owner: @user)
       sleep 0.1
-      PageFixture.write_page('BazQuux', 'bazquux')
+      PageFixture.write_page('BazQuux', 'bazquux', owner: @user)
       $wiki_conf.publishTag = '<publish>'
 
       get :recent
 
-      assigns(:pages).map(&:full_name).should == ['FooBar']
+      assigns(:pages).map(&:full_name).should == ['/FooBar']
       # view should call get_header without footer, so those shouldn't be mixed into content
       assigns(:pages)[0].content.should_not start_with "<div class='wikiHeader'>"
     end
 
     it 'should render recent pages view with rss format' do
-      PageFixture.write_page('FooBar', "<publish>\nfoobar")
+      PageFixture.write_page('FooBar', "<publish>\nfoobar", owner: @user)
       sleep 0.1
-      PageFixture.write_page('BazQuux', 'bazquux')
+      PageFixture.write_page('BazQuux', 'bazquux', owner: @user)
       $wiki_conf.publishTag = '<publish>'
 
       get :recent, format: 'rss'
 
-      assigns(:pages).map(&:full_name).should == ['FooBar']
+      assigns(:pages).map(&:full_name).should == ['/FooBar']
     end
   end
 
@@ -157,18 +165,21 @@ RSpec.describe ClWiki::PageController do
 
   describe 'do not use authentication' do
     before do
+      @restore_wiki_path = $wiki_path
       $wiki_path = Dir.mktmpdir
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.wiki_path = $wiki_path
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       $wiki_conf.use_authentication = false
 
       @routes = ClWiki::Engine.routes
     end
 
     after do
-      FileUtils.remove_entry_secure $wiki_path
-      $wiki_path = $wiki_conf.wiki_path
+      FileUtils.remove_entry_secure $wiki_conf.wiki_path
+      $wiki_path = @restore_wiki_path
+      $wiki_conf.wiki_path = $wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
     end
 
     it 'should render /FrontPage by default' do

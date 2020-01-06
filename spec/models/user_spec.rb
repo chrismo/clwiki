@@ -7,14 +7,14 @@ require 'tmpdir'
 RSpec.describe ClWiki::User do
   before do
     $wiki_path = Dir.mktmpdir
-    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
   end
 
   after do
     FileUtils.remove_entry_secure $wiki_path
     $wiki_path = $wiki_conf.wiki_path
     $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
   end
 
   it 'persistence and authentication' do

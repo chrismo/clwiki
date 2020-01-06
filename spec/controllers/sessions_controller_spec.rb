@@ -8,7 +8,7 @@ RSpec.describe ClWiki::SessionsController do
   describe 'use authentication' do
     before do
       $wiki_path = Dir.mktmpdir
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       $wiki_conf.use_authentication = true
 
       @routes = ClWiki::Engine.routes
@@ -20,7 +20,7 @@ RSpec.describe ClWiki::SessionsController do
       FileUtils.remove_entry_secure $wiki_path
       $wiki_path = $wiki_conf.wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
     end
 
     it 'login invalid username' do
@@ -42,7 +42,7 @@ RSpec.describe ClWiki::SessionsController do
   describe 'do not use authentication' do
     before do
       $wiki_path = Dir.mktmpdir
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       $wiki_conf.use_authentication = false
 
       @routes = ClWiki::Engine.routes
@@ -52,7 +52,7 @@ RSpec.describe ClWiki::SessionsController do
       FileUtils.remove_entry_secure $wiki_path
       $wiki_path = $wiki_conf.wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
     end
 
     it 'get login redirects to root' do

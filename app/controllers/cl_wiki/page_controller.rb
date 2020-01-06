@@ -40,30 +40,19 @@ module ClWiki
     end
 
     def search(text)
-      case $wiki_conf.useIndex
-        when ClWiki::Configuration::USE_INDEX_NO
-          finder = FindInFile.new($wiki_path)
-          finder.find(text)
-          finder.files.collect do |filename|
-            filename.sub(ClWiki::FILE_EXT, '')
-          end
-        else
-          ClWiki::IndexClient.new.search(text)
-      end
+      ClWiki::IndexClient.new.search(text)
     end
 
+    # TODO: actually, this is recent _published_ pages.
     def recent
-      # TODO: switch to index
-      finder = FindInFile.new($wiki_path)
-      finder.find($wiki_conf.publishTag || '.')
-      @pages = finder.files.collect do |filename|
-        p = ClWiki::Page.new(filename.sub(ClWiki::FILE_EXT, ''))
-        p.read_page_attributes
-        p
-      end
-      @pages = @pages.sort { |a, b| b.mtime <=> a.mtime }[0..9]
+      page_names = ClWiki::IndexClient.new.recent(10, text: $wiki_conf.publishTag)
+
       without_header_and_footer = false
-      @pages.each { |p| p.read_content(without_header_and_footer) }
+      @pages = page_names.map do |page_name|
+        ClWiki::Page.new(page_name, owner: current_owner).tap do |page|
+          page.read_content(without_header_and_footer)
+        end
+      end
 
       respond_to do |format|
         format.html

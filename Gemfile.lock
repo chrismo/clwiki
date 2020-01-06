@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    clwiki (2.5.0)
+    clwiki (3.0.0)
       bcrypt (~> 3.1)
       clindex (~> 2.0)
       lockbox
