@@ -5,6 +5,9 @@ require 'tmpdir'
 
 # rubocop:disable Lint/Void
 RSpec.describe ClWiki::PageController do
+
+  render_views
+
   describe 'use authentication' do
     before do
       # Yeah, this is ridiculous. One refactor at a time.
@@ -12,7 +15,6 @@ RSpec.describe ClWiki::PageController do
       @restore_wiki_path = $wiki_path
       $wiki_path = Dir.mktmpdir
       $wiki_conf.wiki_path = $wiki_path
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       $wiki_conf.use_authentication = true
 
       @routes = ClWiki::Engine.routes
@@ -26,7 +28,6 @@ RSpec.describe ClWiki::PageController do
       $wiki_path = @restore_wiki_path
       $wiki_conf.wiki_path = $wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       $indexer = nil
     end
 
@@ -37,20 +38,32 @@ RSpec.describe ClWiki::PageController do
     end
 
     it 'should render /NewPage with new content prompt' do
+      # There's a bug if the index hasn't been built and this is the first
+      # request made to the instance. I'm working around it for now with this
+      # next line.
       ClWiki::IndexClient.new(page_owner: @user)
 
       get :show, params: {page_name: 'NewPage'}
 
       page = assigns(:page)
-      page.full_name.should == '/NewPage'
+      page.page_name.should == 'NewPage'
       page.content.should =~ /Describe.*NewPage.*here/
+    end
+
+    it 'should render link to other pages properly' do
+      PageFixture.write_page('TargetPage', 'content', owner: @user)
+      PageFixture.write_page('SourcePage', 'TargetPage', owner: @user)
+
+      get :show, params: {page_name: 'SourcePage'}
+
+      assert_select ".wikiBody a[href='TargetPage']"
     end
 
     it 'should allow editing of a page' do
       get :edit, params: {page_name: 'NewPage'}
 
       page = assigns(:page)
-      page.full_name.should == '/NewPage'
+      page.page_name.should == 'NewPage'
       page.raw_content.should == 'Describe NewPage here.'
     end
 
@@ -102,7 +115,6 @@ RSpec.describe ClWiki::PageController do
     end
 
     it 'should render find page with results without index' do
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       PageFixture.write_page('BarFoo', 'foobar', owner: @user)
       PageFixture.write_page('BaaRamEwe', 'sheep foobar', owner: @user)
 
@@ -121,7 +133,7 @@ RSpec.describe ClWiki::PageController do
 
       get :recent
 
-      assigns(:pages).map(&:full_name).sort.should == ['/BazQuux', '/FooBar']
+      assigns(:pages).map(&:page_name).sort.should == ['BazQuux', 'FooBar']
     end
 
     it 'should render recent pages view with matching publish tags' do
@@ -132,7 +144,7 @@ RSpec.describe ClWiki::PageController do
 
       get :recent
 
-      assigns(:pages).map(&:full_name).should == ['/FooBar']
+      assigns(:pages).map(&:page_name).should == ['FooBar']
       # view should call get_header without footer, so those shouldn't be mixed into content
       assigns(:pages)[0].content.should_not start_with "<div class='wikiHeader'>"
     end
@@ -145,7 +157,7 @@ RSpec.describe ClWiki::PageController do
 
       get :recent, format: 'rss'
 
-      assigns(:pages).map(&:full_name).should == ['/FooBar']
+      assigns(:pages).map(&:page_name).should == ['FooBar']
     end
   end
 
@@ -168,7 +180,6 @@ RSpec.describe ClWiki::PageController do
       @restore_wiki_path = $wiki_path
       $wiki_path = Dir.mktmpdir
       $wiki_conf.wiki_path = $wiki_path
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
       $wiki_conf.use_authentication = false
 
       @routes = ClWiki::Engine.routes
@@ -179,8 +190,7 @@ RSpec.describe ClWiki::PageController do
       $wiki_path = @restore_wiki_path
       $wiki_conf.wiki_path = $wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
-    end
+      end
 
     it 'should render /FrontPage by default' do
       get :show

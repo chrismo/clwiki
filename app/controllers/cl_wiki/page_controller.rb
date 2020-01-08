@@ -22,7 +22,7 @@ module ClWiki
     def update
       @page = instantiate_page
       @page.update_content(params[:page_content], Time.at(params[:client_mod_time].to_s.to_i))
-      redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.full_name.strip_slash_prefix) : page_show_url(:page_name => @page.full_name.strip_slash_prefix)
+      redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.page_name) : page_show_url(:page_name => @page.page_name)
     end
 
     def find
@@ -78,12 +78,11 @@ module ClWiki
 
     def assign_page_name
       @page_name = params[:page_name]
-      @page_name = @page_name.ensure_slash_prefix if @page_name
     end
 
     def redirect_to_front_page_if_bad_name
       if ((@page_name.blank?) || (!@formatter.is_wiki_name?(@page_name))) ||
-          (!$wiki_conf.editable && !ClWiki::Page.page_exists?(@page_name.ensure_slash_prefix))
+          (!$wiki_conf.editable && !ClWiki::Page.page_exists?(@page_name))
         redirect_to page_show_url(:page_name => front_page_name)
         return
       end

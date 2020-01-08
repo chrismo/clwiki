@@ -58,14 +58,12 @@ module ClWiki
     private
 
     def build
-      # TODO: change to use FindInFile
       files = Dir[::File.join(@root_dir, '**/*' + ClWiki::FILE_EXT)]
       files.each do |fn|
         next unless ::File.file?(fn)
 
-        full_name = fn.sub(@root_dir, '')
-        full_name = full_name.sub(/#{ClWiki::FILE_EXT}/, '')
-        index_page(full_name)
+        page_name = ::File.basename(fn, ClWiki::FILE_EXT)
+        index_page(page_name)
       end
     end
 
@@ -79,11 +77,11 @@ module ClWiki
     end
 
     def add_to_indexes(page)
-      @index.add(page.full_name, page.full_name, WAIT)
-      @pages.add(page.full_name, nil, WAIT)
+      @index.add(page.page_name, page.page_name, WAIT)
+      @pages.add(page.page_name, nil, WAIT)
 
-      @recent.remove(page.full_name, WAIT)
-      @recent.add(page.mtime.strftime('%Y-%m-%dT%H:%M:%S'), page.full_name, WAIT)
+      @recent.remove(page.page_name, WAIT)
+      @recent.add(page.mtime.strftime('%Y-%m-%dT%H:%M:%S'), page.page_name, WAIT)
     end
 
     def reindex_page(full_name)

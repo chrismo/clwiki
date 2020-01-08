@@ -9,7 +9,6 @@ RSpec.describe ClWiki::ApplicationController, type: :request do
     @restore_wiki_path = $wiki_path
     $wiki_path = Dir.mktmpdir
     $wiki_conf.wiki_path = $wiki_path
-    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
     $wiki_conf.use_authentication = true
 
     @routes = ClWiki::Engine.routes
@@ -22,7 +21,6 @@ RSpec.describe ClWiki::ApplicationController, type: :request do
     $wiki_path = @restore_wiki_path
     $wiki_conf.wiki_path = $wiki_path
     $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
     $wiki_conf.use_authentication = true
   end
 

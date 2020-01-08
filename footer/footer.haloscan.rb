@@ -7,7 +7,7 @@ class HaloscanCommentFooter < ClWikiCustomFooter
     # (code in clwikipage.rb protects this now, but, still may be
     # a good idea to protect it)
     if page.is_a? ClWikiPage
-      page_id = page.full_name.gsub(/\//, '_')
+      page_id = page.page_name.gsub(/\//, '_')
       "<table width='100%' noborder><tr><td align=right><a href=\"javascript:HaloScan('#{page_id}');\" target=\"_self\"><script type=\"text/javascript\">postCount('#{page_id}');</script></a> | <a href=\"javascript:HaloScanTB('#{page_id}');\" target=\"_self\"><script type=\"text/javascript\">postCountTB('#{page_id}'); </script></a></td></tr></table>"
     else
       ''

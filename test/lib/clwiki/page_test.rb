@@ -18,63 +18,7 @@ end
 
 class PageTest < TestBase
   def test_wiki_page
-    ClWiki::Page.new('/NewPage')
-  end
-
-  def do_test_convert_to_link(pageName, pagePath='/FrontPage')
-    f = ClWiki::PageFormatter.new(nil, pagePath)
-    # fullPageName = f.expand_path(pageName, pagePath)
-    ClWiki::Page.set_page_exists(false)
-    $wiki_conf.editable = true
-    assert_equal(
-      pageName + "<a href='#{pageName}/edit'>?</a>",
-      f.convert_to_link(pageName))
-    $wiki_conf.editable = false
-    assert_equal(
-      pageName,
-      f.convert_to_link(pageName))
-    ClWiki::Page.set_page_exists(true)
-
-    # now that links serve up a separate link for each page in the
-    # hierarchy, testing this is cumbersome - and there's already
-    # tests for testFormatLinkPages which exercise this same thing
-
-    # assert_equal(
-    #  "<a href=clwikicgi.rb?page=" + fullPageName + ">" + pageName + "</a>",
-    #   f.convertToLink(pageName))
-  end
-
-  def test_convert_to_link_main
-    do_test_convert_to_link("TestPage")
-  end
-
-  def test_convert_to_link_sub_bs
-    do_test_convert_to_link("TestPage\TestSubPage")
-  end
-
-  def test_convert_to_link_sub_fs
-    do_test_convert_to_link("TestPage/TestSubPage")
-  end
-
-  def test_convert_to_link_bs_sub
-    do_test_convert_to_link("\TestPage/TestSubPage")
-  end
-
-  def test_convert_to_link_fs_sub
-    do_test_convert_to_link("/TestPage/TestSubPage")
-  end
-
-  def test_convert_to_link_fs_sub_sub
-    do_test_convert_to_link("/TestPage/TestSubPage\NotherSubPage")
-  end
-
-  def test_convert_to_link_fs_sub_sub2
-    do_test_convert_to_link("/TestPage/TestSubPage/NotherSubPage")
-  end
-
-  def test_convert_to_link_collapse_path
-    do_test_convert_to_link("TestSubPage/NotherSubPage", "/TestPage/TestSubPage")
-    do_test_convert_to_link("SubPage/NotherSubPage", "/TestPage/SubPage/SubPage")
+    ClWiki::Page.new('NewPage')
   end
 
   def test_gsub_words

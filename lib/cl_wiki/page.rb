@@ -6,14 +6,15 @@ require File.expand_path('public_user', __dir__)
 
 module ClWiki
   class Page
-    attr_reader :content, :mtime, :name, :full_name, :raw_content,
+    attr_reader :content, :mtime, :name, :page_name, :raw_content,
                 :file_full_path_and_name
 
-    def initialize(full_name, wiki_path: $wiki_path, owner: PublicUser.new)
-      @full_name = full_name
+    def initialize(page_name, wiki_path: $wiki_path, owner: PublicUser.new)
+      raise "Fix this - no slashes! #{page_name}" if page_name =~ /\//
+      @page_name = page_name
       @wiki_path = wiki_path
       @owner = owner
-      @wiki_file = ClWiki::File.new(@full_name, @wiki_path, owner: @owner)
+      @wiki_file = ClWiki::File.new(@page_name, @wiki_path, owner: @owner)
       @name = @wiki_file.name
     end
 
@@ -75,7 +76,7 @@ module ClWiki
           pg_content = pg.raw_content
           fwd_full_page_name = get_forward_ref(pg_content)
           if fwd_full_page_name
-            pg_content = "Auto forwarded from #{this_pg_name.strip_slash_prefix}<br><br>#{fwd_full_page_name}<br><br>"
+            pg_content = "Auto forwarded from #{this_pg_name}<br><br>#{fwd_full_page_name}<br><br>"
             stack.push fwd_full_page_name
           else
             final_page_name = this_pg_name
@@ -89,7 +90,7 @@ module ClWiki
 
     def read_content(include_header_and_footer=true, include_diff=false)
       read_page_attributes
-      @content, final_page_name = read_raw_content_with_forwarding(@full_name)
+      @content, final_page_name = read_raw_content_with_forwarding(@page_name)
       process_custom_renderers
       convert_newline_to_br
       f = ClWiki::PageFormatter.new(@content, final_page_name)
@@ -113,12 +114,12 @@ module ClWiki
     end
 
     def get_header
-      f = ClWiki::PageFormatter.new(nil, @full_name)
-      f.header(@full_name, self)
+      f = ClWiki::PageFormatter.new(nil, @page_name)
+      f.header(@page_name, self)
     end
 
     def get_footer
-      f = ClWiki::PageFormatter.new(nil, @full_name)
+      f = ClWiki::PageFormatter.new(nil, @page_name)
       f.footer(self)
     end
 
@@ -131,7 +132,7 @@ module ClWiki
 
       if res
         page_name = $1
-        f = ClWiki::PageFormatter.new(content, @full_name)
+        f = ClWiki::PageFormatter.new(content, @page_name)
         res = f.is_wiki_name?(page_name)
         if res
           res = ClWiki::Page.page_exists?(page_name)
@@ -149,7 +150,7 @@ module ClWiki
       wiki_file.client_last_read_mod_time = mtime
       wiki_file.content = new_content
       wiki_index_client = ClWiki::IndexClient.new(page_owner: @owner)
-      wiki_index_client.reindex_page_and_save_async(@full_name)
+      wiki_index_client.reindex_page_and_save_async(@page_name)
     end
 
     def self.page_exists?(page_name)
@@ -200,7 +201,6 @@ module ClWiki
       if (full_page_name != FIND_PAGE_NAME) and
           (full_page_name != FIND_RESULTS_NAME) and
           (full_page_name != $wiki_conf.recent_changes_name) and
-          (full_page_name != $wiki_conf.stats_name)
         head << "<span class='pageName'><a href='find?search_text=#{search_text}'>#{page_name}</a></span><br/>"
         full_dirs.each do |dir|
           head << '<span class=\'pageTag\'>'
@@ -237,7 +237,7 @@ module ClWiki
 
       custom_footer = process_custom_footers(page)
 
-      wiki_name = page.full_name
+      wiki_name = page.page_name
 
       # refactor string constants
       footer = "<div class='wikiFooter'>"
@@ -245,9 +245,8 @@ module ClWiki
       if (wiki_name != FIND_PAGE_NAME) and
           (wiki_name != FIND_RESULTS_NAME) and
           (wiki_name != $wiki_conf.recent_changes_name) and
-          (wiki_name != $wiki_conf.stats_name)
         if $wiki_conf.editable
-          footer << ("<li><span class='wikiAction'><a href='" + wiki_name.strip_slash_prefix + "/edit'>Edit</a></span></li>")
+          footer << ("<li><span class='wikiAction'><a href='" + wiki_name + "/edit'>Edit</a></span></li>")
         end
       end
       footer << "<li><span class='wikiAction'><a href='find'>Find</a></span></li>"
@@ -336,7 +335,7 @@ module ClWiki
 
     def convert_to_link(page_name)
       if ClWiki::Page.page_exists?(page_name)
-        "<a href='#{page_name.strip_slash_prefix}'>#{page_name.strip_slash_prefix}</a>"
+        "<a href='#{page_name}'>#{page_name}</a>"
       else
         @wiki_index ||= ClWiki::IndexClient.new
         titles_only = true
@@ -463,15 +462,5 @@ module CLabs
     def WikiDiffFormatter.format_diff(diff)
       "<b>Diff</b><br><pre>\n#{CGI.escapeHTML(diff)}\n</pre><br><hr=width\"50%\">"
     end
-  end
-end
-
-class String
-  def ensure_slash_prefix
-    self[0..0] != '/' ? "/#{self}" : self
-  end
-
-  def strip_slash_prefix
-    self.gsub(/^\//, '')
   end
 end

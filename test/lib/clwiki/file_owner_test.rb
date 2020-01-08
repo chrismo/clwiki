@@ -46,4 +46,12 @@ class FileOwnerTest < TestBase
     # if there is no owner, BUT file is set to encrypt -
     # well ... this would fail naturally ... right?
   end
+
+  def test_public_page_not_encrypted_accessible_by_anyone
+    create_legacy_file('LegacyPage.txt')
+    user = EncryptingUser.new
+
+    file = ClWiki::File.new('LegacyPage', @test_wiki_path, owner: user)
+    assert_equal user.name, file.owner.name
+  end
 end

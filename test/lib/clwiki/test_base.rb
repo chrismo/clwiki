@@ -15,7 +15,6 @@ class TestBase < MiniTest::Test
     $wiki_path = @test_wiki_path
     $wiki_conf = ClWiki::Configuration.new
     $wiki_conf.wiki_path = $wiki_path
-    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_MEMORY
   end
 
   def setup

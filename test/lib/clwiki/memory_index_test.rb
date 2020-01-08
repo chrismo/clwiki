@@ -12,7 +12,7 @@ class MemoryIndexTest < TestBase
     assert_in_delta(File.mtime(file_a), File.mtime(file_c), 1)
     index = ClWiki::MemoryIndexer.new
     recent = index.recent
-    assert_equal(%w[/TestFileA /TestFileB /TestFileC], recent.sort)
+    assert_equal(%w[TestFileA TestFileB TestFileC], recent.sort)
   end
 
   def test_search
@@ -21,14 +21,14 @@ class MemoryIndexTest < TestBase
     create_legacy_file('TestFileB.txt', terms[1..2])
     create_legacy_file('TestFileC.txt', terms[2..3])
     index = ClWiki::MemoryIndexer.new
-    assert_equal %w[/TestFileB /TestFileC], index.search('qux').flatten
+    assert_equal %w[TestFileB TestFileC], index.search('qux').flatten
   end
 
   def test_page_exists
     create_legacy_file('TestFileA.txt')
     index = ClWiki::MemoryIndexer.new
-    assert index.page_exists?('/TestFileA')
-    refute index.page_exists?('/TestFileB')
+    assert index.page_exists?('TestFileA')
+    refute index.page_exists?('TestFileB')
   end
 
   def test_reindex
@@ -46,6 +46,6 @@ class MemoryIndexTest < TestBase
     create_legacy_file('TestFileB.txt', 'bar')
     create_legacy_file('TestFileC.txt', 'qux')
     index = ClWiki::MemoryIndexer.new
-    assert_equal %w[/TestFileB], index.recent(3, text: 'bar')
+    assert_equal %w[TestFileB], index.recent(3, text: 'bar')
   end
 end

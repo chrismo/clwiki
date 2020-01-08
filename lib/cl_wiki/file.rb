@@ -12,11 +12,10 @@ module ClWiki
     attr_reader :name, :mod_time_at_last_read, :metadata, :owner
     attr_accessor :client_last_read_mod_time
 
-    def initialize(full_page_name, wiki_root_path, auto_create: true, owner: PublicUser.new)
+    def initialize(page_name, wiki_root_path, auto_create: true, owner: PublicUser.new)
       @wiki_root_path = wiki_root_path
       @owner = owner
-      path_file_name = ClWiki::Util.convert_to_native_path(full_page_name).ensure_slash_prefix
-      _, @name = ::File.split(path_file_name)
+      @name = ::File.basename(ClWiki::Util.convert_to_native_path(page_name))
       @metadata = Metadata.new
       if auto_create
         file_exists? ? read_file : write_to_file(default_content, false)
@@ -116,7 +115,7 @@ module ClWiki
     def ensure_same_owner!
       meta_owner = @metadata['owner']
       is_legacy_file = meta_owner.to_s.empty?
-      unless (is_legacy_file && @owner.is_a?(PublicUser)) || meta_owner == @owner.name
+      unless is_legacy_file || meta_owner == @owner.name
         raise "Owner must match: <#{meta_owner}> - <#{@owner.name}>"
       end
     end
