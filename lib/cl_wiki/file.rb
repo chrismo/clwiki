@@ -18,21 +18,12 @@ module ClWiki
       @name = ::File.basename(ClWiki::Util.convert_to_native_path(page_name))
       @metadata = Metadata.new
       if auto_create
-        file_exists? ? read_file : write_to_file(default_content, false)
+        file_exists? ? read_file : write_to_file("Describe #{@name} here.", false)
       end
-    end
-
-    # TODO: consider removing
-    def content_is_default?
-      @contents.to_s == default_content
     end
 
     def delete
       ::File.delete(full_path_and_name) if file_exists?
-    end
-
-    def default_content
-      "Describe #{@name} here."
     end
 
     def file_exists?

@@ -43,11 +43,6 @@ module ClWiki
       read_page_attributes
     end
 
-    # TODO: consider removing
-    def content_never_edited?
-      @wiki_file.content_is_default?
-    end
-
     def delete
       @wiki_file.delete
     end
