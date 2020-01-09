@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require File.expand_path('index_client', __dir__)
 require 'yaml'
 
 $defaultConfFile = 'clwiki.yml'
@@ -15,19 +14,6 @@ module ClWiki
                   :publishTag, :url_prefix, :global_edits,
                   :page_update_format, :use_authentication
     attr_reader   :custom_formatter_load_path
-
-    def wait_on_threads
-      # Ruby kills any threads as soon as the main process is done. Any
-      # threads created should be registered here. The last
-      # line of the CGI script should call out to wait_on_threads to make
-      # sure nothing running async in the background is terminated too early
-      @threads&.each { |thread| thread.join }
-    end
-
-    def wait_on_thread(thread)
-      @threads ||= []
-      @threads << thread
-    end
 
     def edit_rows
       @edit_rows

@@ -1,9 +1,6 @@
 require 'cgi'
 require 'singleton'
 
-require File.expand_path('file', __dir__)
-require File.expand_path('public_user', __dir__)
-
 module ClWiki
   class Page
     attr_reader :content, :mtime, :name, :page_name, :raw_content,
@@ -144,8 +141,8 @@ module ClWiki
       wiki_file = @wiki_file # ClWikiFile.new(@fullName, @wikiPath)
       wiki_file.client_last_read_mod_time = mtime
       wiki_file.content = new_content
-      wiki_index_client = ClWiki::IndexClient.new(page_owner: @owner)
-      wiki_index_client.reindex_page_and_save_async(@page_name)
+      wiki_index_client = ClWiki::MemoryIndexer.instance(page_owner: @owner)
+      wiki_index_client.reindex_page(@page_name)
     end
 
     def self.page_exists?(page_name)
@@ -158,7 +155,7 @@ module ClWiki
       # first, and not content if owner doesn't match. But ... I dunno.
       #
       # Patching the test for this one for now.
-      ClWiki::IndexClient.new.page_exists?(page_name)
+      ClWiki::MemoryIndexer.instance.page_exists?(page_name)
     end
   end
 
@@ -332,9 +329,9 @@ module ClWiki
       if ClWiki::Page.page_exists?(page_name)
         "<a href='#{page_name}'>#{page_name}</a>"
       else
-        @wiki_index ||= ClWiki::IndexClient.new
+        @wiki_index ||= ClWiki::MemoryIndexer.instance
         titles_only = true
-        hits = @wiki_index.search(page_name, titles_only)
+        hits = @wiki_index.search(page_name, titles_only: true)
 
         case hits.length
           when 0

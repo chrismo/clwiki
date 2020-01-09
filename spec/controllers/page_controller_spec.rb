@@ -13,17 +13,19 @@ RSpec.describe ClWiki::PageController do
       # Yeah, this is ridiculous. One refactor at a time.
       # Page class uses one global, Index uses the other. :facepalm:
       @restore_wiki_path = $wiki_path
-      $wiki_path = Dir.mktmpdir
+      $wiki_path = '/tmp/test_wiki'
       $wiki_conf.wiki_path = $wiki_path
       $wiki_conf.use_authentication = true
 
       @routes = ClWiki::Engine.routes
 
       @user = AuthFixture.create_test_user
+      ClWiki::MemoryIndexer.instance(page_owner: @user)
       get :show, params: {}, session: {username: @user.username}
     end
 
     after do
+      ClWiki::MemoryIndexer.instance_variable_set('@instance', nil)
       FileUtils.remove_entry_secure $wiki_conf.wiki_path
       $wiki_path = @restore_wiki_path
       $wiki_conf.wiki_path = $wiki_path
@@ -41,7 +43,7 @@ RSpec.describe ClWiki::PageController do
       # There's a bug if the index hasn't been built and this is the first
       # request made to the instance. I'm working around it for now with this
       # next line.
-      ClWiki::IndexClient.new(page_owner: @user)
+      ClWiki::MemoryIndexer.instance(page_owner: @user)
 
       get :show, params: {page_name: 'NewPage'}
 

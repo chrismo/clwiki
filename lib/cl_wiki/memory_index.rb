@@ -1,8 +1,15 @@
+gem 'clindex'
+require 'index'
+
 module ClWiki
   class MemoryIndexer
     attr_reader :index, :pages
 
     WAIT = true
+
+    def self.instance(page_owner: PublicUser.new)
+      @instance ||= self.new(page_owner: page_owner)
+    end
 
     def initialize(page_owner: PublicUser.new)
       @page_owner = page_owner
@@ -31,7 +38,7 @@ module ClWiki
       pages_desc_mtime[0..top]
     end
 
-    def search(text)
+    def search(text, titles_only: false)
       terms = text.split(' ')
       all_hits = []
       terms.each do |term|
@@ -43,6 +50,7 @@ module ClWiki
       all_hits.flatten!
       all_hits.uniq!
       all_hits.sort!
+      all_hits.delete_if { |name| !(name =~ /#{term}/i) } if titles_only
       all_hits
     end
 
@@ -50,9 +58,9 @@ module ClWiki
       @pages.term_exists?(full_name, WAIT)
     end
 
-    def reindex_and_save_async(full_name)
-      thread = Thread.new { reindex_page(full_name) }
-      @wiki_conf.wait_on_thread(thread)
+    def reindex_page(page_name)
+      remove_page_from_index(page_name)
+      index_page(page_name)
     end
 
     private
@@ -67,11 +75,11 @@ module ClWiki
       end
     end
 
-    def index_page(full_name)
-      pg = ClWiki::Page.new(full_name, wiki_path: @root_dir, owner: @page_owner)
+    def index_page(page_name)
+      pg = ClWiki::Page.new(page_name, wiki_path: @root_dir, owner: @page_owner)
       pg.read_raw_content
-      formatter = ClWiki::PageFormatter.new(pg.raw_content, full_name)
-      formatter.format_links { |word| @index.add(word.downcase, full_name, WAIT) }
+      formatter = ClWiki::PageFormatter.new(pg.raw_content, page_name)
+      formatter.format_links { |word| @index.add(word.downcase, page_name, WAIT) }
 
       add_to_indexes(pg)
     end
@@ -84,14 +92,9 @@ module ClWiki
       @recent.add(page.mtime.strftime('%Y-%m-%dT%H:%M:%S'), page.page_name, WAIT)
     end
 
-    def reindex_page(full_name)
-      remove_page_from_index(full_name)
-      index_page(full_name)
-    end
-
-    def remove_page_from_index(full_name)
-      @index.remove(full_name, WAIT)
-      @recent.remove(full_name, WAIT)
+    def remove_page_from_index(page_name)
+      @index.remove(page_name, WAIT)
+      @recent.remove(page_name, WAIT)
     end
   end
 end

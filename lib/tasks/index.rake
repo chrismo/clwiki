@@ -7,7 +7,7 @@ end
 
 desc 'Reindex the wiki pages.'
 task reindex: :environment do
-  indexer = ClWiki::IndexClient.new
+  indexer = ClWiki::MemoryIndexer.instance
 
   entries = Dir[File.join($wiki_path, "*#{ClWiki::FILE_EXT}")]
   entries.each_with_index.map do |fn, idx|

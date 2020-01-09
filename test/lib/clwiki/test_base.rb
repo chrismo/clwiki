@@ -1,10 +1,7 @@
 # frozen_string_literal: true
-
 require 'fileutils'
 
 require 'minitest'
-
-require File.expand_path('clwiki_test_helper', __dir__)
 
 require 'configuration'
 

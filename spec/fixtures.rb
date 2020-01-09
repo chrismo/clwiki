@@ -2,7 +2,6 @@ class PageFixture
   def self.write_page(name, contents, owner:)
     @page = ClWiki::Page.new(name, owner: owner)
     @page.update_content(contents, @page.mtime)
-    $wiki_conf.wait_on_threads
   end
 end
 

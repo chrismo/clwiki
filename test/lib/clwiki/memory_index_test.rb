@@ -36,8 +36,7 @@ class MemoryIndexTest < TestBase
     index = ClWiki::MemoryIndexer.new
     file = ClWiki::File.new('FileToReindex', @test_wiki_path)
     file.content = 'bar qux'
-    index.reindex_and_save_async('FileToReindex')
-    $wiki_conf.wait_on_threads
+    index.reindex_page('FileToReindex')
     assert_equal %w[FileToReindex], index.search('qux').flatten
   end
 

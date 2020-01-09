@@ -40,12 +40,12 @@ module ClWiki
     end
 
     def search(text)
-      ClWiki::IndexClient.new.search(text)
+      ClWiki::MemoryIndexer.instance.search(text)
     end
 
     # recent _published_ pages.
     def recent
-      page_names = ClWiki::IndexClient.new.recent(10, text: $wiki_conf.publishTag)
+      page_names = ClWiki::MemoryIndexer.instance.recent(10, text: $wiki_conf.publishTag)
 
       without_header_and_footer = false
       @pages = page_names.map do |page_name|

@@ -1,10 +1,6 @@
 require 'fileutils'
 require 'time'
 
-require File.expand_path('page', __dir__)
-require File.expand_path('public_user', __dir__)
-require File.expand_path('user_base', __dir__)
-
 module ClWiki
   FILE_EXT = '.txt'
 
