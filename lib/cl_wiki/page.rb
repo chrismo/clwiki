@@ -335,7 +335,6 @@ module ClWiki
         @wiki_index ||= ClWiki::IndexClient.new
         titles_only = true
         hits = @wiki_index.search(page_name, titles_only)
-        hits = GlobalHitReducer.reduce_to_exact_if_exists(page_name, hits)
 
         case hits.length
           when 0
@@ -431,24 +430,6 @@ module ClWiki
   # to create your own custom formatter, see any of the files in the ./format
   # directory and imitate.
   class CustomFormatter
-  end
-
-  # TODO: remove class
-  class GlobalHitReducer
-    def GlobalHitReducer.reduce_to_exact_if_exists(term, hits)
-      reduced = hits.dup
-      reduced.delete_if do |hit|
-        parts = hit.split('/')
-        exact = (parts[-1] =~ /^#{term}$/i)
-        !exact
-      end
-
-      if !reduced.empty?
-        reduced
-      else
-        hits
-      end
-    end
   end
 end
 

@@ -43,7 +43,7 @@ module ClWiki
       ClWiki::IndexClient.new.search(text)
     end
 
-    # TODO: actually, this is recent _published_ pages.
+    # recent _published_ pages.
     def recent
       page_names = ClWiki::IndexClient.new.recent(10, text: $wiki_conf.publishTag)
 

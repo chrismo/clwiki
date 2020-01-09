@@ -160,30 +160,3 @@ class TestClWikiPageFormatter < TestBase
     assert(!ClWiki::PageFormatter.only_html(' <h5> <a href> </h5> stuff '))
   end
 end
-
-class TestGlobalHitReducer < TestBase
-  def test_global_hit_reducer
-    # for global links, we want matches to be limited to exact matches.
-    # If //RootPage/SubPage has seven children:
-    #
-    #   //RootPage/SubPage/ChildOne
-    #   //RootPage/SubPage/ChildTwo
-    #   ...
-    #
-    # and the content is SubPage, we don't want a global link to the
-    # find results of SubPage, but a direct link to //RootPage/SubPage.
-    # If there's also a //OtherPage/SubPage, then the global link in this
-    # case will still go to Find Results.
-
-    hits = ['//RootPage/SubPage', '//RootPage/SubPage/ChildOne']
-    reduced = ClWiki::GlobalHitReducer.reduce_to_exact_if_exists('SubPage', hits)
-    assert_equal(['//RootPage/SubPage'], reduced)
-
-    reduced = ClWiki::GlobalHitReducer.reduce_to_exact_if_exists('SubPa', hits)
-    assert_equal(hits, reduced)
-
-    hits = ['//RootPage/SubPage', '//OtherPage/SubPage']
-    reduced = ClWiki::GlobalHitReducer.reduce_to_exact_if_exists('SubPage', hits)
-    assert_equal(hits, reduced)
-  end
-end
