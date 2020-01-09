@@ -1,4 +1,4 @@
-require_relative '../lib/cl_wiki/file'
+require_relative '../lib/cl_wiki_lib'
 
 class Updater
   def initialize(wiki_root_path)

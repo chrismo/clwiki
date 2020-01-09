@@ -1,5 +1,4 @@
 require_relative 'clwiki_test_helper'
-require 'memory_index'
 
 class MemoryIndexTest < TestBase
   def test_with_same_mod_timestamp
@@ -22,6 +21,16 @@ class MemoryIndexTest < TestBase
     create_legacy_file('TestFileC.txt', terms[2..3])
     index = ClWiki::MemoryIndexer.new
     assert_equal %w[TestFileB TestFileC], index.search('qux').flatten
+  end
+
+  def test_search_titles_only
+    terms = %w[foo bar qux thud]
+    create_legacy_file('FooPage.txt', terms[0..1])
+    create_legacy_file('BarPage.txt', terms[1..2])
+    create_legacy_file('QuxPage.txt', terms[2..3])
+    index = ClWiki::MemoryIndexer.new
+    assert_equal %w[QuxPage], index.search('qu', titles_only: true)
+    assert_equal %w[BarPage QuxPage], index.search('qu', titles_only: false)
   end
 
   def test_page_exists

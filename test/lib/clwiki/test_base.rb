@@ -3,8 +3,6 @@ require 'fileutils'
 
 require 'minitest'
 
-require 'configuration'
-
 class TestBase < MiniTest::Test
   def set_temp_dir
     @temp_dir = '/tmp/clwiki'

@@ -50,7 +50,7 @@ module ClWiki
       all_hits.flatten!
       all_hits.uniq!
       all_hits.sort!
-      all_hits.delete_if { |name| !(name =~ /#{term}/i) } if titles_only
+      all_hits.delete_if { |name| !(name =~ /#{text}/i) } if titles_only
       all_hits
     end
 

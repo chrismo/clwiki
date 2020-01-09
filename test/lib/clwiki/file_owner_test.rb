@@ -1,5 +1,4 @@
 require_relative 'clwiki_test_helper'
-require 'file'
 
 class FileOwnerTest < TestBase
   def test_defaults_to_public_owner

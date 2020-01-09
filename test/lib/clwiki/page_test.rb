@@ -1,5 +1,4 @@
 require_relative 'clwiki_test_helper'
-require 'page'
 require 'tmpdir'
 
 # stub this out for testing

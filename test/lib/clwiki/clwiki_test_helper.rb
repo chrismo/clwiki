@@ -1,6 +1,5 @@
-$LOAD_PATH << File.dirname(__FILE__) + '/../../../lib/cl_wiki'
-
-require_relative 'test_base'
+require_relative '../../../lib/cl_wiki_lib'
+require File.expand_path('test_base', __dir__)
 
 require 'minitest/autorun'
 
