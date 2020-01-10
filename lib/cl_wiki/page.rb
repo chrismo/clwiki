@@ -6,7 +6,7 @@ module ClWiki
     attr_reader :content, :mtime, :name, :page_name, :raw_content,
                 :file_full_path_and_name
 
-    def initialize(page_name, wiki_path: $wiki_path, owner: PublicUser.new)
+    def initialize(page_name, wiki_path: $wiki_conf.wiki_path, owner: PublicUser.new)
       raise "Fix this - no slashes! #{page_name}" if page_name =~ /\//
       @page_name = page_name
       @wiki_path = wiki_path

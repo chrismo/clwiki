@@ -12,9 +12,8 @@ RSpec.describe ClWiki::PageController do
     before do
       # Yeah, this is ridiculous. One refactor at a time.
       # Page class uses one global, Index uses the other. :facepalm:
-      @restore_wiki_path = $wiki_path
-      $wiki_path = '/tmp/test_wiki'
-      $wiki_conf.wiki_path = $wiki_path
+      @restore_wiki_path = $wiki_conf.wiki_path
+      $wiki_conf.wiki_path = '/tmp/test_wiki'
       $wiki_conf.use_authentication = true
 
       @routes = ClWiki::Engine.routes
@@ -27,8 +26,7 @@ RSpec.describe ClWiki::PageController do
     after do
       ClWiki::MemoryIndexer.instance_variable_set('@instance', nil)
       FileUtils.remove_entry_secure $wiki_conf.wiki_path
-      $wiki_path = @restore_wiki_path
-      $wiki_conf.wiki_path = $wiki_path
+      $wiki_conf.wiki_path = @restore_wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
       $indexer = nil
     end
@@ -174,9 +172,8 @@ RSpec.describe ClWiki::PageController do
 
   describe 'do not use authentication' do
     before do
-      @restore_wiki_path = $wiki_path
-      $wiki_path = Dir.mktmpdir
-      $wiki_conf.wiki_path = $wiki_path
+      @restore_wiki_path = $wiki_conf.wiki_path
+      $wiki_conf.wiki_path = Dir.mktmpdir
       $wiki_conf.use_authentication = false
 
       @routes = ClWiki::Engine.routes
@@ -184,8 +181,7 @@ RSpec.describe ClWiki::PageController do
 
     after do
       FileUtils.remove_entry_secure $wiki_conf.wiki_path
-      $wiki_path = @restore_wiki_path
-      $wiki_conf.wiki_path = $wiki_path
+      $wiki_conf.wiki_path = @restore_wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
       end
 

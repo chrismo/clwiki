@@ -7,9 +7,8 @@ class TestBase < MiniTest::Test
   def set_temp_dir
     @temp_dir = '/tmp/clwiki'
     @test_wiki_path = @temp_dir
-    $wiki_path = @test_wiki_path
     $wiki_conf = ClWiki::Configuration.new
-    $wiki_conf.wiki_path = $wiki_path
+    $wiki_conf.wiki_path = @test_wiki_path
   end
 
   def setup

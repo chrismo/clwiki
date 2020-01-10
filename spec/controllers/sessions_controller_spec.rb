@@ -7,7 +7,7 @@ require 'tmpdir'
 RSpec.describe ClWiki::SessionsController do
   describe 'use authentication' do
     before do
-      $wiki_path = Dir.mktmpdir
+      $wiki_conf.wiki_path = Dir.mktmpdir
       $wiki_conf.use_authentication = true
 
       @routes = ClWiki::Engine.routes
@@ -17,8 +17,7 @@ RSpec.describe ClWiki::SessionsController do
     end
 
     after do
-      FileUtils.remove_entry_secure $wiki_path
-      $wiki_path = $wiki_conf.wiki_path
+      FileUtils.remove_entry_secure $wiki_conf.wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
       end
 
@@ -40,7 +39,7 @@ RSpec.describe ClWiki::SessionsController do
 
   describe 'do not use authentication' do
     before do
-      $wiki_path = Dir.mktmpdir
+      $wiki_conf.wiki_path = Dir.mktmpdir
       $wiki_conf.use_authentication = false
 
       @routes = ClWiki::Engine.routes
@@ -50,8 +49,7 @@ RSpec.describe ClWiki::SessionsController do
     end
 
     after do
-      FileUtils.remove_entry_secure $wiki_path
-      $wiki_path = $wiki_conf.wiki_path
+      FileUtils.remove_entry_secure $wiki_conf.wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
       end
 

@@ -48,7 +48,7 @@ module ClWiki
     end
 
     def self.users_root(filename)
-      root = FileUtils.makedirs(::File.join($wiki_path, 'users'))
+      root = FileUtils.makedirs(::File.join($wiki_conf.wiki_path, 'users'))
       ::File.join(root, filename)
     end
 

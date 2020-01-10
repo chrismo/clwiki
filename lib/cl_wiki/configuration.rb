@@ -75,8 +75,6 @@ module ClWiki
 
     def self.load(filename=$defaultConfFile)
       $wiki_conf = self.new(YAML::load(::File.open(filename)))
-      $wiki_path = $wiki_conf.wiki_path
-      $wiki_conf
     end
 
     def initialize(hash={})

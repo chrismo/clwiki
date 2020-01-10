@@ -6,12 +6,12 @@ require 'tmpdir'
 
 RSpec.describe ClWiki::User do
   before do
-    $wiki_path = Dir.mktmpdir
+    $wiki_conf.wiki_path = Dir.mktmpdir
     end
 
   after do
-    FileUtils.remove_entry_secure $wiki_path
-    $wiki_path = $wiki_conf.wiki_path
+    FileUtils.remove_entry_secure $wiki_conf.wiki_path
+    $wiki_conf.wiki_path = $wiki_conf.wiki_path
     $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
     end
 
