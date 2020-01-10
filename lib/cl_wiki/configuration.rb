@@ -7,12 +7,9 @@ $defaultConfFile = 'clwiki.yml'
 module ClWiki
   #noinspection RubyTooManyInstanceVariablesInspection
   class Configuration
-    # TODO: setup the owner here, embrace a single user wiki, cuz that's what
-    # you need. multi-user will be more complicated, but no one needs it.
-
-    attr_accessor :wiki_path, :cssHref, :template,
-                  :publishTag, :url_prefix, :global_edits,
-                  :page_update_format, :use_authentication
+    attr_accessor :wiki_path, :cssHref, :template, :publishTag, :url_prefix,
+                  :global_edits, :page_update_format, :use_authentication,
+                  :owner
     attr_reader   :custom_formatter_load_path
 
     def edit_rows

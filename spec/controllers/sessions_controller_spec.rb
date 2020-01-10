@@ -12,7 +12,8 @@ RSpec.describe ClWiki::SessionsController do
 
       @routes = ClWiki::Engine.routes
 
-      AuthFixture.create_test_user
+      @user = AuthFixture.create_test_user
+      $wiki_conf.owner = @user.username
     end
 
     after do
@@ -22,17 +23,17 @@ RSpec.describe ClWiki::SessionsController do
       end
 
     it 'login invalid username' do
-      post :create, params: {username: 'testy', password: 'blue pill'}
+      post :create, params: {username: @user.name, password: 'blue pill'}
       assert_redirected_to login_path
     end
 
     it 'login invalid password' do
-      post :create, params: {username: 'testy', password: 'blue pill'}
+      post :create, params: {username: @user.name, password: 'blue pill'}
       assert_redirected_to login_path
     end
 
     it 'login valid' do
-      post :create, params: {username: 'testy', password: 'red pill'}
+      post :create, params: {username: @user.name, password: 'red pill'}
       assert_redirected_to root_path
     end
   end
@@ -43,6 +44,9 @@ RSpec.describe ClWiki::SessionsController do
       $wiki_conf.use_authentication = false
 
       @routes = ClWiki::Engine.routes
+
+      @user = AuthFixture.create_test_user
+      $wiki_conf.owner = @user.name
     end
 
     after do
@@ -57,7 +61,7 @@ RSpec.describe ClWiki::SessionsController do
     end
 
     it 'post login redirects to root' do
-      post :create, params: {username: 'testy', password: 'blue pill'}
+      post :create, params: {username: @user.name, password: 'blue pill'}
 
       assert_redirected_to root_path
     end

@@ -40,11 +40,6 @@ RSpec.describe ClWiki::PageController do
     end
 
     it 'should render /NewPage with new content prompt' do
-      # There's a bug if the index hasn't been built and this is the first
-      # request made to the instance. I'm working around it for now with this
-      # next line.
-      ClWiki::MemoryIndexer.instance(page_owner: @user)
-
       get :show, params: {page_name: 'NewPage'}
 
       page = assigns(:page)

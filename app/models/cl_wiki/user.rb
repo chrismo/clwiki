@@ -47,9 +47,9 @@ module ClWiki
       end
     end
 
-    def self.users_root(*dirs)
+    def self.users_root(filename)
       root = FileUtils.makedirs(::File.join($wiki_path, 'users'))
-      ::File.join(root, dirs)
+      ::File.join(root, filename)
     end
 
     # Generate a consistent key that can be used with Lockbox for encrypting

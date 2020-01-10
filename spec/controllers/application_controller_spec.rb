@@ -13,7 +13,8 @@ RSpec.describe ClWiki::ApplicationController, type: :request do
 
     @routes = ClWiki::Engine.routes
 
-    AuthFixture.create_test_user
+    @user = AuthFixture.create_test_user
+    $wiki_conf.owner = @user.name
   end
 
   after do
@@ -34,7 +35,7 @@ RSpec.describe ClWiki::ApplicationController, type: :request do
       get login_path
       assert_template :new
 
-      post login_path, params: {username: 'testy', password: 'red pill'}
+      post login_path, params: {username: @user.name, password: 'red pill'}
       assert_redirected_to root_path
     end
   end

@@ -1,6 +1,7 @@
 module ClWiki
   class ApplicationController < ActionController::Base
     before_action :authorized, if: -> { $wiki_conf.use_authentication }
+    before_action :initialize_index, if: -> { $wiki_conf.use_authentication }
     helper_method :current_user
     helper_method :logged_in?
 
@@ -20,6 +21,10 @@ module ClWiki
 
     def authorized
       redirect_to login_url unless logged_in?
+    end
+
+    def initialize_index
+      ClWiki::MemoryIndexer.instance(page_owner: current_owner)
     end
   end
 end
