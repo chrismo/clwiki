@@ -14,15 +14,25 @@ module ClWiki
     end
 
     def edit
+      @render_encryption_ui = $wiki_conf.use_authentication
+
       @page = instantiate_page
+      @encrypt_default = determine_encryption_default
+
       @page.read_raw_content
       @page
     end
 
     def update
       @page = instantiate_page
-      @page.update_content(params[:page_content], Time.at(params[:client_mod_time].to_s.to_i))
-      redirect_to params[:save_and_edit] ? page_edit_url(:page_name => @page.page_name) : page_show_url(:page_name => @page.page_name)
+
+      mtime = Time.at(params[:client_mod_time].to_s.to_i)
+      encrypt = params[:encrypt].present?
+      @page.update_content(params[:page_content], mtime, encrypt)
+
+      redirect_to params[:save_and_edit] ?
+                    page_edit_url(:page_name => @page.page_name) :
+                    page_show_url(:page_name => @page.page_name)
     end
 
     def find
@@ -96,6 +106,14 @@ module ClWiki
 
     def instantiate_page
       ClWiki::Page.new(@page_name, owner: current_owner)
+    end
+
+    def determine_encryption_default
+      if $wiki_conf.use_authentication
+        @page.is_new? ? $wiki_conf.encryption_default : @page.content_encrypted?
+      else
+        false
+      end
     end
   end
 end

@@ -40,6 +40,11 @@ production:
   #
   # use_authentication: false
 
+  # Default setting for encryption option on edit page. Only used if
+  # use_authentication is true.
+  #
+  # encryption_default: false
+
   # The owning user account for the wiki. Must be set if
   # use_authentication is true.
   #

@@ -139,6 +139,13 @@ class PageTest < TestBase
       end
     end
   end
+
+  def test_encrypted_content
+    page = ClWiki::Page.new('NewEncryptedPage', wiki_path: @test_wiki_path, owner: EncryptingUser.new)
+    page.update_content('my new content', Time.now, true)
+    assert_match /my new content/, page.read_content(false)
+    refute_match /new content/, File.read(page.file_full_path_and_name, mode: 'rb')
+  end
 end
 
 class TestClWikiPageFormatter < TestBase

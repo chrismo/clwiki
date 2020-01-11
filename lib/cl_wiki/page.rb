@@ -15,11 +15,6 @@ module ClWiki
       @name = @wiki_file.name
     end
 
-    # <pre> text in 1.13.2 had extra line feeds, because the \n were xformed to
-    # <br>\n, which results in two line feeds when rendered by Mozilla.
-    # The change a few versions ago inside convert_newline_to_br which started
-    # converting \n to <br>\n is the culprit here. I did this for more readable
-    # html, but that does screw up <pre> sections, so it's put back now.
     def convert_newline_to_br
       new_content = ""
       inside_html_tags = false
@@ -35,8 +30,12 @@ module ClWiki
       @content = new_content
     end
 
+    def is_new?
+      @wiki_file.has_default_content?
+    end
+
     def read_raw_content
-      @raw_content = @wiki_file.content.join.gsub(/\r\n/, "\n")
+      @raw_content = @wiki_file.content
       read_page_attributes
     end
 
@@ -45,11 +44,15 @@ module ClWiki
     end
 
     def read_page_attributes
-      wiki_file = @wiki_file # ClWikiFile.new(@fullName, @wikiPath)
+      wiki_file = @wiki_file
       @mtime = wiki_file.mod_time_at_last_read
 
       # TODO: kill this - not needed except in graphviz renderer?
       @file_full_path_and_name = wiki_file.full_path_and_name
+    end
+
+    def content_encrypted?
+      @wiki_file.content_encrypted?
     end
 
     def read_raw_content_with_forwarding(full_page_name)
@@ -137,24 +140,21 @@ module ClWiki
       end
     end
 
-    def update_content(new_content, mtime)
-      wiki_file = @wiki_file # ClWikiFile.new(@fullName, @wikiPath)
-      wiki_file.client_last_read_mod_time = mtime
-      wiki_file.content = new_content
-      wiki_index_client = ClWiki::MemoryIndexer.instance(page_owner: @owner)
-      wiki_index_client.reindex_page(@page_name)
+    def update_content(new_content, mtime, encrypt=false)
+      @wiki_file.client_last_read_mod_time = mtime
+      encrypt ? @wiki_file.encrypt_content! : @wiki_file.do_not_encrypt_content!
+      @wiki_file.content = new_content
+      ClWiki::MemoryIndexer.instance(page_owner: @owner).reindex_page(@page_name)
     end
 
+    # TODO: if this is the 1st time the index is instantiated, it won't have owner.
+    # and this will blow up waaay down the stack as it tries to do all of the indexing
+    # without an owner.
+    #
+    # For this query, however, it doesn't need owner, since it's just looking for
+    # existence. Hmmm. The index could be lazy-loaded, with names and metadata
+    # first, and not content if owner doesn't match. But ... I dunno.
     def self.page_exists?(page_name)
-      # TODO: if this is the 1st time the index is instantiated, it won't have owner.
-      # and this will blow up waaay down the stack as it tries to do all of the indexing
-      # without an owner.
-      #
-      # For this query, however, it doesn't need owner, since it's just looking for
-      # existence. Hmmm. The index could be lazy-loaded, with names and metadata
-      # first, and not content if owner doesn't match. But ... I dunno.
-      #
-      # Patching the test for this one for now.
       ClWiki::MemoryIndexer.instance.page_exists?(page_name)
     end
   end

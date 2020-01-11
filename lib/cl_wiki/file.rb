@@ -14,8 +14,16 @@ module ClWiki
       @name = ::File.basename(ClWiki::Util.convert_to_native_path(page_name))
       @metadata = Metadata.new
       if auto_create
-        file_exists? ? read_file : write_to_file("Describe #{@name} here.", false)
+        file_exists? ? read_file : write_to_file(default_content, false)
       end
+    end
+
+    def has_default_content?
+      @contents.to_s == default_content
+    end
+
+    def default_content
+      "Describe #{@name} here."
     end
 
     def delete
@@ -59,10 +67,11 @@ module ClWiki
       # the newline characters.
       raw_lines = ::File.binread(full_path_and_name).split(/(?<=\n)/)
       @metadata, raw_content = Metadata.split_file_contents(raw_lines)
+      raw_content = raw_content.join
 
       apply_metadata
 
-      content_encrypted? ? @contents = @owner.lockbox.decrypt_str(raw_content.join) : @contents = raw_content
+      content_encrypted? ? @contents = @owner.lockbox.decrypt_str(raw_content) : @contents = raw_content
     end
 
     def read_metadata(lines)
@@ -81,8 +90,12 @@ module ClWiki
     end
 
     def encrypt_content!
-      raise "Owner cannot encrypt" unless @owner.can_encrypt?
+      raise "Owner <#{@owner.name}> cannot encrypt" unless @owner.can_encrypt?
       @metadata['encrypted'] = 'true'
+    end
+
+    def do_not_encrypt_content!
+      @metadata['encrypted'] = 'false'
     end
 
     private

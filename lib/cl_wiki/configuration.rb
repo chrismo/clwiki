@@ -9,7 +9,7 @@ module ClWiki
   class Configuration
     attr_accessor :wiki_path, :cssHref, :template, :publishTag, :url_prefix,
                   :global_edits, :page_update_format, :use_authentication,
-                  :owner
+                  :owner, :encryption_default
     attr_reader   :custom_formatter_load_path
 
     def edit_rows

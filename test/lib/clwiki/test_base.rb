@@ -18,6 +18,7 @@ class TestBase < MiniTest::Test
 
   def teardown
     FileUtils.remove_entry_secure(@temp_dir)
+    ClWiki::MemoryIndexer.instance_variable_set('@instance', nil)
   end
 
   def create_legacy_file(filename, contents = 'contents')

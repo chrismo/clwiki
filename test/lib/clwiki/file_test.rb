@@ -12,9 +12,9 @@ class ClWikiFileTest < TestBase
     page_path, page_name = File.split(full_page_name)
     assert(wiki_file.name == page_name)
     assert_equal(file_name, wiki_file.full_path_and_name)
-    assert_equal(["Describe " + page_name + " here."], wiki_file.content)
+    assert_equal("Describe #{page_name} here.", wiki_file.content)
     new_wiki_file = ClWiki::File.new(full_page_name, @test_wiki_path)
-    assert_equal(["Describe " + page_name + " here."], new_wiki_file.content)
+    assert_equal("Describe #{page_name} here.", new_wiki_file.content)
   end
 
   def test_new_root_page
@@ -29,14 +29,14 @@ class ClWikiFileTest < TestBase
   end
 
   def test_update_page
-    wikiFile = ClWiki::File.new("/UpdatePage", @test_wiki_path)
-    assert_equal(["Describe UpdatePage here."], wikiFile.content)
+    wiki_file = ClWiki::File.new("/UpdatePage", @test_wiki_path)
+    assert_equal('Describe UpdatePage here.', wiki_file.content)
 
     # this test looks ridiculous, but ClWiki::File actually does a write to disk
     # and re-read from the file behind the scenes here.
     # refactor rename?
-    wikiFile.content = "This is new content."
-    assert_equal(["This is new content."], wikiFile.content)
+    wiki_file.content = 'This is new content.'
+    assert_equal('This is new content.', wiki_file.content)
   end
 
   def test_multi_user_edit
@@ -44,8 +44,8 @@ class ClWikiFileTest < TestBase
     # to submit would stomp the first edit ... unless:
     wiki_file_a = ClWiki::File.new("/UpdatePage", @test_wiki_path)
     wiki_file_b = ClWiki::File.new("/UpdatePage", @test_wiki_path)
-    assert_equal(["Describe UpdatePage here."], wiki_file_a.content)
-    assert_equal(["Describe UpdatePage here."], wiki_file_b.content)
+    assert_equal('Describe UpdatePage here.', wiki_file_a.content)
+    assert_equal('Describe UpdatePage here.', wiki_file_b.content)
 
     sleep 2.5 # to ensure mtime changes. (lesser time sometimes doesn't work)
     wiki_file_a.content = "This is new A content."
@@ -57,7 +57,7 @@ class ClWikiFileTest < TestBase
     end
 
     wiki_file_b.read_file
-    assert_equal(["This is new A content."], wiki_file_b.content)
+    assert_equal('This is new A content.', wiki_file_b.content)
   end
 
   def test_multi_user_edit_dst
@@ -74,7 +74,7 @@ class ClWikiFileTest < TestBase
       @metadata['mtime'] = Time.local(2011, 'jun', 1)
     end
     wiki_file_read.content = "This is new A content."
-    assert_equal(["This is new A content."], wiki_file_read.content)
+    assert_equal('This is new A content.', wiki_file_read.content)
   end
 
   def test_mtime_metadata
@@ -103,7 +103,7 @@ class ClWikiFileTest < TestBase
       f.puts "After the big break"
     end
     wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
-    assert_equal "First line\n\n\nAfter the big break\n", wiki_file.content.join
+    assert_equal "First line\n\n\nAfter the big break\n", wiki_file.content
     assert_equal({}, wiki_file.metadata.to_h)
   end
 
@@ -117,7 +117,7 @@ class ClWikiFileTest < TestBase
     create_legacy_file('LegacyPage.txt', contents)
 
     wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
-    assert_equal "a\nmtime: 2015-09-22\n\n\nb\n", wiki_file.content.join
+    assert_equal "a\nmtime: 2015-09-22\n\n\nb\n", wiki_file.content
     assert_equal({}, wiki_file.metadata.to_h)
   end
 
@@ -131,5 +131,19 @@ class ClWikiFileTest < TestBase
 
     read_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path, owner: EncryptingUser.new)
     assert_equal expected_content, read_file.content
+  end
+
+  def test_decrypt_contents
+    wiki_file = ClWiki::File.new('/ToBeDecryptedPage', @test_wiki_path, owner: EncryptingUser.new)
+    wiki_file.encrypt_content!
+    expected_content = "This is my\n<b>awesome</b>\ncontent!"
+    wiki_file.content = expected_content
+
+    refute_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
+
+    wiki_file.do_not_encrypt_content!
+    wiki_file.content = expected_content
+
+    assert_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
   end
 end

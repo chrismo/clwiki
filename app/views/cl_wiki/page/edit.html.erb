@@ -5,4 +5,8 @@
   <br/>
   <%= submit_tag 'Save', name: 'save' %>
   <%= submit_tag 'Save and Continue Editing', name: 'save_and_edit' %>
+  <% if @render_encryption_ui %>
+    <%= label_tag 'encrypt', 'Encrypt contents:', class: 'findDetails' %>
+    <%= check_box_tag 'encrypt', 'yes', @encrypt_default %>
+  <% end %>
 <% end %>

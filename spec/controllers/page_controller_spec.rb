@@ -20,7 +20,7 @@ RSpec.describe ClWiki::PageController do
 
       @user = AuthFixture.create_test_user
       ClWiki::MemoryIndexer.instance(page_owner: @user)
-      get :show, params: {}, session: {username: @user.username}
+      get :show, params: {}, session: {username: @user.username, encryption_key: @user.encryption_key}
     end
 
     after do
@@ -154,6 +154,44 @@ RSpec.describe ClWiki::PageController do
 
       assigns(:pages).map(&:page_name).should == ['FooBar']
     end
+
+    it 'should allow toggling on and off encrypted contents' do
+      get :edit, params: {page_name: 'NewEncryptedPage'}
+      page = assigns(:page)
+      assert_select 'label.findDetails'
+
+      post :update, params: {page_name: 'NewEncryptedPage',
+                             page_content: 'this should be encrypted on disk',
+                             client_mod_time: page.mtime.to_i,
+                             encrypt: 'yes'}
+
+      page = assigns(:page)
+      page.read_raw_content
+      page.raw_content.should == 'this should be encrypted on disk'
+      File.read(page.file_full_path_and_name, mode: 'rb').should_not =~ /should be encrypted/
+
+      post :update, params: {page_name: 'NewEncryptedPage',
+                             page_content: 'this should not be encrypted on disk',
+                             client_mod_time: page.mtime.to_i}
+
+      page = assigns(:page)
+      page.read_raw_content
+      page.raw_content.should == 'this should not be encrypted on disk'
+      File.read(page.file_full_path_and_name, mode: 'rb').should =~ /should not be encrypted/
+    end
+
+    it 'should default encrypted UI to on if configured' do
+      get :edit, params: {page_name: 'ANewPage'}
+      assert_select 'input[type=checkbox][name=encrypt]' do |elements|
+        refute elements.first.attributes.key?('checked')
+      end
+
+      $wiki_conf.encryption_default = true
+      get :edit, params: {page_name: 'AnotherNewPage'}
+      assert_select 'input[type=checkbox][name=encrypt]' do |elements|
+        assert elements.first.attributes.key?('checked')
+      end
+    end
   end
 
   def build_expected_content(full_page_name, content = '')
@@ -162,7 +200,7 @@ RSpec.describe ClWiki::PageController do
     expected_content = f.header(full_page_name)
 
     if content.empty?
-      expected_content << 'Describe <a href=clwikicgi.rb?page=' + full_page_name + '>' + page_name + '</a> here.<br>'
+      expected_content << "Describe <a href=clwikicgi.rb?page=#{full_page_name}>#{page_name}</a> here.<br>"
     else
       expected_content << content
     end
@@ -189,6 +227,13 @@ RSpec.describe ClWiki::PageController do
       get :show
 
       assert_redirected_to page_show_path(page_name: 'FrontPage')
+    end
+
+    it 'should not show encrypting UI on page edit' do
+      get :edit, params: {page_name: 'NewPage'}
+
+      assert_select 'label.findDetails', false
+      assert_select 'input[type=checkbox][name=encrypt]', false
     end
   end
 end

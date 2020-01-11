@@ -84,5 +84,9 @@ module ClWiki
     def name
       self.username
     end
+
+    def can_encrypt?
+      true
+    end
   end
 end
