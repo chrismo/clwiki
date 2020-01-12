@@ -7,6 +7,7 @@ module ClWiki
 
     has_secure_password
 
+    attr_reader :encryption_key
     attr_accessor :username, :password_digest
 
     validates :username, presence: true
@@ -69,10 +70,6 @@ module ClWiki
       else
         raise 'Could not authenticate password'
       end
-    end
-
-    def encryption_key
-      @encryption_key
     end
 
     # Never, never, persist this! It needs to be pushed in from the session

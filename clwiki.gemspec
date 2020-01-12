@@ -1,4 +1,5 @@
-$:.push File.expand_path('lib', __dir__)
+# frozen_string_literal: true
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 
 # Maintain your gem's version:
 require 'cl_wiki/version'
@@ -7,8 +8,8 @@ require 'cl_wiki/version'
 Gem::Specification.new do |s|
   s.name        = 'clwiki'
   s.version     = ClWiki::VERSION
-  s.authors     = %w(chrismo)
-  s.email       = %w(chrismo@clabs.org)
+  s.authors     = %w[chrismo]
+  s.email       = %w[chrismo@clabs.org]
   s.homepage    = 'http://github.com/chrismo/clwiki'
   s.summary     = 'Old, tired, crappy wiki, reborn as a Rails 4+ Engine.'
   s.description = 'Old, tired, crappy wiki, reborn as a Rails 4+ Engine.'

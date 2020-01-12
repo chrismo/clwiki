@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'fileutils'
 require 'time'
 
@@ -71,7 +72,7 @@ module ClWiki
 
       apply_metadata
 
-      content_encrypted? ? @contents = @owner.lockbox.decrypt_str(raw_content) : @contents = raw_content
+      @contents = content_encrypted? ? @owner.lockbox.decrypt_str(raw_content) : raw_content
     end
 
     def read_metadata(lines)
@@ -126,16 +127,16 @@ module ClWiki
     def self.split_file_contents(lines)
       st_idx = 0
       lines.each_with_index do |ln, index|
-        if ln.chomp.empty?
-          next_line = lines[index + 1]
-          if next_line.nil? || next_line.chomp.empty?
-            st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index - 1])
-            break
-          end
+        next unless ln.chomp.empty?
+        
+        next_line = lines[index + 1]
+        if next_line.nil? || next_line.chomp.empty?
+          st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index - 1])
+          break
         end
       end
 
-      m, c = (st_idx > 0) ? [lines[0..st_idx - 3], lines[st_idx..-1]] : [[], lines]
+      m, c = st_idx > 0 ? [lines[0..st_idx - 3], lines[st_idx..-1]] : [[], lines]
       [self.new(m), c]
     end
 
@@ -190,9 +191,7 @@ module ClWiki
     def self.raise_if_mtime_not_equal(mtime_to_compare, file_name)
       # reading the instance .mtime appears to take Windows DST into account,
       # whereas the static File.mtime(filename) method does not
-      current_mtime = ::File.open(file_name) do |f|
-        f.mtime
-      end
+      current_mtime = ::File.open(file_name, &:mtime)
       compare_read_times!(mtime_to_compare, current_mtime)
     end
 
@@ -207,13 +206,13 @@ module ClWiki
 
     def self.dump_time(time)
       ''.tap do |s|
-        s << "#{time}"
+        s << time.to_s
         s << ".#{time.usec}" if time.respond_to?(:usec)
       end
     end
 
     def self.convert_to_native_path(path)
-      path.gsub(/\//, ::File::SEPARATOR).gsub(/\\/, ::File::SEPARATOR)
+      path.gsub(%r{/}, ::File::SEPARATOR).gsub(/\\/, ::File::SEPARATOR)
     end
   end
 

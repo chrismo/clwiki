@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'cgi'
 require 'singleton'
 
@@ -7,7 +8,7 @@ module ClWiki
                 :file_full_path_and_name
 
     def initialize(page_name, wiki_path: $wiki_conf.wiki_path, owner: PublicUser.new)
-      raise "Fix this - no slashes! #{page_name}" if page_name =~ /\//
+      raise "Fix this - no slashes! #{page_name}" if page_name =~ %r{/}
 
       @page_name = page_name
       @wiki_path = wiki_path
@@ -20,13 +21,13 @@ module ClWiki
       new_content = ''
       inside_html_tags = false
       @content.each_line do |substr|
-        inside_html_tags = true if (substr =~ /#{'<html>'}/)
-        inside_html_tags = false if (substr =~ /#{'</html>'}/)
-        if ((!ClWiki::PageFormatter.only_html(substr)) || (substr == "\n")) && !inside_html_tags
-          new_content = new_content + substr.gsub(/\n/, '<br>')
-        else
-          new_content = new_content + substr
-        end
+        inside_html_tags = true if substr =~ /#{'<html>'}/
+        inside_html_tags = false if substr =~ /#{'</html>'}/
+        new_content += if (!ClWiki::PageFormatter.only_html(substr) || (substr == "\n")) && !inside_html_tags
+                         substr.gsub(/\n/, '<br>')
+                       else
+                         substr
+                       end
       end
       @content = new_content
     end
@@ -91,9 +92,7 @@ module ClWiki
       convert_newline_to_br
       f = ClWiki::PageFormatter.new(@content, final_page_name)
       @content = "<div class='wikiBody'>#{f.format_links}</div>"
-      if include_header_and_footer
-        @content = get_header + @content + get_footer
-      end
+      @content = get_header + @content + get_footer if include_header_and_footer
       @content = CLabs::WikiDiffFormatter.format_diff(@wiki_file.diff) + @content if include_diff
       @content
     end
@@ -122,23 +121,15 @@ module ClWiki
     def get_forward_ref(content)
       content_ary = content.split("\n")
       res = (content_ary.collect { |ln| ln.strip.empty? ? nil : ln }.compact.length == 1)
-      if res
-        res = content_ary[0] =~ /^see (.*)/i
-      end
+      res = content_ary[0] =~ /^see (.*)/i if res
 
       if res
-        page_name = $1
+        page_name = Regexp.last_match(1)
         f = ClWiki::PageFormatter.new(content, @page_name)
         res = f.is_wiki_name?(page_name)
-        if res
-          res = ClWiki::Page.page_exists?(page_name)
-        end
+        res = ClWiki::Page.page_exists?(page_name) if res
       end
-      if res
-        page_name
-      else
-        nil
-      end
+      page_name if res
     end
 
     def update_content(new_content, mtime, encrypt = false)
@@ -164,6 +155,7 @@ module ClWiki
     FIND_PAGE_NAME = 'Find'
     FIND_RESULTS_NAME = 'Find Results'
 
+    attr_reader :full_name
     attr_accessor :content
 
     def initialize(content = nil, full_name = nil)
@@ -177,10 +169,6 @@ module ClWiki
       if @full_name
         @full_name = @full_name[1..-1] if @full_name[0..1] == '//'
       end
-    end
-
-    def full_name
-      @full_name
     end
 
     def header(full_page_name, page = nil)
@@ -250,11 +238,7 @@ module ClWiki
 
     def reload_url(with_global_edit_links = false)
       result = "#{full_url}?page=#{@full_name}"
-      if with_global_edit_links
-        result << '&globaledits=true'
-      else
-        result << '&globaledits=false'
-      end
+      result << (with_global_edit_links ? '&globaledits=true' : '&globaledits=false')
     end
 
     def mailto_url
@@ -262,7 +246,7 @@ module ClWiki
     end
 
     def gsub_words
-      @content.gsub(/<.+?>|<\/.+?>|\w+/) { |word| yield word }
+      @content.gsub(%r{<.+?>|</.+?>|\w+}) { |word| yield word }
     end
 
     def format_links
@@ -304,7 +288,7 @@ module ClWiki
 
     def self.only_html(str)
       only_one_tag = /\A[^<]*<[^<>]*>[^>]*\z/
-      header_tag_line = /\A\s*<h.>.*<\/h.>\s*\z/
+      header_tag_line = %r{\A\s*<h.>.*</h.>\s*\z}
       (str =~ only_one_tag) || (str =~ header_tag_line)
       # str.scan(/<.*>/).to_s == str.chomp
     end
@@ -314,7 +298,7 @@ module ClWiki
     end
 
     def cgifn
-      $wiki_conf.cgifn if $wiki_conf
+      $wiki_conf&.cgifn
     end
 
     def full_url
@@ -329,14 +313,14 @@ module ClWiki
         titles_only = true
         hits = @wiki_index.search(page_name, titles_only: true)
 
-        case hits.length
-        when 0
-          result = page_name
-        when 1
-          result = "<a href='#{hits[0]}'>#{page_name}</a>"
-        else
-          result = "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
-        end
+        result = case hits.length
+                 when 0
+                   page_name
+                 when 1
+                   "<a href='#{hits[0]}'>#{page_name}</a>"
+                 else
+                   "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
+                 end
 
         if ($wiki_conf.editable) && ((hits.length == 0) || ($wiki_conf.global_edits))
           result << "<a href='#{page_name}/edit'>?</a>"
@@ -362,9 +346,9 @@ module ClWiki
 
     def process_footers(page)
       content = ''
-      @footers.each do |f|
+      @footers&.each do |f|
         content << f.footer_html(page)
-      end if @footers
+      end
       content
     end
   end
@@ -387,11 +371,11 @@ module ClWiki
     end
 
     def process_formatters(content, page)
-      @formatters.each do |f|
+      @formatters&.each do |f|
         if content =~ f.match_re
           content.gsub!(f.match_re) { |match| f.format_content(match, page) }
         end
-      end if @formatters
+      end
     end
   end
 
@@ -403,7 +387,7 @@ end
 
 module CLabs
   class WikiDiffFormatter
-    def WikiDiffFormatter.format_diff(diff)
+    def self.format_diff(diff)
       "<b>Diff</b><br><pre>\n#{CGI.escapeHTML(diff)}\n</pre><br><hr=width\"50%\">"
     end
   end

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module ClWiki
   class ApplicationController < ActionController::Base
     before_action :authorized, if: -> { $wiki_conf.use_authentication }

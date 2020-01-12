@@ -200,11 +200,10 @@ RSpec.describe ClWiki::PageController do
     expected_content = f.header(full_page_name)
 
     if content.empty?
-      expected_content << "Describe <a href=clwikicgi.rb?page=#{full_page_name}>#{page_name}</a> here.<br>"
-    else
-      expected_content << content
+      content = "Describe <a href=clwikicgi.rb?page=#{full_page_name}>#{page_name}</a> here.<br>"
     end
 
+    expected_content << content
     expected_content << f.footer(full_page_name)
   end
 

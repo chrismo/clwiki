@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../lib/cl_wiki_lib'
 
 class Updater
@@ -6,7 +7,7 @@ class Updater
   end
 
   def update_all_files
-    glob = File.join("#{@wiki_root_path}", "*#{ClWiki::FILE_EXT}")
+    glob = File.join(@wiki_root_path.to_s, "*#{ClWiki::FILE_EXT}")
     results = Dir[glob]
     results.each do |path_fn|
       f = ClWiki::File.new(File.basename(path_fn, ClWiki::FILE_EXT), @wiki_root_path, auto_create: false)

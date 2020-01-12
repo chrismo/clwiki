@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 begin
   require 'bundler/setup'
 rescue LoadError
@@ -35,13 +36,11 @@ end
 RSpec::Core::RakeTask.new(:spec)
 
 task :tests do
-  errors = %w(test spec).collect do |task|
-    begin
-      Rake::Task[task].invoke
-      nil
-    rescue => e
-      { task: task, exception: e }
-    end
+  errors = %w[test spec].collect do |task|
+    Rake::Task[task].invoke
+    nil
+  rescue StandardError => e
+    {task: task, exception: e}
   end.compact
 
   if errors.any?

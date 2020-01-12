@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'cl_wiki/page'
 
 module ClWiki
@@ -5,7 +6,7 @@ module ClWiki
     before_action :redirect_legacy_cgi_urls
     before_action :initialize_formatter
     before_action :assign_page_name
-    before_action :redirect_to_front_page_if_bad_name, :only => :show
+    before_action :redirect_to_front_page_if_bad_name, only: :show
 
     def show
       @page = instantiate_page
@@ -31,8 +32,8 @@ module ClWiki
       @page.update_content(params[:page_content], mtime, encrypt)
 
       redirect_to params[:save_and_edit] ?
-                    page_edit_url(:page_name => @page.page_name) :
-                    page_show_url(:page_name => @page.page_name)
+                    page_edit_url(page_name: @page.page_name) :
+                    page_show_url(page_name: @page.page_name)
     end
 
     def find
@@ -44,7 +45,7 @@ module ClWiki
 
         hits.each do |full_name|
           @formatter.full_name = full_name
-          @results << "#{@formatter.convert_to_link(full_name)}"
+          @results << @formatter.convert_to_link(full_name).to_s
         end
       end
     end
@@ -66,7 +67,7 @@ module ClWiki
 
       respond_to do |format|
         format.html
-        format.rss { render :layout => false }
+        format.rss { render layout: false }
       end
     end
 
@@ -77,11 +78,10 @@ module ClWiki
     def redirect_legacy_cgi_urls
       if request.fullpath.start_with?(legacy_path)
         page_name = (params[:page] || front_page_name).split('/')[-1]
-        case
-        when request.query_parameters.include?('edit')
-          redirect_to page_edit_url(:page_name => page_name), status: '301'
+        if request.query_parameters.include?('edit')
+          redirect_to page_edit_url(page_name: page_name), status: '301'
         else
-          redirect_to page_show_url(:page_name => page_name), status: '301'
+          redirect_to page_show_url(page_name: page_name), status: '301'
         end
       end
     end
@@ -91,10 +91,10 @@ module ClWiki
     end
 
     def redirect_to_front_page_if_bad_name
-      if ((@page_name.blank?) || (!@formatter.is_wiki_name?(@page_name))) ||
+      if (@page_name.blank? || !@formatter.is_wiki_name?(@page_name)) ||
          (!$wiki_conf.editable && !ClWiki::Page.page_exists?(@page_name))
-        redirect_to page_show_url(:page_name => front_page_name)
-        return
+        redirect_to page_show_url(page_name: front_page_name)
+        nil
       end
     end
 

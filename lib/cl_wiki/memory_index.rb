@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 gem 'clindex'
 require 'index'
 
@@ -32,7 +33,7 @@ module ClWiki
 
       if text && !text.empty?
         hit_page_names = search(text)
-        pages_desc_mtime = pages_desc_mtime & hit_page_names
+        pages_desc_mtime &= hit_page_names
       end
 
       pages_desc_mtime[0..top]
@@ -50,7 +51,7 @@ module ClWiki
       all_hits.flatten!
       all_hits.uniq!
       all_hits.sort!
-      all_hits.delete_if { |name| !(name =~ /#{text}/i) } if titles_only
+      all_hits.delete_if { |name| name !~ /#{text}/i } if titles_only
       all_hits
     end
 

@@ -1,9 +1,10 @@
+# frozen_string_literal: true
 # read file - append to dest file with tags as first line
 # dump output on dupes for review, but still just append
 
 require 'fileutils'
 
-root = File.expand_path(File.dirname(__FILE__))
+root = __dir__
 dest = "#{root}_flat"
 FileUtils.makedirs(dest)
 

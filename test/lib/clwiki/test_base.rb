@@ -14,7 +14,7 @@ class TestBase < MiniTest::Test
 
   def setup
     set_temp_dir
-    FileUtils::makedirs(@temp_dir)
+    FileUtils.makedirs(@temp_dir)
   end
 
   def teardown

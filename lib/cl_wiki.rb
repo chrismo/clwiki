@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'cl_wiki/engine'
 
 require_relative 'cl_wiki_lib'

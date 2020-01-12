@@ -1,16 +1,17 @@
-if __FILE__ == $0
+# frozen_string_literal: true
+if $PROGRAM_NAME == __FILE__
   $LOAD_PATH << '..'
   require 'clwikipage'
 end
 
 class FormatOPML < ClWiki::CustomFormatter
-  def FormatOPML.match_re
-    /<opml.*?>.*?<\/opml>/m
+  def self.match_re
+    %r{<opml.*?>.*?</opml>}m
   end
 
-  def FormatOPML.format_content(content, page)
+  def self.format_content(content, page)
     out = ['<NoWikiLinks>']
-    content.grep(/<outline.*?>|<\/outline>/).each do |ln|
+    content.grep(%r{<outline.*?>|</outline>}).each do |ln|
       title = ln.scan(/title=\"(.*?)\"/).compact
       html = ln.scan(/htmlUrl=\"(.*?)\"/).compact
       xml = ln.scan(/xmlUrl=\"(.*?)\"/).compact
@@ -31,7 +32,7 @@ end
 
 ClWiki::CustomFormatters.instance.register(FormatOPML)
 
-if __FILE__ == $0
+if $PROGRAM_NAME == __FILE__
   sample_opml = <<-OPMLTEXT
     <opml xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <head>

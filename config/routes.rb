@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 ClWiki::Engine.routes.draw do
   root to: 'page#show'
 

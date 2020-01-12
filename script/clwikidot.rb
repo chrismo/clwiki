@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'dot/dot'
 require 'cl/util/console'
 require 'clwikiindex'
@@ -42,27 +43,26 @@ else
   params = {'name' => 'clWiki', 'rankdir' => 'LR'}
   params['size'] = '"7.5,10"' if @single_page
   g = DOT::DOTDigraph.new(params)
-  while !scan_pages.empty?
+  until scan_pages.empty?
     scan_page = scan_pages.pop
-    if !scanned.include?(scan_page)
-      puts 'scanning ' + scan_page
-      pages = i.pages_out(scan_page)
-      pages.sort!
-      pages.each do |page|
-        if scan_page != page
-          scan_pages.push page
-          if root_text
-            scan_pagef = scan_page.sub(root_text, '')
-            pagef = page.sub(root_text, '')
-          else
-            scan_pagef = scan_page
-            pagef = page
-          end
-          g << DOT::DOTEdge.new({'from' => "\"#{scan_pagef}\"", 'to' => "\"#{pagef}\""})
-        end
+    next if scanned.include?(scan_page)
+
+    puts 'scanning ' + scan_page
+    pages = i.pages_out(scan_page)
+    pages.sort!
+    pages.each do |page|
+      next unless scan_page != page
+      scan_pages.push page
+      if root_text
+        scan_pagef = scan_page.sub(root_text, '')
+        pagef = page.sub(root_text, '')
+      else
+        scan_pagef = scan_page
+        pagef = page
       end
-      scanned << scan_page
+      g << DOT::DOTEdge.new('from' => "\"#{scan_pagef}\"", 'to' => "\"#{pagef}\"")
     end
+    scanned << scan_page
   end
   do_dot(g, 'wiki.dot')
 end

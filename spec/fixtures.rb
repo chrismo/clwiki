@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class PageFixture
   def self.write_page(name, contents, owner:)
     @page = ClWiki::Page.new(name, owner: owner)

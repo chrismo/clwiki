@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative 'clwiki_test_helper'
 require 'tmpdir'
 
@@ -22,17 +23,17 @@ class PageTest < TestBase
 
   def test_gsub_words
     original =
-      'test page PageName ' +
-      'PageName/SubPage PageName\SubPage\SubPage ' +
-      '/PageName/SubPage \PageName\SubPage\SubPage ' +
-      'test.thing test, <tagger> </tagger> oops>whoops ' +
+      'test page PageName ' \
+      'PageName/SubPage PageName\SubPage\SubPage ' \
+      '/PageName/SubPage \PageName\SubPage\SubPage ' \
+      'test.thing test, <tagger> </tagger> oops>whoops ' \
       'oops<thing>bleh hen<butter '
 
     expected_results =
-      %w(test page PageName
+      %w[test page PageName
          PageName SubPage PageName SubPage SubPage PageName SubPage PageName SubPage SubPage
          test thing test <tagger> </tagger> oops whoops
-         oops <thing> bleh hen butter)
+         oops <thing> bleh hen butter]
 
     actual_results = []
     f = ClWiki::PageFormatter.new(original)
@@ -109,10 +110,9 @@ class PageTest < TestBase
 
   def test_custom_formatter_path_config
     Dir.mktmpdir do |dir|
-      begin
-        $wiki_conf.custom_formatter_load_path << dir
-        File.open(File.join(dir, 'format.reverser.rb'), 'w') do |f|
-          f.print <<-RUBY
+      $wiki_conf.custom_formatter_load_path << dir
+      File.open(File.join(dir, 'format.reverser.rb'), 'w') do |f|
+        f.print <<-RUBY
           class ReverseText < ClWiki::CustomFormatter
             def ReverseText.match_re
               /.*/
@@ -126,16 +126,15 @@ class PageTest < TestBase
           end
 
           ClWiki::CustomFormatters.instance.register(ReverseText)
-          RUBY
-        end
-        page = ClWiki::Page.new('RevPage')
-        page.update_content('awesome', page.mtime)
-        assert_match(/emosewa/, page.read_content(false))
-      ensure
-        ClWiki::CustomFormatters.instance.unregister(ReverseText)
-        Object.send(:remove_const, :ReverseText)
-        $wiki_conf.custom_formatter_load_path.delete(dir)
+        RUBY
       end
+      page = ClWiki::Page.new('RevPage')
+      page.update_content('awesome', page.mtime)
+      assert_match(/emosewa/, page.read_content(false))
+    ensure
+      ClWiki::CustomFormatters.instance.unregister(ReverseText)
+      Object.send(:remove_const, :ReverseText)
+      $wiki_conf.custom_formatter_load_path.delete(dir)
     end
   end
 
