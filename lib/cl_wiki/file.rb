@@ -91,6 +91,7 @@ module ClWiki
 
     def encrypt_content!
       raise "Owner <#{@owner.name}> cannot encrypt" unless @owner.can_encrypt?
+
       @metadata['encrypted'] = 'true'
     end
 
@@ -126,9 +127,9 @@ module ClWiki
       st_idx = 0
       lines.each_with_index do |ln, index|
         if ln.chomp.empty?
-          next_line = lines[index+1]
+          next_line = lines[index + 1]
           if next_line.nil? || next_line.chomp.empty?
-            st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index-1])
+            st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index - 1])
             break
           end
         end
@@ -147,7 +148,7 @@ module ClWiki
       %w[mtime encrypted owner]
     end
 
-    def initialize(lines=[])
+    def initialize(lines = [])
       @hash = {}
       @keys = Metadata.supported_keys
       parse_lines(lines)
@@ -159,6 +160,7 @@ module ClWiki
 
     def []=(key, value)
       raise "Unexpected key: #{key}" unless @keys.include?(key)
+
       @hash[key] = value
     end
 

@@ -12,6 +12,7 @@ module ClWiki
 
     def lockbox
       raise 'User cannot encrypt?' unless can_encrypt?
+
       Lockbox.new(key: encryption_key)
     end
 

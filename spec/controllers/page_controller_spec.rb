@@ -1,11 +1,11 @@
 # frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 require 'tmpdir'
 
 # rubocop:disable Lint/Void
 RSpec.describe ClWiki::PageController do
-
   render_views
 
   describe 'use authentication' do
@@ -221,7 +221,7 @@ RSpec.describe ClWiki::PageController do
       FileUtils.remove_entry_secure $wiki_conf.wiki_path
       $wiki_conf.wiki_path = @restore_wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      end
+    end
 
     it 'should render /FrontPage by default' do
       get :show

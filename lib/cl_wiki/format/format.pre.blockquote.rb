@@ -4,7 +4,7 @@ class FormatPreBlockquote < ClWiki::CustomFormatter
   def FormatPreBlockquote.match_re
     /\[p\].*?\[\/p\]/mi
   end
-  
+
   def FormatPreBlockquote.format_content(content, page)
     content = CGI.escapeHTML(content)
     content.gsub!(/\[p\]/i, '<blockquote><pre>')

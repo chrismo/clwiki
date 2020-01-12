@@ -8,6 +8,7 @@ module ClWiki
 
     def initialize(page_name, wiki_path: $wiki_conf.wiki_path, owner: PublicUser.new)
       raise "Fix this - no slashes! #{page_name}" if page_name =~ /\//
+
       @page_name = page_name
       @wiki_path = wiki_path
       @owner = owner
@@ -83,7 +84,7 @@ module ClWiki
       [content, final_page_name]
     end
 
-    def read_content(include_header_and_footer=true, include_diff=false)
+    def read_content(include_header_and_footer = true, include_diff = false)
       read_page_attributes
       @content, final_page_name = read_raw_content_with_forwarding(@page_name)
       process_custom_renderers
@@ -140,7 +141,7 @@ module ClWiki
       end
     end
 
-    def update_content(new_content, mtime, encrypt=false)
+    def update_content(new_content, mtime, encrypt = false)
       @wiki_file.client_last_read_mod_time = mtime
       encrypt ? @wiki_file.encrypt_content! : @wiki_file.do_not_encrypt_content!
       @wiki_file.content = new_content
@@ -165,7 +166,7 @@ module ClWiki
 
     attr_accessor :content
 
-    def initialize(content=nil, full_name=nil)
+    def initialize(content = nil, full_name = nil)
       @content = content
       self.full_name = full_name
       @wiki_index = nil
@@ -188,7 +189,7 @@ module ClWiki
       page_path = '/' if page_path == '.'
       dirs = page_path.split('/')
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
-      full_dirs = (0..dirs.length-1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
+      full_dirs = (0..dirs.length - 1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
       head = '<div class=\'wikiHeader\'>'
       if [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(full_page_name)
         head << "<span class='pageName'>#{full_page_name}</span>"
@@ -247,7 +248,7 @@ module ClWiki
       "file://#{ClWiki::Page.read_file_full_path_and_name(@full_name)}"
     end
 
-    def reload_url(with_global_edit_links=false)
+    def reload_url(with_global_edit_links = false)
       result = "#{full_url}?page=#{@full_name}"
       if with_global_edit_links
         result << '&globaledits=true'
@@ -329,12 +330,12 @@ module ClWiki
         hits = @wiki_index.search(page_name, titles_only: true)
 
         case hits.length
-          when 0
-            result = page_name
-          when 1
-            result = "<a href='#{hits[0]}'>#{page_name}</a>"
-          else
-            result = "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
+        when 0
+          result = page_name
+        when 1
+          result = "<a href='#{hits[0]}'>#{page_name}</a>"
+        else
+          result = "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
         end
 
         if ($wiki_conf.editable) && ((hits.length == 0) || ($wiki_conf.global_edits))

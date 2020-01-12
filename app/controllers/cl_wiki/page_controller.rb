@@ -78,10 +78,10 @@ module ClWiki
       if request.fullpath.start_with?(legacy_path)
         page_name = (params[:page] || front_page_name).split('/')[-1]
         case
-          when request.query_parameters.include?('edit')
-            redirect_to page_edit_url(:page_name => page_name), status: '301'
-          else
-            redirect_to page_show_url(:page_name => page_name), status: '301'
+        when request.query_parameters.include?('edit')
+          redirect_to page_edit_url(:page_name => page_name), status: '301'
+        else
+          redirect_to page_show_url(:page_name => page_name), status: '301'
         end
       end
     end
@@ -92,7 +92,7 @@ module ClWiki
 
     def redirect_to_front_page_if_bad_name
       if ((@page_name.blank?) || (!@formatter.is_wiki_name?(@page_name))) ||
-          (!$wiki_conf.editable && !ClWiki::Page.page_exists?(@page_name))
+         (!$wiki_conf.editable && !ClWiki::Page.page_exists?(@page_name))
         redirect_to page_show_url(:page_name => front_page_name)
         return
       end

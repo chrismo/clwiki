@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'fileutils'
 
 require 'minitest'
@@ -27,4 +28,3 @@ class TestBase < MiniTest::Test
     end
   end
 end
-

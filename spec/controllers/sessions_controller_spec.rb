@@ -19,7 +19,7 @@ RSpec.describe ClWiki::SessionsController do
     after do
       FileUtils.remove_entry_secure $wiki_conf.wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      end
+    end
 
     it 'login invalid username' do
       post :create, params: {username: @user.name, password: 'blue pill'}
@@ -51,7 +51,7 @@ RSpec.describe ClWiki::SessionsController do
     after do
       FileUtils.remove_entry_secure $wiki_conf.wiki_path
       $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-      end
+    end
 
     it 'get login redirects to root' do
       post :new

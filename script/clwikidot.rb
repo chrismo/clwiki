@@ -18,7 +18,7 @@ end
 
 def do_dot(graph, filename)
   puts graph.to_s if $debug
-  f = File.new(filename, File::CREAT|File::TRUNC|File::RDWR)
+  f = File.new(filename, File::CREAT | File::TRUNC | File::RDWR)
   begin
     f.puts graph.to_s
   ensure

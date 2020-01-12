@@ -2,12 +2,12 @@ if __FILE__ == $0
   $LOAD_PATH << '..'
   require 'clwikipage'
 end
-  
+
 class FormatOPML < ClWiki::CustomFormatter
   def FormatOPML.match_re
     /<opml.*?>.*?<\/opml>/m
   end
-  
+
   def FormatOPML.format_content(content, page)
     out = ['<NoWikiLinks>']
     content.grep(/<outline.*?>|<\/outline>/).each do |ln|

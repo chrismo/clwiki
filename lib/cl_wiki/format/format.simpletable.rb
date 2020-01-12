@@ -2,8 +2,8 @@ class FormatSimpleTable < ClWiki::CustomFormatter
   def FormatSimpleTable.match_re
     /<simpletable.*?>.*?<\/simpletable>/m
   end
-  
-  def FormatSimpleTable.format_content(content, page=nil)
+
+  def FormatSimpleTable.format_content(content, page = nil)
     table_attr = content.scan(/<simpletable(.*?)>/m).to_s.strip
     table_attr = 'border="1"' if table_attr.empty?
     content.gsub!(/<simpletable.*?>/m, '')
@@ -17,7 +17,7 @@ class FormatSimpleTable < ClWiki::CustomFormatter
     lines.collect! do |ln| ln.gsub(/<td>\s*?<\/td>/, '<td>&nbsp;</td>') end
 
     # if you do a .join("\n"), then the \n will be converted to <br>
-    # ... so don't do that    
+    # ... so don't do that
     "<table #{table_attr}>\n#{lines.join('')}</table>"
   end
 end

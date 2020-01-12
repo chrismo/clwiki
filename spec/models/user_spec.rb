@@ -7,13 +7,13 @@ require 'tmpdir'
 RSpec.describe ClWiki::User do
   before do
     $wiki_conf.wiki_path = Dir.mktmpdir
-    end
+  end
 
   after do
     FileUtils.remove_entry_secure $wiki_conf.wiki_path
     $wiki_conf.wiki_path = $wiki_conf.wiki_path
     $wiki_conf.editable = true # "globals #{'rock'.sub(/ro/, 'su')}!"
-    end
+  end
 
   it 'persistence and authentication' do
     user = ClWiki::User.new

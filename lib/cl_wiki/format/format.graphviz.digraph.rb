@@ -7,8 +7,7 @@ class FormatGraphVizDiGraph < ClWiki::CustomFormatter
     content.sub!(/digraph.*\}/m,
                  "<a href=\"dot.rb?fn=#{page.file_full_path_and_name}\">
                   <img src=\"dot.rb?fn=#{page.file_full_path_and_name}\">
-                  </a>"
-    )
+                  </a>")
     content
   end
 end

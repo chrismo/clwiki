@@ -22,17 +22,17 @@ class PageTest < TestBase
 
   def test_gsub_words
     original =
-        'test page PageName ' +
-            'PageName/SubPage PageName\SubPage\SubPage ' +
-            '/PageName/SubPage \PageName\SubPage\SubPage ' +
-            'test.thing test, <tagger> </tagger> oops>whoops ' +
-            'oops<thing>bleh hen<butter '
+      'test page PageName ' +
+      'PageName/SubPage PageName\SubPage\SubPage ' +
+      '/PageName/SubPage \PageName\SubPage\SubPage ' +
+      'test.thing test, <tagger> </tagger> oops>whoops ' +
+      'oops<thing>bleh hen<butter '
 
     expected_results =
-        %w(test page PageName
-           PageName SubPage PageName SubPage SubPage PageName SubPage PageName SubPage SubPage
-           test thing test <tagger> </tagger> oops whoops
-           oops <thing> bleh hen butter)
+      %w(test page PageName
+         PageName SubPage PageName SubPage SubPage PageName SubPage PageName SubPage SubPage
+         test thing test <tagger> </tagger> oops whoops
+         oops <thing> bleh hen butter)
 
     actual_results = []
     f = ClWiki::PageFormatter.new(original)
@@ -40,7 +40,7 @@ class PageTest < TestBase
     assert_equal(expected_results, actual_results)
   end
 
-  def do_test_format_links(content, expected_content, page_exists=true)
+  def do_test_format_links(content, expected_content, page_exists = true)
     $wiki_conf.editable = true
     f = ClWiki::PageFormatter.new(content, nil)
     ClWiki::Page.set_page_exists(page_exists)

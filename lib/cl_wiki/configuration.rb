@@ -5,12 +5,31 @@ require 'yaml'
 $defaultConfFile = 'clwiki.yml'
 
 module ClWiki
-  #noinspection RubyTooManyInstanceVariablesInspection
+  # noinspection RubyTooManyInstanceVariablesInspection
   class Configuration
     attr_accessor :wiki_path, :cssHref, :template, :publishTag, :url_prefix,
                   :global_edits, :page_update_format, :use_authentication,
                   :owner, :encryption_default
     attr_reader   :custom_formatter_load_path
+
+    def initialize(hash = {})
+      default_hash.merge(hash).each do |k, v|
+        instance_variable_set(:"@#{k.to_s}", v)
+      end
+    end
+
+    def default_hash
+      {
+        url_prefix: '/',
+        publishTag: nil,
+        useIndexForPageExists: false,
+        edit_rows: 25,
+        edit_cols: 80,
+        access_log_index: false,
+        custom_formatter_load_path: [],
+        use_authentication: false
+      }
+    end
 
     def edit_rows
       @edit_rows
@@ -61,27 +80,8 @@ module ClWiki
       end
     end
 
-    def self.load(filename=$defaultConfFile)
+    def self.load(filename = $defaultConfFile)
       $wiki_conf = self.new(YAML::load(::File.open(filename)))
-    end
-
-    def initialize(hash={})
-      default_hash.merge(hash).each do |k, v|
-        instance_variable_set(:"@#{k.to_s}", v)
-      end
-    end
-
-    def default_hash
-      {
-        url_prefix: '/',
-        publishTag: nil,
-        useIndexForPageExists: false,
-        edit_rows: 25,
-        edit_cols: 80,
-        access_log_index: false,
-        custom_formatter_load_path: [],
-        use_authentication: false
-      }
     end
   end
 end
