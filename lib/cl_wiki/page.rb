@@ -190,9 +190,9 @@ module ClWiki
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
       full_dirs = (0..dirs.length-1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
       head = '<div class=\'wikiHeader\'>'
-      if (full_page_name != FIND_PAGE_NAME) and
-          (full_page_name != FIND_RESULTS_NAME) and
-          (full_page_name != $wiki_conf.recent_changes_name) and
+      if [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(full_page_name)
+        head << "<span class='pageName'>#{full_page_name}</span>"
+      else
         head << "<span class='pageName'><a href='find?search_text=#{search_text}'>#{page_name}</a></span><br/>"
         full_dirs.each do |dir|
           head << '<span class=\'pageTag\'>'
@@ -200,8 +200,6 @@ module ClWiki
         end
         head << '<br/>'
         head << "<span class='wikiPageData'>#{page_update_time(page)}</span><br/>" if page
-      else
-        head << '<span class=\'pageName\'>' + full_page_name + '</span>'
       end
       head << '</div>'
     end
@@ -225,7 +223,7 @@ module ClWiki
     end
 
     def footer(page)
-      return '' unless page.is_a? ClWiki::Page # blogki does this
+      return '' unless page.is_a? ClWiki::Page
 
       custom_footer = process_custom_footers(page)
 
@@ -234,16 +232,13 @@ module ClWiki
       # refactor string constants
       footer = "<div class='wikiFooter'>"
       footer << '<ul>'
-      if (wiki_name != FIND_PAGE_NAME) and
-          (wiki_name != FIND_RESULTS_NAME) and
-          (wiki_name != $wiki_conf.recent_changes_name) and
-        if $wiki_conf.editable
-          footer << ("<li><span class='wikiAction'><a href='" + wiki_name + "/edit'>Edit</a></span></li>")
+      if $wiki_conf.editable
+        unless [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(wiki_name)
+          footer << "<li><span class='wikiAction'><a href='#{wiki_name}/edit'>Edit</a></span></li>"
         end
       end
       footer << "<li><span class='wikiAction'><a href='find'>Find</a></span></li>"
       footer << "<li><span class='wikiAction'><a href='recent'>Recent</a></span></li>"
-      # footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wiki_name == "/FrontPage"
       footer << '</ul></div>'
       custom_footer << footer
     end

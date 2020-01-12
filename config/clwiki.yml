@@ -23,11 +23,6 @@ production:
   #
   # publishTag: <publish>
 
-  # showSourceLink can be turned on to add a page link in the footer that
-  # is a file:// url direct to the raw page. Default is false.
-  #
-  # showSourceLink: true
-
   # time format for display of last page update
   #
   page_update_format: '%B %d, %Y'

@@ -61,18 +61,6 @@ module ClWiki
       end
     end
 
-    def show_source_link
-      @show_source_link
-    end
-
-    def show_source_link=(value)
-      if value.class == String
-        @show_source_link = (value =~ /true/i)
-      else
-        @show_source_link = value
-      end
-    end
-
     def self.load(filename=$defaultConfFile)
       $wiki_conf = self.new(YAML::load(::File.open(filename)))
     end
@@ -86,37 +74,14 @@ module ClWiki
     def default_hash
       {
         url_prefix: '/',
-        default_recent_changes_name: 'Recent Changes',
-        recent_changes_name: 'Recent Changes',
         publishTag: nil,
         useIndexForPageExists: false,
-        show_source_link: false,
         edit_rows: 25,
         edit_cols: 80,
         access_log_index: false,
         custom_formatter_load_path: [],
         use_authentication: false
       }
-    end
-
-    def default_recent_changes_name=(value)
-      if @recent_changes_name == @default_recent_changes_name
-        @recent_changes_name = value
-      end
-      @default_recent_changes_name = default_recent_changes_name
-    end
-
-    def default_recent_changes_name
-      @default_recent_changes_name
-    end
-
-    def recent_changes_name=(value)
-      @recent_changes_name = value
-      @recent_changes_name = @default_recent_changes_name if @recent_changes_name.empty?
-    end
-
-    def recent_changes_name
-      @recent_changes_name
     end
   end
 end
