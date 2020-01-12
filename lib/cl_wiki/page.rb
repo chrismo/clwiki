@@ -21,7 +21,7 @@ module ClWiki
       @content.each_line do |substr|
         inside_html_tags = true if (substr =~ /#{'<html>'}/)
         inside_html_tags = false if (substr =~ /#{'</html>'}/)
-        if ((!ClWiki::PageFormatter.only_html(substr)) or (substr == "\n")) and !inside_html_tags
+        if ((!ClWiki::PageFormatter.only_html(substr)) || (substr == "\n")) && !inside_html_tags
           new_content = new_content + substr.gsub(/\n/, '<br>')
         else
           new_content = new_content + substr
@@ -215,7 +215,7 @@ module ClWiki
     end
 
     def process_custom_footers(page)
-      Dir[::File.dirname(__FILE__) + '/footer/footer.*'].each do |fn|
+      Dir["#{::File.dirname(__FILE__)}/footer/footer.*"].sort.each do |fn|
         require fn
       end
 
@@ -269,7 +269,7 @@ module ClWiki
       inside_html_tags = false
 
       gsub_words do |word|
-        if (word[0, 1] == '<') and (word[-1, 1] == '>')
+        if (word[0, 1] == '<') && (word[-1, 1] == '>')
           # refactor to class,local constant, instead of global
           if word =~ /#{'<NoWikiLinks>'}/i
             no_wiki_link_in_effect = true
@@ -288,7 +288,7 @@ module ClWiki
             word = ''
           end
         elsif is_wiki_name?(word)
-          if !no_wiki_link_in_effect and !inside_html_tags
+          if !no_wiki_link_in_effect && !inside_html_tags
             # code smell here y'all
             word = convert_to_link(word) unless block_given?
           end
@@ -345,34 +345,9 @@ module ClWiki
     end
 
     def is_wiki_name?(string)
-      all_wiki_names = true
-      names = string.split(/[\\\/]/)
+      return false if string.empty?
 
-      # if first character is a slash, then split puts an empty string into names[0]
-      names.delete_if { |name| name.empty? }
-      all_wiki_names = false if names.empty?
-      names.each do |name|
-        all_wiki_names =
-            (
-            all_wiki_names and
-
-                # the number of all capitals followed by a lowercase is greater than 1
-                (name.scan(/[A-Z][a-z]/).length > 1) and
-
-                # the first letter is capitalized or slash
-                (
-                (name[0, 1] == name[0, 1].capitalize) or (name[0, 1] == '/') or (name[0, 1] == '\\')
-                ) and
-
-                # there are no non-word characters in the string (count is 0)
-                # ^[\w|\\|\/] is read:
-                # _____________[_____  _^_  ____\w_________  _|  __\\______  _|  ___\/________]
-                # characters that are  not  word characters  or  back-slash  or  forward-slash
-                # (the not negates the *whole* character set (stuff in brackets))
-                (name.scan(/[^\w\\\/]/).length == 0)
-            )
-      end
-      all_wiki_names
+      /\A[A-Z][a-z]\w+?[A-Z][a-z]\w*\z/.match?(string)
     end
   end
 

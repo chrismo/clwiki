@@ -34,7 +34,7 @@ class PageTest < TestBase
            test thing test <tagger> </tagger> oops whoops
            oops <thing> bleh hen butter)
 
-    actual_results = Array.new
+    actual_results = []
     f = ClWiki::PageFormatter.new(original)
     f.gsub_words { |word| actual_results << word }
     assert_equal(expected_results, actual_results)
@@ -83,23 +83,22 @@ class PageTest < TestBase
   def test_is_wiki_name
     f = ClWiki::PageFormatter.new
     assert(f.is_wiki_name?('WikiName'))
-    assert(!f.is_wiki_name?('WikiName,'))
-    assert(!f.is_wiki_name?('Wikiname'))
-    assert(!f.is_wiki_name?('wIkiName'))
-    assert(!f.is_wiki_name?('<h1>wikiName</h1><br>Other'))
-    assert(!f.is_wiki_name?('<WikiName>'))
-    assert(!f.is_wiki_name?('WIKI'))
-    assert(f.is_wiki_name?('WikiName/SubWikiName'))
-    assert(f.is_wiki_name?('WikiName\SubWikiName'))
-    assert(f.is_wiki_name?('/WikiName/SubWikiName'))
-    assert(!f.is_wiki_name?('./WikiName/SubWikiName'))
-    assert(!f.is_wiki_name?('/.WikiName/SubWikiName'))
-    assert(!f.is_wiki_name?('/Wiki.Name/SubWikiName'))
-    assert(!f.is_wiki_name?('WikiName/Notwikiname'))
-    assert(!f.is_wiki_name?('Notwikiname/WikiName'))
-    assert(!f.is_wiki_name?('WikiName/WikiName/Notwikiname'))
-    assert(!f.is_wiki_name?('/'))
-    assert(!f.is_wiki_name?('//'))
+    refute(f.is_wiki_name?('Wikiname'))
+    refute(f.is_wiki_name?('wIkiName'))
+    refute(f.is_wiki_name?('<h1>wikiName</h1><br>Other'))
+    refute(f.is_wiki_name?('<WikiName>'))
+    refute(f.is_wiki_name?('WIKI'))
+    refute(f.is_wiki_name?('WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('WikiName\SubWikiName'))
+    refute(f.is_wiki_name?('/WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('./WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('/.WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('/Wiki.Name/SubWikiName'))
+    refute(f.is_wiki_name?('WikiName/Notwikiname'))
+    refute(f.is_wiki_name?('Notwikiname/WikiName'))
+    refute(f.is_wiki_name?('WikiName/WikiName/Notwikiname'))
+    refute(f.is_wiki_name?('/'))
+    refute(f.is_wiki_name?('//'))
   end
 
   def test_custom_formatter
@@ -151,18 +150,18 @@ end
 class TestClWikiPageFormatter < TestBase
   def test_only_html
     assert(ClWiki::PageFormatter.only_html('<tag>'))
-    assert(!ClWiki::PageFormatter.only_html('<tag'))
-    assert(!ClWiki::PageFormatter.only_html('tag>'))
-    assert(!ClWiki::PageFormatter.only_html('tag'))
-    assert(!ClWiki::PageFormatter.only_html(''))
-    assert(!ClWiki::PageFormatter.only_html('  '))
+    refute(ClWiki::PageFormatter.only_html('<tag'))
+    refute(ClWiki::PageFormatter.only_html('tag>'))
+    refute(ClWiki::PageFormatter.only_html('tag'))
+    refute(ClWiki::PageFormatter.only_html(''))
+    refute(ClWiki::PageFormatter.only_html('  '))
     assert(ClWiki::PageFormatter.only_html('  < t a g >  '))
-    assert(!ClWiki::PageFormatter.only_html('<t>a<g>'))
+    refute(ClWiki::PageFormatter.only_html('<t>a<g>'))
 
     # if this passes, method is misnamed, now
-    assert( ClWiki::PageFormatter.only_html('<h1>a</h1>'))
-    assert( ClWiki::PageFormatter.only_html(' <h5> a </h5>  '))
-    assert( ClWiki::PageFormatter.only_html(' <h5> <a href> </h5>  '))
-    assert(!ClWiki::PageFormatter.only_html(' <h5> <a href> </h5> stuff '))
+    assert(ClWiki::PageFormatter.only_html('<h1>a</h1>'))
+    assert(ClWiki::PageFormatter.only_html(' <h5> a </h5>  '))
+    assert(ClWiki::PageFormatter.only_html(' <h5> <a href> </h5>  '))
+    refute(ClWiki::PageFormatter.only_html(' <h5> <a href> </h5> stuff '))
   end
 end
