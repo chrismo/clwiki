@@ -16,13 +16,13 @@ module ClWiki
     end
 
     def convert_newline_to_br
-      new_content = ""
+      new_content = ''
       inside_html_tags = false
       @content.each_line do |substr|
         inside_html_tags = true if (substr =~ /#{'<html>'}/)
         inside_html_tags = false if (substr =~ /#{'</html>'}/)
         if ((!ClWiki::PageFormatter.only_html(substr)) or (substr == "\n")) and !inside_html_tags
-          new_content = new_content + substr.gsub(/\n/, "<br>")
+          new_content = new_content + substr.gsub(/\n/, '<br>')
         else
           new_content = new_content + substr
         end
@@ -160,8 +160,8 @@ module ClWiki
   end
 
   class PageFormatter
-    FIND_PAGE_NAME = "Find"
-    FIND_RESULTS_NAME = "Find Results"
+    FIND_PAGE_NAME = 'Find'
+    FIND_RESULTS_NAME = 'Find Results'
 
     attr_accessor :content
 
@@ -233,7 +233,7 @@ module ClWiki
 
       # refactor string constants
       footer = "<div class='wikiFooter'>"
-      footer << "<ul>"
+      footer << '<ul>'
       if (wiki_name != FIND_PAGE_NAME) and
           (wiki_name != FIND_RESULTS_NAME) and
           (wiki_name != $wiki_conf.recent_changes_name) and
@@ -244,7 +244,7 @@ module ClWiki
       footer << "<li><span class='wikiAction'><a href='find'>Find</a></span></li>"
       footer << "<li><span class='wikiAction'><a href='recent'>Recent</a></span></li>"
       # footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wiki_name == "/FrontPage"
-      footer << "</ul></div>"
+      footer << '</ul></div>'
       custom_footer << footer
     end
 
@@ -255,9 +255,9 @@ module ClWiki
     def reload_url(with_global_edit_links=false)
       result = "#{full_url}?page=#{@full_name}"
       if with_global_edit_links
-        result << "&globaledits=true"
+        result << '&globaledits=true'
       else
-        result << "&globaledits=false"
+        result << '&globaledits=false'
       end
     end
 
@@ -366,7 +366,7 @@ module ClWiki
 
                 # the first letter is capitalized or slash
                 (
-                (name[0, 1] == name[0, 1].capitalize) or (name[0, 1] == '/') or (name[0, 1] == "\\")
+                (name[0, 1] == name[0, 1].capitalize) or (name[0, 1] == '/') or (name[0, 1] == '\\')
                 ) and
 
                 # there are no non-word characters in the string (count is 0)

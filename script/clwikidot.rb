@@ -39,7 +39,7 @@ else
   rootPage = get_switch('-p')
   scanPages = [rootPage]
   scanned = []
-  params = {'name' => "clWiki", 'rankdir' => 'LR'}
+  params = {'name' => 'clWiki', 'rankdir' => 'LR'}
   params['size'] = '"7.5,10"' if @singlePage
   g = DOT::DOTDigraph.new(params)
   while !scanPages.empty?

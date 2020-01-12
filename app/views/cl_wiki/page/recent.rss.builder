@@ -1,8 +1,8 @@
-xml.instruct! :xml, :version => "1.0"
-xml.rss :version => "2.0" do
+xml.instruct! :xml, :version => '1.0'
+xml.rss :version => '2.0' do
   xml.channel do
-    xml.title "clWiki"
-    xml.description "clWiki"
+    xml.title 'clWiki'
+    xml.description 'clWiki'
     xml.link root_url
 
     for page in @pages

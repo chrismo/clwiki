@@ -69,7 +69,7 @@ class PageTest < TestBase
     # are returned intact. IE 5 just ignores them.
     # In the future I need to code no wiki links within
     # brackets which means parsing them.
-    do_test_format_links('<NoWikiLinks>TestPage</NoWikiLinks>', "TestPage")
+    do_test_format_links('<NoWikiLinks>TestPage</NoWikiLinks>', 'TestPage')
 
     # No WikiLinks within < >, to avoid problems with href
     do_test_format_links('<a href="www.NotAWikiPage.com">some link</a>', '<a href="www.NotAWikiPage.com">some link</a>')
@@ -82,13 +82,13 @@ class PageTest < TestBase
 
   def test_is_wiki_name
     f = ClWiki::PageFormatter.new
-    assert(f.is_wiki_name?("WikiName"))
-    assert(!f.is_wiki_name?("WikiName,"))
-    assert(!f.is_wiki_name?("Wikiname"))
-    assert(!f.is_wiki_name?("wIkiName"))
-    assert(!f.is_wiki_name?("<h1>wikiName</h1><br>Other"))
-    assert(!f.is_wiki_name?("<WikiName>"))
-    assert(!f.is_wiki_name?("WIKI"))
+    assert(f.is_wiki_name?('WikiName'))
+    assert(!f.is_wiki_name?('WikiName,'))
+    assert(!f.is_wiki_name?('Wikiname'))
+    assert(!f.is_wiki_name?('wIkiName'))
+    assert(!f.is_wiki_name?('<h1>wikiName</h1><br>Other'))
+    assert(!f.is_wiki_name?('<WikiName>'))
+    assert(!f.is_wiki_name?('WIKI'))
     assert(f.is_wiki_name?('WikiName/SubWikiName'))
     assert(f.is_wiki_name?('WikiName\SubWikiName'))
     assert(f.is_wiki_name?('/WikiName/SubWikiName'))
@@ -130,7 +130,7 @@ class PageTest < TestBase
           RUBY
         end
         page = ClWiki::Page.new('RevPage')
-        page.update_content("awesome", page.mtime)
+        page.update_content('awesome', page.mtime)
         assert_match(/emosewa/, page.read_content(false))
       ensure
         ClWiki::CustomFormatters.instance.unregister(ReverseText)

@@ -5,8 +5,8 @@ class FormatBlockquote < ClWiki::CustomFormatter
   
   def FormatBlockquote.format_content(content, page)
     if content
-      content.gsub!(/\[\]/, "<blockquote>")
-      content.gsub!(/\[\/\]/, "</blockquote>")
+      content.gsub!(/\[\]/, '<blockquote>')
+      content.gsub!(/\[\/\]/, '</blockquote>')
       content
     end
   end

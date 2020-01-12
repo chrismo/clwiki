@@ -1,5 +1,5 @@
 if __FILE__ == $0
-  $LOAD_PATH << ".."
+  $LOAD_PATH << '..'
   require 'clwikipage'
 end
   

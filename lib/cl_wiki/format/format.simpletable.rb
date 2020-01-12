@@ -18,7 +18,7 @@ class FormatSimpleTable < ClWiki::CustomFormatter
 
     # if you do a .join("\n"), then the \n will be converted to <br>
     # ... so don't do that    
-    "<table #{table_attr}>\n" + lines.join("") + "</table>"
+    "<table #{table_attr}>\n#{lines.join('')}</table>"
   end
 end
 

@@ -29,7 +29,7 @@ class ClWikiFileTest < TestBase
   end
 
   def test_update_page
-    wiki_file = ClWiki::File.new("/UpdatePage", @test_wiki_path)
+    wiki_file = ClWiki::File.new('/UpdatePage', @test_wiki_path)
     assert_equal('Describe UpdatePage here.', wiki_file.content)
 
     # this test looks ridiculous, but ClWiki::File actually does a write to disk
@@ -42,16 +42,16 @@ class ClWikiFileTest < TestBase
   def test_multi_user_edit
     # this can happen if 2 people load a page, then both edit the page - the last one
     # to submit would stomp the first edit ... unless:
-    wiki_file_a = ClWiki::File.new("/UpdatePage", @test_wiki_path)
-    wiki_file_b = ClWiki::File.new("/UpdatePage", @test_wiki_path)
+    wiki_file_a = ClWiki::File.new('/UpdatePage', @test_wiki_path)
+    wiki_file_b = ClWiki::File.new('/UpdatePage', @test_wiki_path)
     assert_equal('Describe UpdatePage here.', wiki_file_a.content)
     assert_equal('Describe UpdatePage here.', wiki_file_b.content)
 
     sleep 2.5 # to ensure mtime changes. (lesser time sometimes doesn't work)
-    wiki_file_a.content = "This is new A content."
+    wiki_file_a.content = 'This is new A content.'
     begin
-      wiki_file_b.content = "This is new B content."
-      assert(false, "Expected exception did not occur.")
+      wiki_file_b.content = 'This is new B content.'
+      assert(false, 'Expected exception did not occur.')
     rescue ClWiki::FileModifiedSinceRead
       # don do anythain, issa wha shoo 'appen
     end
@@ -63,23 +63,23 @@ class ClWikiFileTest < TestBase
   def test_multi_user_edit_dst
     # running into a problem where I can't edit a page that was last edited outside
     # of DST when I'm in DST ... it raises ClWiki::FileModifiedSinceRead
-    wiki_file = ClWiki::File.new("/UpdateDstPage", @test_wiki_path)
+    wiki_file = ClWiki::File.new('/UpdateDstPage', @test_wiki_path)
     def wiki_file.ding_mtime
       @metadata['mtime'] = Time.local(2011, 'jan', 1)
     end
     wiki_file.content = 'New content'
 
-    wiki_file_read = ClWiki::File.new("/UpdateDstPage", @test_wiki_path)
+    wiki_file_read = ClWiki::File.new('/UpdateDstPage', @test_wiki_path)
     def wiki_file_read.ding_mtime
       @metadata['mtime'] = Time.local(2011, 'jun', 1)
     end
-    wiki_file_read.content = "This is new A content."
+    wiki_file_read.content = 'This is new A content.'
     assert_equal('This is new A content.', wiki_file_read.content)
   end
 
   def test_mtime_metadata
     # the mtime of the file can be optionally stored as meta data at the top of the file
-    wiki_file = ClWiki::File.new("/PageWithMetaData", @test_wiki_path)
+    wiki_file = ClWiki::File.new('/PageWithMetaData', @test_wiki_path)
     file_lines = File.readlines(wiki_file.full_path_and_name)
     assert_match(/^mtime: .+$/, file_lines[0])
     assert_match(/^owner: .+$/, file_lines[1])
@@ -98,25 +98,25 @@ class ClWikiFileTest < TestBase
 
   def test_reads_no_metadata_file
     File.open(File.join(@test_wiki_path, 'LegacyPage.txt'), 'w') do |f|
-      f.puts "First line"
+      f.puts 'First line'
       f.puts "\n\n"
-      f.puts "After the big break"
+      f.puts 'After the big break'
     end
-    wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
+    wiki_file = ClWiki::File.new('/LegacyPage', @test_wiki_path)
     assert_equal "First line\n\n\nAfter the big break\n", wiki_file.content
     assert_equal({}, wiki_file.metadata.to_h)
   end
 
   def test_mid_mtime_not_parsed_as_metadata
     contents = [
-      "a",
-      "mtime: 2015-09-22",
+      'a',
+      'mtime: 2015-09-22',
       "\n",
-      "b",
+      'b',
     ].join("\n")
     create_legacy_file('LegacyPage.txt', contents)
 
-    wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
+    wiki_file = ClWiki::File.new('/LegacyPage', @test_wiki_path)
     assert_equal "a\nmtime: 2015-09-22\n\n\nb\n", wiki_file.content
     assert_equal({}, wiki_file.metadata.to_h)
   end

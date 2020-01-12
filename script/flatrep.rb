@@ -4,7 +4,7 @@
 require 'fileutils'
 
 root = File.expand_path(File.dirname(__FILE__))
-dest = root + "_flat"
+dest = "#{root}_flat"
 FileUtils.makedirs(dest)
 
 Dir[root + '/**/*.txt'].each do |pathfilename|

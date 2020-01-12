@@ -1,7 +1,7 @@
 require:
   - rubocop-performance
   - rubocop-rails
-  - rubocop_lineup
+#  - rubocop_lineup
 
 AllCops:
   TargetRubyVersion: 2.5
