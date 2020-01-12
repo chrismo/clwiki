@@ -95,7 +95,16 @@ Metrics/MethodLength:
   CountComments: false  # count full line comments?
   Max: 15
 
+Naming/AccessorMethodName:
+  Enabled: false
+
 Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
+
+Naming/PredicateName:
   Enabled: false
 
 Rails/Date:

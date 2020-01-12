@@ -10,7 +10,7 @@ class ClWiki::Page
     @@page_exists = value
   end
 
-  def self.page_exists?(pageFullName)
+  def self.page_exists?(page_full_name)
     @@page_exists
   end
 end

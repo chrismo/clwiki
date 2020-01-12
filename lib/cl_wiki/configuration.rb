@@ -61,15 +61,15 @@ module ClWiki
       end
     end
 
-    def showSourceLink
-      @showSourceLink
+    def show_source_link
+      @show_source_link
     end
 
-    def showSourceLink=(value)
+    def show_source_link=(value)
       if value.class == String
-        @showSourceLink = (value =~ /true/i)
+        @show_source_link = (value =~ /true/i)
       else
-        @showSourceLink = value
+        @show_source_link = value
       end
     end
 
@@ -90,7 +90,7 @@ module ClWiki
         recent_changes_name: 'Recent Changes',
         publishTag: nil,
         useIndexForPageExists: false,
-        showSourceLink: false,
+        show_source_link: false,
         edit_rows: 25,
         edit_cols: 80,
         access_log_index: false,
@@ -110,17 +110,13 @@ module ClWiki
       @default_recent_changes_name
     end
 
-    def recentChangesName=(value)
+    def recent_changes_name=(value)
       @recent_changes_name = value
       @recent_changes_name = @default_recent_changes_name if @recent_changes_name.empty?
     end
 
-    alias recent_changes_name= recentChangesName=
-
-    def recentChangesName
+    def recent_changes_name
       @recent_changes_name
     end
-
-    alias recent_changes_name recentChangesName
   end
 end

@@ -28,40 +28,40 @@ def do_dot(graph, filename)
 end
 
 $debug = if_switch('-d')
-rootText = get_switch('-r')
-@singlePage = if_switch('-s')
-puts rootText if $debug
+root_text = get_switch('-r')
+@single_page = if_switch('-s')
+puts root_text if $debug
 if if_switch('-h')
   show_help
 else
   i = ClWikiIndexer.new
   i.load
-  rootPage = get_switch('-p')
-  scanPages = [rootPage]
+  root_page = get_switch('-p')
+  scan_pages = [root_page]
   scanned = []
   params = {'name' => 'clWiki', 'rankdir' => 'LR'}
-  params['size'] = '"7.5,10"' if @singlePage
+  params['size'] = '"7.5,10"' if @single_page
   g = DOT::DOTDigraph.new(params)
-  while !scanPages.empty?
-    scanPage = scanPages.pop
-    if !scanned.include?(scanPage)
-      puts 'scanning ' + scanPage
-      pages = i.pages_out(scanPage)
+  while !scan_pages.empty?
+    scan_page = scan_pages.pop
+    if !scanned.include?(scan_page)
+      puts 'scanning ' + scan_page
+      pages = i.pages_out(scan_page)
       pages.sort!
       pages.each do |page|
-        if scanPage != page
-          scanPages.push page
-          if rootText
-            scanPagef = scanPage.sub(rootText, '') 
-            pagef = page.sub(rootText, '')
+        if scan_page != page
+          scan_pages.push page
+          if root_text
+            scan_pagef = scan_page.sub(root_text, '')
+            pagef = page.sub(root_text, '')
           else
-            scanPagef = scanPage 
+            scan_pagef = scan_page
             pagef = page
           end
-          g << DOT::DOTEdge.new({'from' => "\"#{scanPagef}\"", 'to' => "\"#{pagef}\""})
+          g << DOT::DOTEdge.new({'from' => "\"#{scan_pagef}\"", 'to' => "\"#{pagef}\""})
         end
       end
-      scanned << scanPage
+      scanned << scan_page
     end
   end
   do_dot(g, 'wiki.dot')
