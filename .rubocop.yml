@@ -6,6 +6,7 @@ require:
 AllCops:
   TargetRubyVersion: 2.5
   Exclude:
+    - bin/*
     - test/dummy/**/*
 
 Layout/ClassStructure:
@@ -115,7 +116,7 @@ Rails/RefuteMethods:
   Enabled: false
 
 Rails/TimeZone:
-  Enabled: true
+  Enabled: false
   EnforcedStyle: flexible
 
 Style/BlockComments:
