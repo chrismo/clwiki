@@ -9,7 +9,7 @@ module ClWiki
                 :file_full_path_and_name
 
     def initialize(page_name, wiki_path: $wiki_conf.wiki_path, owner: PublicUser.new)
-      raise "Fix this - no slashes! #{page_name}" if page_name =~ %r{/}
+      raise "Fix this - no slashes! #{page_name}" if %r{/}.match?(page_name)
 
       @page_name = page_name
       @wiki_path = wiki_path
@@ -22,8 +22,8 @@ module ClWiki
       new_content = ''
       inside_html_tags = false
       @content.each_line do |substr|
-        inside_html_tags = true if substr =~ /#{'<html>'}/
-        inside_html_tags = false if substr =~ /#{'</html>'}/
+        inside_html_tags = true if /<html>/.match?(substr)
+        inside_html_tags = false if /<\/html>/.match?(substr)
         new_content += if (!ClWiki::PageFormatter.only_html(substr) || (substr == "\n")) && !inside_html_tags
                          substr.gsub(/\n/, '<br>')
                        else
@@ -61,7 +61,7 @@ module ClWiki
     def read_raw_content_with_forwarding(full_page_name)
       stack = []
       history = []
-      content = ''
+      content = String.new
       final_page_name = full_page_name
       stack.push(full_page_name)
       until stack.empty?
@@ -101,7 +101,7 @@ module ClWiki
     def process_custom_renderers
       root_dirs = [::File.join(::File.dirname(__FILE__), 'format')] + $wiki_conf.custom_formatter_load_path
       root_dirs.each do |root_dir|
-        Dir[::File.join(root_dir, 'format.*')].each do |fn|
+        Dir[::File.join(root_dir, 'format.*')].sort.each do |fn|
           require fn
         end
       end
@@ -110,13 +110,11 @@ module ClWiki
     end
 
     def get_header
-      f = ClWiki::PageFormatter.new(nil, @page_name)
-      f.header(@page_name, self)
+      ClWiki::PageFormatter.new(nil, @page_name).header(@page_name, self)
     end
 
     def get_footer
-      f = ClWiki::PageFormatter.new(nil, @page_name)
-      f.footer(self)
+      ClWiki::PageFormatter.new(nil, @page_name).footer(self)
     end
 
     def get_forward_ref(content)
@@ -179,7 +177,7 @@ module ClWiki
       dirs = page_path.split('/')
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
       full_dirs = (0..dirs.length - 1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
-      head = '<div class=\'wikiHeader\'>'
+      head = String.new('<div class=\'wikiHeader\'>')
       if [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(full_page_name)
         head << "<span class='pageName'>#{full_page_name}</span>"
       else
@@ -213,14 +211,14 @@ module ClWiki
     end
 
     def footer(page)
-      return '' unless page.is_a? ClWiki::Page
+      return String.new unless page.is_a? ClWiki::Page
 
       custom_footer = process_custom_footers(page)
 
       wiki_name = page.page_name
 
       # refactor string constants
-      footer = "<div class='wikiFooter'>"
+      footer = String.new("<div class='wikiFooter'>")
       footer << '<ul>'
       if $wiki_conf.editable
         unless [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(wiki_name)
@@ -257,19 +255,19 @@ module ClWiki
       gsub_words do |word|
         if (word[0, 1] == '<') && (word[-1, 1] == '>')
           # refactor to class,local constant, instead of global
-          if word =~ /#{'<NoWikiLinks>'}/i
+          if /<NoWikiLinks>/i.match?(word)
             no_wiki_link_in_effect = true
             word = ''
             # refactor to class,local constant, instead of global
-          elsif word =~ /#{'</NoWikiLinks>'}/i
+          elsif /<\/NoWikiLinks>/i.match?(word)
             no_wiki_link_in_effect = false
             word = ''
           end
 
-          if word =~ /#{'<html>'}/i
+          if /<html>/i.match?(word)
             inside_html_tags = true
             word = ''
-          elsif word =~ /#{'</html>'}/i
+          elsif /<\/html>/i.match?(word)
             inside_html_tags = false
             word = ''
           end
@@ -311,7 +309,6 @@ module ClWiki
         "<a href='#{page_name}'>#{page_name}</a>"
       else
         @wiki_index ||= ClWiki::MemoryIndexer.instance
-        titles_only = true
         hits = @wiki_index.search(page_name, titles_only: true)
 
         result = case hits.length
@@ -323,7 +320,7 @@ module ClWiki
                    "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
                  end
 
-        if ($wiki_conf.editable) && ((hits.length == 0) || ($wiki_conf.global_edits))
+        if $wiki_conf.editable && (hits.empty? || $wiki_conf.global_edits)
           result << "<a href='#{page_name}/edit'>?</a>"
         end
         result
@@ -346,11 +343,11 @@ module ClWiki
     end
 
     def process_footers(page)
-      content = ''
-      @footers&.each do |f|
-        content << f.footer_html(page)
+      String.new.tap do |content|
+        @footers&.each do |f|
+          content << f.footer_html(page)
+        end
       end
-      content
     end
   end
 
@@ -373,7 +370,7 @@ module ClWiki
 
     def process_formatters(content, page)
       @formatters&.each do |f|
-        if content =~ f.match_re
+        if content&.match?(f.match_re)
           content.gsub!(f.match_re) { |match| f.format_content(match, page) }
         end
       end

@@ -14,7 +14,7 @@ module ClWiki
 
     def initialize(hash = {})
       default_hash.merge(hash).each do |k, v|
-        instance_variable_set(:"@#{k.to_s}", v)
+        instance_variable_set(:"@#{k}", v)
       end
     end
 
@@ -56,7 +56,7 @@ module ClWiki
     end
 
     def self.load(filename = $defaultConfFile)
-      $wiki_conf = self.new(YAML.load(::File.open(filename)))
+      $wiki_conf = self.new(YAML.safe_load(::File.open(filename)))
     end
   end
 end

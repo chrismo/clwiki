@@ -12,7 +12,7 @@ FileUtils.makedirs(dest)
 Dir[root + '/**/*.txt'].each do |pathfilename|
   dest_fn = File.join(dest, File.basename(pathfilename))
   tags = File.dirname(pathfilename.sub(root, '')).split('/')
-  puts "Dupe: #{File.basename(pathfilename)}" if File.exists?(dest_fn)
+  puts "Dupe: #{File.basename(pathfilename)}" if File.exist?(dest_fn)
   File.open(dest_fn, 'a') do |out|
     out.puts "\ntags: #{tags.join(' ')}"
     out.puts

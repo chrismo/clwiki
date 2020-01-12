@@ -11,7 +11,7 @@ class ClWikiFileTest < TestBase
     File.delete(file_name) if FileTest.exist?(file_name)
     wiki_file = ClWiki::File.new(full_page_name, @test_wiki_path)
     assert(FileTest.exist?(wiki_file.full_path_and_name))
-    page_path, page_name = File.split(full_page_name)
+    _, page_name = File.split(full_page_name)
     assert(wiki_file.name == page_name)
     assert_equal(file_name, wiki_file.full_path_and_name)
     assert_equal("Describe #{page_name} here.", wiki_file.content)
@@ -41,6 +41,7 @@ class ClWikiFileTest < TestBase
     assert_equal('This is new content.', wiki_file.content)
   end
 
+  # rubocop:disable Lint/SuppressedException
   def test_multi_user_edit
     # this can happen if 2 people load a page, then both edit the page - the last one
     # to submit would stomp the first edit ... unless:
@@ -61,6 +62,7 @@ class ClWikiFileTest < TestBase
     wiki_file_b.read_file
     assert_equal('This is new A content.', wiki_file_b.content)
   end
+  # rubocop:enable Lint/SuppressedException
 
   def test_multi_user_edit_dst
     # running into a problem where I can't edit a page that was last edited outside

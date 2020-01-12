@@ -5,15 +5,15 @@ require 'tmpdir'
 
 # stub this out for testing
 class ClWiki::Page
-  @@page_exists = false
-  @@page_globally_exists = false
+  @page_exists = false
+  @page_globally_exists = false
 
   def self.set_page_exists(value)
-    @@page_exists = value
+    @page_exists = value
   end
 
-  def self.page_exists?(page_full_name)
-    @@page_exists
+  def self.page_exists?(_)
+    @page_exists
   end
 end
 

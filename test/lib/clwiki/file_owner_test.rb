@@ -20,7 +20,7 @@ class FileOwnerTest < TestBase
     file.content = 'My Encrypted Content'
 
     read_contents = ::File.read(file.full_path_and_name, mode: 'rb')
-    refute /Encrypted/.match?(read_contents)
+    refute(/Encrypted/.match?(read_contents))
 
     read_file = ClWiki::File.new('UserPage', @test_wiki_path, owner: user)
     assert_equal 'My Encrypted Content', read_file.content
@@ -30,7 +30,7 @@ class FileOwnerTest < TestBase
     foo = EncryptingUser.new('foo')
     bar = EncryptingUser.new('bar')
 
-    file = ClWiki::File.new('FooPage', @test_wiki_path, owner: foo)
+    ClWiki::File.new('FooPage', @test_wiki_path, owner: foo)
 
     assert_raises do
       ClWiki::File.new('FooPage', @test_wiki_path, owner: bar)

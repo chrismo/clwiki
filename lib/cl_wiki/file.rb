@@ -52,7 +52,7 @@ module ClWiki
       do_mod_time_check if check_mod_time
 
       update_metadata
-      file_contents = ''.tap do |s|
+      file_contents = String.new.tap do |s|
         s << @metadata.to_s
         s << (content_encrypted? ? @owner.lockbox.encrypt(content) : content)
       end
@@ -80,12 +80,10 @@ module ClWiki
       @metadata = Metadata.new(lines)
     end
 
-    # rubocop:disable Rails/TimeZone
     def apply_metadata
       @mod_time_at_last_read = Time.parse(@metadata['mtime']) if @metadata.has? 'mtime'
       ensure_same_owner!
     end
-    # rubocop:enable Rails/TimeZone
 
     def content_encrypted?
       @metadata['encrypted'] == 'true'
@@ -206,7 +204,7 @@ module ClWiki
     end
 
     def self.dump_time(time)
-      ''.tap do |s|
+      String.new.tap do |s|
         s << time.to_s
         s << ".#{time.usec}" if time.respond_to?(:usec)
       end
@@ -217,7 +215,7 @@ module ClWiki
     end
   end
 
-  class FileError < Exception
+  class FileError < RuntimeError
   end
 
   class FileModifiedSinceRead < FileError

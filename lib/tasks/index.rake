@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 def pct_done(done, total)
-  pct = ((done.to_f / total.to_f) * 100).to_i
+  pct = (done.fdiv(total) * 100).to_i
   pct.to_s.rjust(3) + '%'
 end
 
