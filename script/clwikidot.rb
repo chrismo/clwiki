@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'dot/dot'
 require 'cl/util/console'
 require 'clwikiindex'
@@ -52,6 +53,7 @@ else
     pages.sort!
     pages.each do |page|
       next unless scan_page != page
+
       scan_pages.push page
       if root_text
         scan_pagef = scan_page.sub(root_text, '')

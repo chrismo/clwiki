@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'clwiki_test_helper'
 
 class MemoryIndexTest < TestBase

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 if $PROGRAM_NAME == __FILE__
   $LOAD_PATH << '..'
   require 'clwikipage'

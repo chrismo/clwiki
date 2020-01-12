@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'cl_wiki/page'
 
 module ClWiki

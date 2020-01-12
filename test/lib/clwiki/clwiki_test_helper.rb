@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative '../../../lib/cl_wiki_lib'
 require File.expand_path('test_base', __dir__)
 

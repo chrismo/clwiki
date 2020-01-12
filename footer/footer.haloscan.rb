@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Note: for this to work, you must use a template and put the haloscan
 # required <script> tag in the <head> section of the template.
 

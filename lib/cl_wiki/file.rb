@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'fileutils'
 require 'time'
 
@@ -128,7 +129,7 @@ module ClWiki
       st_idx = 0
       lines.each_with_index do |ln, index|
         next unless ln.chomp.empty?
-        
+
         next_line = lines[index + 1]
         if next_line.nil? || next_line.chomp.empty?
           st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index - 1])

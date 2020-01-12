@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FormatGraphVizDiGraph < ClWiki::CustomFormatter
   def self.match_re
     /digraph.*\}/m
