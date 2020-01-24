@@ -9,7 +9,7 @@ module ClWiki
 
     def current_user
       User.find(session[:username])&.tap do |user|
-        user.cached_encryption_key = session[:encryption_key]
+        user.cached_encryption_key = Base64.decode64(session[:encryption_key])
       end
     end
 

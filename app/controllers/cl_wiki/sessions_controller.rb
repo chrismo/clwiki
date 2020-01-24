@@ -14,7 +14,7 @@ module ClWiki
       password = params[:password]
       if @user&.username == $wiki_conf.owner && @user&.authenticate(password)
         session[:username] = @user.username
-        session[:encryption_key] = @user.derive_encryption_key(password)
+        session[:encryption_key] = Base64.encode64(@user.derive_encryption_key(password))
         redirect_to root_url
       else
         redirect_to login_url
