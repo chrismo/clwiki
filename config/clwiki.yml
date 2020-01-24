@@ -2,25 +2,6 @@ production:
   # path to the root directory that stores the page files
   wiki_path: wikirep
 
-  # useIndex can be one of the three numbers:
-  #  0 No Index
-  #  1 DRb Index Server
-  #  2 Local Index Server
-
-  useIndex: 0
-
-  # useIndexForPageExists determines if the index is referenced for
-  # determining if a page exists rather than querying the file system. In
-  # some cases, the file system (due to OS caching and whatnot) outperforms
-  # the index. This option is ignored if useIndex is set to No Index.
-
-  useIndexForPageExists: false
-
-  # the port the DRb Index Server uses. This setting is irrelevant if
-  # useIndex is anything other than 1
-
-  # indexPort: 9111
-
   # set this to false for a read-only wiki. Useful with Blogki
 
   editable: false
@@ -34,18 +15,13 @@ production:
   # BETA option -- probably not even a sample.template.htm included in the
   # distribution)
 
-  # template mytemplate.htm
+  # template: mytemplate.htm
 
   # If you want to restrict the Recent view to only published pages, you
   # can configure a custom tag here. If this isn't defined, then every
   # page will appear on the Recent view.
   #
-  # publishTag <publish>
-
-  # showSourceLink can be turned on to add a page link in the footer that
-  # is a file:// url direct to the raw page. Default is false.
-  #
-  # showSourceLink true
+  # publishTag: <publish>
 
   # time format for display of last page update
   #
@@ -55,10 +31,22 @@ production:
   #
   custom_formatter_load_path: []
 
+  # Require a user account to access the wiki. Defaults to false.
+  #
+  # use_authentication: false
+
+  # Default setting for encryption option on edit page. Only used if
+  # use_authentication is true.
+  #
+  # encryption_default: false
+
+  # The owning user account for the wiki. Must be set if
+  # use_authentication is true.
+  #
+  # owner: username
+
 test:
   wiki_path: tmp/testrep
-  useIndex: 0
-  useIndexForPageExists: false
   editable: true
   page_update_format: '%B %d, %Y'
   custom_formatter_load_path: []
@@ -66,8 +54,6 @@ test:
 development:
   # path to the root directory that stores the page files
   wiki_path: wikirep
-  useIndex: 0
-  useIndexForPageExists: false
   editable: true
   page_update_format: '%B %d, %Y'
   custom_formatter_load_path: []

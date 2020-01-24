@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 begin
   require 'bundler/setup'
 rescue LoadError
@@ -14,7 +16,7 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-APP_RAKEFILE = File.expand_path("../test/dummy/Rakefile", __FILE__)
+APP_RAKEFILE = File.expand_path('test/dummy/Rakefile', __dir__)
 load 'rails/tasks/engine.rake'
 
 Bundler::GemHelper.install_tasks
@@ -35,13 +37,11 @@ end
 RSpec::Core::RakeTask.new(:spec)
 
 task :tests do
-  errors = %w(test spec).collect do |task|
-    begin
-      Rake::Task[task].invoke
-      nil
-    rescue => e
-      { task: task, exception: e }
-    end
+  errors = %w[test spec].collect do |task|
+    Rake::Task[task].invoke
+    nil
+  rescue StandardError => e
+    {task: task, exception: e}
   end.compact
 
   if errors.any?
@@ -50,4 +50,14 @@ task :tests do
   end
 end
 
+task :rubocop do
+  sh 'bundle exec rubocop'
+end
+
+task :rubocop_metrics do
+  sh 'bundle exec rubocop -c .rubocop-metrics.yml'
+end
+
 task default: :tests
+task default: :rubocop
+task default: :rubocop_metrics

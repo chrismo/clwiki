@@ -1,4 +1,6 @@
-require_relative '../lib/cl_wiki/file'
+# frozen_string_literal: true
+
+require_relative '../lib/cl_wiki_lib'
 
 class Updater
   def initialize(wiki_root_path)
@@ -6,14 +8,14 @@ class Updater
   end
 
   def update_all_files
-    glob = File.join("#{@wiki_root_path}", "*#{$wikiPageExt}")
+    glob = File.join(@wiki_root_path.to_s, "*#{ClWiki::FILE_EXT}")
     results = Dir[glob]
     results.each do |path_fn|
-      f = ClWiki::File.new(File.basename(path_fn, $wikiPageExt), @wiki_root_path, $wikiPageExt, false)
-      f.readFile
-      meta_mtime = f.instance_variable_get("@metadata")['mtime']
+      f = ClWiki::File.new(File.basename(path_fn, ClWiki::FILE_EXT), @wiki_root_path, auto_create: false)
+      f.read_file
+      meta_mtime = f.instance_variable_get('@metadata')['mtime']
       if meta_mtime
-        p [f.name, f.modTimeAtLastRead, meta_mtime, File.mtime(path_fn)]
+        p [f.name, f.mod_time_at_last_read, meta_mtime, File.mtime(path_fn)]
         File.utime(File.atime(path_fn), Time.parse(meta_mtime), path_fn)
       end
     end

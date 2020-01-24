@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # From https://github.com/radar/forem/blob/3d71dc6e0b5603789a269cfa7db36f66379eb85f/spec/support/routes.rb
 #  via http://reinteractive.net/posts/2-start-your-engines
 #

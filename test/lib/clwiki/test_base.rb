@@ -1,30 +1,30 @@
-require_relative 'clwiki_test_helper'
+# frozen_string_literal: true
 
-require 'rubygems'
-gem 'clutil'
-require 'cl/util/test'
-require 'configuration'
+require 'fileutils'
 
-# TODO: Refactor away to module or somesuch
-class TestBase < TempDirTest
+require 'minitest'
+
+class TestBase < MiniTest::Test
   def set_temp_dir
     @temp_dir = '/tmp/clwiki'
     @test_wiki_path = @temp_dir
-    $wiki_path = @test_wiki_path
     $wiki_conf = ClWiki::Configuration.new
-    $wiki_conf.wiki_path = $wiki_path
-    $wiki_conf.useIndex = ClWiki::Configuration::USE_INDEX_NO
+    $wiki_conf.wiki_path = @test_wiki_path
   end
 
-  def override_wiki_path(path)
-    $wiki_path = path
-    $wiki_conf.wiki_path = path
+  def setup
+    set_temp_dir
+    FileUtils.makedirs(@temp_dir)
   end
 
-  # to ward off the new Test::Unit detection of classes with no test
-  # methods
-  def default_test
-    super unless(self.class == TestBase)
-  end  
+  def teardown
+    FileUtils.remove_entry_secure(@temp_dir)
+    ClWiki::MemoryIndexer.instance_variable_set('@instance', nil)
+  end
+
+  def create_legacy_file(filename, contents = 'contents')
+    File.join(@temp_dir, filename).tap do |fn|
+      File.open(fn, 'w+') { |f| f.puts contents }
+    end
+  end
 end
-

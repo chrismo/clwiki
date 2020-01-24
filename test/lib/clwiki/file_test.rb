@@ -1,93 +1,94 @@
-require_relative 'clwiki_test_helper'
-require 'file'
+# frozen_string_literal: true
 
-class TestClWikiFile < TestBase
+require_relative 'clwiki_test_helper'
+
+class ClWikiFileTest < TestBase
   # refactor: shouldn't be dealing with page paths at this level, should be at
   # the ClWikiPage level
-  def do_test_new_page(fullPageName)
-    fullPageName = ClWiki::Util.convertToNativePath(fullPageName)
-    fileName = File.expand_path(File.join(@test_wiki_path, fullPageName)) + '.txt'
-    File.delete(fileName) if FileTest.exist?(fileName)
-    wikiFile = ClWiki::File.new(fullPageName, @test_wiki_path)
-    assert(FileTest.exist?(wikiFile.fullPathAndName))
-    pagePath, pageName = File.split(fullPageName)
-    assert(wikiFile.name == pageName)
-    assert_equal(pagePath, wikiFile.pagePath)
-    assert(wikiFile.wikiRootPath == @test_wiki_path)
-    assert_equal(fileName, wikiFile.fullPathAndName)
-    assert_equal(["Describe " + pageName + " here."], wikiFile.content)
-    newWikiFile = ClWiki::File.new(fullPageName, @test_wiki_path)
-    assert_equal(["Describe " + pageName + " here."], newWikiFile.content)
+  def do_test_new_page(full_page_name)
+    full_page_name = ClWiki::Util.convert_to_native_path(full_page_name)
+    file_name = File.expand_path(File.join(@test_wiki_path, full_page_name)) + '.txt'
+    File.delete(file_name) if FileTest.exist?(file_name)
+    wiki_file = ClWiki::File.new(full_page_name, @test_wiki_path)
+    assert(FileTest.exist?(wiki_file.full_path_and_name))
+    _, page_name = File.split(full_page_name)
+    assert(wiki_file.name == page_name)
+    assert_equal(file_name, wiki_file.full_path_and_name)
+    assert_equal("Describe #{page_name} here.", wiki_file.content)
+    new_wiki_file = ClWiki::File.new(full_page_name, @test_wiki_path)
+    assert_equal("Describe #{page_name} here.", new_wiki_file.content)
   end
 
   def test_new_root_page
     do_test_new_page('/NewPage')
   end
 
-  def test_new_sub_page_forward_slash
-    do_test_new_page('/NewPage/NewSubPage')
-  end
-
-  def test_new_sub_page_back_slash
-    do_test_new_page("\\NewPage\\NewSubPage")
+  def test_file_delete
+    file = ClWiki::File.new('NewPage', @test_wiki_path)
+    assert file.file_exists?
+    file.delete
+    refute file.file_exists?
   end
 
   def test_update_page
-    wikiFile = ClWiki::File.new("/UpdatePage", @test_wiki_path)
-    assert_equal(["Describe UpdatePage here."], wikiFile.content)
+    wiki_file = ClWiki::File.new('/UpdatePage', @test_wiki_path)
+    assert_equal('Describe UpdatePage here.', wiki_file.content)
 
     # this test looks ridiculous, but ClWiki::File actually does a write to disk
     # and re-read from the file behind the scenes here.
     # refactor rename?
-    wikiFile.content = "This is new content."
-    assert_equal(["This is new content."], wikiFile.content)
+    wiki_file.content = 'This is new content.'
+    assert_equal('This is new content.', wiki_file.content)
   end
 
+  # rubocop:disable Lint/SuppressedException
   def test_multi_user_edit
     # this can happen if 2 people load a page, then both edit the page - the last one
     # to submit would stomp the first edit ... unless:
-    wiki_file_a = ClWiki::File.new("/UpdatePage", @test_wiki_path)
-    wiki_file_b = ClWiki::File.new("/UpdatePage", @test_wiki_path)
-    assert_equal(["Describe UpdatePage here."], wiki_file_a.content)
-    assert_equal(["Describe UpdatePage here."], wiki_file_b.content)
+    wiki_file_a = ClWiki::File.new('/UpdatePage', @test_wiki_path)
+    wiki_file_b = ClWiki::File.new('/UpdatePage', @test_wiki_path)
+    assert_equal('Describe UpdatePage here.', wiki_file_a.content)
+    assert_equal('Describe UpdatePage here.', wiki_file_b.content)
 
     sleep 2.5 # to ensure mtime changes. (lesser time sometimes doesn't work)
-    wiki_file_a.content = "This is new A content."
+    wiki_file_a.content = 'This is new A content.'
     begin
-      wiki_file_b.content = "This is new B content."
-      assert(false, "Expected exception did not occur.")
+      wiki_file_b.content = 'This is new B content.'
+      assert(false, 'Expected exception did not occur.')
     rescue ClWiki::FileModifiedSinceRead
       # don do anythain, issa wha shoo 'appen
     end
 
-    wiki_file_b.readFile
-    assert_equal(["This is new A content."], wiki_file_b.content)
+    wiki_file_b.read_file
+    assert_equal('This is new A content.', wiki_file_b.content)
   end
+  # rubocop:enable Lint/SuppressedException
 
   def test_multi_user_edit_dst
     # running into a problem where I can't edit a page that was last edited outside
     # of DST when I'm in DST ... it raises ClWiki::FileModifiedSinceRead
-    wiki_file = ClWiki::File.new("/UpdateDstPage", @test_wiki_path)
+    wiki_file = ClWiki::File.new('/UpdateDstPage', @test_wiki_path)
     def wiki_file.ding_mtime
       @metadata['mtime'] = Time.local(2011, 'jan', 1)
     end
     wiki_file.content = 'New content'
 
-    wiki_file_read = ClWiki::File.new("/UpdateDstPage", @test_wiki_path)
+    wiki_file_read = ClWiki::File.new('/UpdateDstPage', @test_wiki_path)
     def wiki_file_read.ding_mtime
       @metadata['mtime'] = Time.local(2011, 'jun', 1)
     end
-    wiki_file_read.content = "This is new A content."
-    assert_equal(["This is new A content."], wiki_file_read.content)
+    wiki_file_read.content = 'This is new A content.'
+    assert_equal('This is new A content.', wiki_file_read.content)
   end
 
   def test_mtime_metadata
     # the mtime of the file can be optionally stored as meta data at the top of the file
-    wiki_file = ClWiki::File.new("/PageWithMetaData", @test_wiki_path)
-    file_lines = File.readlines(wiki_file.fullPathAndName)
+    wiki_file = ClWiki::File.new('/PageWithMetaData', @test_wiki_path)
+    file_lines = File.readlines(wiki_file.full_path_and_name)
     assert_match(/^mtime: .+$/, file_lines[0])
-    assert_equal "\n", file_lines[1]
+    assert_match(/^owner: .+$/, file_lines[1])
     assert_equal "\n", file_lines[2]
+    assert_equal "\n", file_lines[3]
   end
 
   def test_compare_ignores_usec
@@ -101,24 +102,52 @@ class TestClWikiFile < TestBase
 
   def test_reads_no_metadata_file
     File.open(File.join(@test_wiki_path, 'LegacyPage.txt'), 'w') do |f|
-      f.puts "First line"
+      f.puts 'First line'
       f.puts "\n\n"
-      f.puts "After the big break"
+      f.puts 'After the big break'
     end
-    wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
-    assert_equal "First line\n\n\nAfter the big break\n", wiki_file.content.join
-    assert_equal({}, wiki_file.metadata)
+    wiki_file = ClWiki::File.new('/LegacyPage', @test_wiki_path)
+    assert_equal "First line\n\n\nAfter the big break\n", wiki_file.content
+    assert_equal({}, wiki_file.metadata.to_h)
   end
 
   def test_mid_mtime_not_parsed_as_metadata
-    File.open(File.join(@test_wiki_path, 'LegacyPage.txt'), 'w') do |f|
-      f.puts "a"
-      f.puts "mtime: 2015-09-22"
-      f.puts "\n\n"
-      f.puts "b"
-    end
-    wiki_file = ClWiki::File.new("/LegacyPage", @test_wiki_path)
-    assert_equal "a\nmtime: 2015-09-22\n\n\nb\n", wiki_file.content.join
-    assert_equal({}, wiki_file.metadata)
+    contents = [
+      'a',
+      'mtime: 2015-09-22',
+      "\n",
+      'b',
+    ].join("\n")
+    create_legacy_file('LegacyPage.txt', contents)
+
+    wiki_file = ClWiki::File.new('/LegacyPage', @test_wiki_path)
+    assert_equal "a\nmtime: 2015-09-22\n\n\nb\n", wiki_file.content
+    assert_equal({}, wiki_file.metadata.to_h)
+  end
+
+  def test_encrypted_contents
+    wiki_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path, owner: EncryptingUser.new)
+    wiki_file.encrypt_content!
+    expected_content = "This is my\n<b>awesome</b>\ncontent!"
+    wiki_file.content = expected_content
+
+    refute_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
+
+    read_file = ClWiki::File.new('/EncryptedPage', @test_wiki_path, owner: EncryptingUser.new)
+    assert_equal expected_content, read_file.content
+  end
+
+  def test_decrypt_contents
+    wiki_file = ClWiki::File.new('/ToBeDecryptedPage', @test_wiki_path, owner: EncryptingUser.new)
+    wiki_file.encrypt_content!
+    expected_content = "This is my\n<b>awesome</b>\ncontent!"
+    wiki_file.content = expected_content
+
+    refute_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
+
+    wiki_file.do_not_encrypt_content!
+    wiki_file.content = expected_content
+
+    assert_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
   end
 end

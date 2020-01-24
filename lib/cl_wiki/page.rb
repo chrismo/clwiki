@@ -1,99 +1,80 @@
+# frozen_string_literal: true
+
 require 'cgi'
 require 'singleton'
 
-require File.dirname(__FILE__) + '/file'
-require File.dirname(__FILE__) + '/find_in_file'
-
-$FIND_PAGE_NAME = "Find"
-$FIND_RESULTS_NAME = "Find Results"
-
 module ClWiki
   class Page
-    attr_reader :content, :mtime, :name, :full_name, :pagePath, :raw_content,
-                :fileFullPathAndName
+    attr_reader :content, :mtime, :name, :page_name, :raw_content,
+                :file_full_path_and_name
 
-    @@wikiIndexClient = nil
+    def initialize(page_name, wiki_path: $wiki_conf.wiki_path, owner: PublicUser.new)
+      raise "Fix this - no slashes! #{page_name}" if %r{/}.match?(page_name)
 
-    #Refactor clwikifile out of here into a storage class that will
-    # require in the appropriate storage file clwikifile, clwikisql
-
-    # refactor away wikiPath ... should be taken care of elsewhere, otherwise
-    # ClWiki must know it, and it should be storage independent
-    def initialize(fullName, wiki_path=$wiki_path)
-      @full_name = fullName
+      @page_name = page_name
       @wiki_path = wiki_path
-      @wikiFile = ClWiki::File.new(@full_name, @wiki_path)
-      @pagePath = @wikiFile.pagePath
-      @name = @wikiFile.name
+      @owner = owner
+      @wiki_file = ClWiki::File.new(@page_name, @wiki_path, owner: @owner)
+      @name = @wiki_file.name
     end
 
-    # <pre> text in 1.13.2 had extra line feeds, because the \n were xformed to
-    # <br>\n, which results in two line feeds when rendered by Mozilla.
-    # The change a few versions ago inside convert_newline_to_br which started
-    # converting \n to <br>\n is the culprit here. I did this for more readable
-    # html, but that does screw up <pre> sections, so it's put back now.
     def convert_newline_to_br
-      new_content = ""
-      insideHtmlTags = false
+      new_content = ''
+      inside_html_tags = false
       @content.each_line do |substr|
-        insideHtmlTags = true if (substr =~ /#{'<html>'}/)
-        insideHtmlTags = false if (substr =~ /#{'</html>'}/)
-        if ((!ClWiki::PageFormatter.only_html(substr)) or (substr == "\n")) and !insideHtmlTags
-          new_content = new_content + substr.gsub(/\n/, "<br>")
-        else
-          new_content = new_content + substr
-        end
+        inside_html_tags = true if /<html>/.match?(substr)
+        inside_html_tags = false if /<\/html>/.match?(substr)
+        new_content += if (!ClWiki::PageFormatter.only_html(substr) || (substr == "\n")) && !inside_html_tags
+                         substr.gsub(/\n/, '<br>')
+                       else
+                         substr
+                       end
       end
       @content = new_content
     end
 
-    def self.wikiIndexClient
-      @@wikiIndexClient = ClWikiIndexClient.new if !@@wikiIndexClient
-      @@wikiIndexClient
+    def is_new?
+      @wiki_file.has_default_content?
     end
 
     def read_raw_content
-      @raw_content = @wikiFile.content.join.gsub(/\r\n/, "\n")
+      @raw_content = @wiki_file.content
       read_page_attributes
-      ClWiki::Page.wikiIndexClient.add_hit(@full_name) if $wiki_conf.access_log_index
-    end
-
-    def content_never_edited?
-      @wikiFile.content_is_default?
     end
 
     def delete
-      @wikiFile.delete
-    end
-
-    def self.read_file_full_path_and_name(full_name, wiki_path=$wiki_path)
-      wiki_file = ClWikiFile.new(full_name, wiki_path, $wikiPageExt, false)
-      wiki_file.fullPathAndName
+      @wiki_file.delete
     end
 
     def read_page_attributes
-      wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
-      @mtime = wikiFile.modTimeAtLastRead
-      @fileFullPathAndName = wikiFile.fullPathAndName
+      wiki_file = @wiki_file
+      @mtime = wiki_file.mod_time_at_last_read
+
+      # TODO: kill this - not needed except in graphviz renderer?
+      @file_full_path_and_name = wiki_file.full_path_and_name
+    end
+
+    def content_encrypted?
+      @wiki_file.content_encrypted?
     end
 
     def read_raw_content_with_forwarding(full_page_name)
       stack = []
       history = []
-      content = ''
+      content = String.new
       final_page_name = full_page_name
       stack.push(full_page_name)
-      while !stack.empty?
+      until stack.empty?
         this_pg_name = stack.pop
         if history.index(this_pg_name)
           pg_content = '-= CIRCULAR FORWARDING DETECTED =-'
         else
-          pg = ClWiki::Page.new(this_pg_name)
+          pg = ClWiki::Page.new(this_pg_name, owner: @owner)
           pg.read_raw_content
           pg_content = pg.raw_content
           fwd_full_page_name = get_forward_ref(pg_content)
           if fwd_full_page_name
-            pg_content = "Auto forwarded from #{this_pg_name.strip_slash_prefix}<br><br>#{fwd_full_page_name}<br><br>"
+            pg_content = "Auto forwarded from #{this_pg_name}<br><br>#{fwd_full_page_name}<br><br>"
             stack.push fwd_full_page_name
           else
             final_page_name = this_pg_name
@@ -105,24 +86,22 @@ module ClWiki
       [content, final_page_name]
     end
 
-    def read_content(include_header_and_footer=true, include_diff=false)
+    def read_content(include_header_and_footer = true, include_diff = false)
       read_page_attributes
-      @content, final_page_name = read_raw_content_with_forwarding(@full_name)
+      @content, final_page_name = read_raw_content_with_forwarding(@page_name)
       process_custom_renderers
       convert_newline_to_br
       f = ClWiki::PageFormatter.new(@content, final_page_name)
-      @content = "<div class='wikiBody'>#{f.formatLinks}</div>"
-      if include_header_and_footer
-        @content = get_header + @content + get_footer
-      end
-      @content = CLabs::WikiDiffFormatter.format_diff(@wikiFile.diff) + @content if include_diff
+      @content = "<div class='wikiBody'>#{f.format_links}</div>"
+      @content = get_header + @content + get_footer if include_header_and_footer
+      @content = CLabs::WikiDiffFormatter.format_diff(@wiki_file.diff) + @content if include_diff
       @content
     end
 
     def process_custom_renderers
       root_dirs = [::File.join(::File.dirname(__FILE__), 'format')] + $wiki_conf.custom_formatter_load_path
       root_dirs.each do |root_dir|
-        Dir[::File.join(root_dir, 'format.*')].each do |fn|
+        Dir[::File.join(root_dir, 'format.*')].sort.each do |fn|
           require fn
         end
       end
@@ -131,77 +110,64 @@ module ClWiki
     end
 
     def get_header
-      f = ClWiki::PageFormatter.new(nil, @full_name)
-      f.header(@full_name, self)
+      ClWiki::PageFormatter.new(nil, @page_name).header(@page_name, self)
     end
 
     def get_footer
-      f = ClWiki::PageFormatter.new(nil, @full_name)
-      f.footer(self)
+      ClWiki::PageFormatter.new(nil, @page_name).footer(self)
     end
 
     def get_forward_ref(content)
       content_ary = content.split("\n")
       res = (content_ary.collect { |ln| ln.strip.empty? ? nil : ln }.compact.length == 1)
-      if res
-        res = content_ary[0] =~ /^see (.*)/i
-      end
+      res = content_ary[0] =~ /^see (.*)/i if res
 
       if res
-        page_name = $1
-        f = ClWiki::PageFormatter.new(content, @full_name)
+        page_name = Regexp.last_match(1)
+        f = ClWiki::PageFormatter.new(content, @page_name)
         res = f.is_wiki_name?(page_name)
-        if res
-          res = ClWiki::Page.page_exists?(page_name)
-        end
+        res = ClWiki::Page.page_exists?(page_name) if res
       end
-      if res
-        page_name
-      else
-        nil
-      end
+      page_name if res
     end
 
-    def update_content(newcontent, mtime)
-      wikiFile = @wikiFile # ClWikiFile.new(@fullName, @wikiPath)
-      wikiFile.clientLastReadModTime = mtime
-      wikiFile.content = newcontent
-      if $wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO
-        wikiIndexClient = ClWiki::IndexClient.new
-        wikiIndexClient.reindex_page_and_save_async(@full_name)
-      end
+    def update_content(new_content, mtime, encrypt = false)
+      @wiki_file.client_last_read_mod_time = mtime
+      encrypt ? @wiki_file.encrypt_content! : @wiki_file.do_not_encrypt_content!
+      @wiki_file.content = new_content
+      ClWiki::MemoryIndexer.instance(page_owner: @owner).reindex_page(@page_name)
     end
 
+    # TODO: if this is the 1st time the index is instantiated, it won't have owner.
+    # and this will blow up waaay down the stack as it tries to do all of the indexing
+    # without an owner.
+    #
+    # For this query, however, it doesn't need owner, since it's just looking for
+    # existence. Hmmm. The index could be lazy-loaded, with names and metadata
+    # first, and not content if owner doesn't match. But ... I dunno.
     def self.page_exists?(page_name)
-      if ($wiki_conf.useIndex != ClWiki::Configuration::USE_INDEX_NO) &&
-          ($wiki_conf.useIndexForPageExists)
-        res = ClWiki::Page.wikiIndexClient.page_exists?(page_name)
-      else
-        wiki_file = ClWiki::File.new(page_name, $wiki_path, $wikiPageExt, false)
-        res = wiki_file.file_exists?
-      end
-      res
+      ClWiki::MemoryIndexer.instance.page_exists?(page_name)
     end
   end
 
   class PageFormatter
+    FIND_PAGE_NAME = 'Find'
+    FIND_RESULTS_NAME = 'Find Results'
+
+    attr_reader :full_name
     attr_accessor :content
 
-    def initialize(content=nil, aFullName=nil)
+    def initialize(content = nil, full_name = nil)
       @content = content
-      self.fullName = aFullName
-      @wikiIndex = nil
+      self.full_name = full_name
+      @wiki_index = nil
     end
 
-    def fullName=(value)
+    def full_name=(value)
       @full_name = value
       if @full_name
         @full_name = @full_name[1..-1] if @full_name[0..1] == '//'
       end
-    end
-
-    def fullName
-      @full_name
     end
 
     def header(full_page_name, page = nil)
@@ -210,12 +176,11 @@ module ClWiki
       page_path = '/' if page_path == '.'
       dirs = page_path.split('/')
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
-      full_dirs = (0..dirs.length-1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
-      head = '<div class=\'wikiHeader\'>'
-      if (full_page_name != $FIND_PAGE_NAME) and
-          (full_page_name != $FIND_RESULTS_NAME) and
-          (full_page_name != $wiki_conf.recent_changes_name) and
-          (full_page_name != $wiki_conf.stats_name)
+      full_dirs = (0..dirs.length - 1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
+      head = String.new('<div class=\'wikiHeader\'>')
+      if [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(full_page_name)
+        head << "<span class='pageName'>#{full_page_name}</span>"
+      else
         head << "<span class='pageName'><a href='find?search_text=#{search_text}'>#{page_name}</a></span><br/>"
         full_dirs.each do |dir|
           head << '<span class=\'pageTag\'>'
@@ -223,8 +188,6 @@ module ClWiki
         end
         head << '<br/>'
         head << "<span class='wikiPageData'>#{page_update_time(page)}</span><br/>" if page
-      else
-        head << '<span class=\'pageName\'>' + full_page_name + '</span>'
       end
       head << '</div>'
     end
@@ -240,7 +203,7 @@ module ClWiki
     end
 
     def process_custom_footers(page)
-      Dir[::File.dirname(__FILE__) + '/footer/footer.*'].each do |fn|
+      Dir["#{::File.dirname(__FILE__)}/footer/footer.*"].sort.each do |fn|
         require fn
       end
 
@@ -248,102 +211,70 @@ module ClWiki
     end
 
     def footer(page)
-      return '' if !page.is_a? ClWiki::Page # blogki does this
+      return String.new unless page.is_a? ClWiki::Page
 
       custom_footer = process_custom_footers(page)
 
-      wiki_name = page.full_name
+      wiki_name = page.page_name
 
       # refactor string constants
-      footer = "<div class='wikiFooter'>"
-      footer << "<ul>"
-      if (wiki_name != $FIND_PAGE_NAME) and
-          (wiki_name != $FIND_RESULTS_NAME) and
-          (wiki_name != $wiki_conf.recent_changes_name) and
-          (wiki_name != $wiki_conf.stats_name)
-        if $wiki_conf.editable
-          footer << ("<li><span class='wikiAction'><a href='" + wiki_name.strip_slash_prefix + "/edit'>Edit</a></span></li>")
+      footer = String.new("<div class='wikiFooter'>")
+      footer << '<ul>'
+      if $wiki_conf.editable
+        unless [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(wiki_name)
+          footer << "<li><span class='wikiAction'><a href='#{wiki_name}/edit'>Edit</a></span></li>"
         end
       end
       footer << "<li><span class='wikiAction'><a href='find'>Find</a></span></li>"
       footer << "<li><span class='wikiAction'><a href='recent'>Recent</a></span></li>"
-      # footer << "<li><span class='wikiAction'><a href=#{cgifn}?about=true>About</a></span></li>" if wiki_name == "/FrontPage"
-      footer << "</ul></div>"
-      return custom_footer << footer
+      footer << '</ul></div>'
+      custom_footer << footer
     end
 
     def src_url
       "file://#{ClWiki::Page.read_file_full_path_and_name(@full_name)}"
     end
 
-    def reload_url(with_global_edit_links=false)
+    def reload_url(with_global_edit_links = false)
       result = "#{full_url}?page=#{@full_name}"
-      if with_global_edit_links
-        result << "&globaledits=true"
-      else
-        result << "&globaledits=false"
-      end
+      result << (with_global_edit_links ? '&globaledits=true' : '&globaledits=false')
     end
 
     def mailto_url
       "mailto:?Subject=wikifyi:%20#{@full_name}&Body=#{reload_url}"
     end
 
-    def gsubWords
-      @content.gsub(/<.+?>|<\/.+?>|\w+/) { |word| yield word }
+    def gsub_words
+      @content.gsub(%r{<.+?>|</.+?>|\w+}) { |word| yield word }
     end
 
-    def convert_relative_wikinames_to_absolute
-      # do not go ahead without testing here
-      #formatLinks do |word|
-      #  if isWikiName?(word)
-      #end
-
-      # problem here is we should obey the NoWikiLinks and Html tag rules,
-      # and those variables aren't being yielded right now. If we change
-      # how the yield works, it affects the indexer. And we can't just
-      # tack on additional yield params and have existing code that only
-      # pays attention to the first keep working:
-      #
-      # irb(main):001:0> def test
-      # irb(main):002:1>   yield 1,2,3
-      # irb(main):003:1> end
-      # nil
-      # irb(main):004:0> test do |a|
-      # irb(main):005:1* puts a
-      # irb(main):006:1> end
-      # 1
-      # 2
-      # 3
-    end
-
-    def formatLinks
+    def format_links
       no_wiki_link_in_effect = false
       inside_html_tags = false
 
-      gsubWords do |word|
-        if (word[0, 1] == '<') and (word[-1, 1] == '>')
+      gsub_words do |word|
+        if (word[0, 1] == '<') && (word[-1, 1] == '>')
           # refactor to class,local constant, instead of global
-          if word =~ /#{'<NoWikiLinks>'}/i
+          if /<NoWikiLinks>/i.match?(word)
             no_wiki_link_in_effect = true
             word = ''
             # refactor to class,local constant, instead of global
-          elsif word =~ /#{'</NoWikiLinks>'}/i
+          elsif /<\/NoWikiLinks>/i.match?(word)
             no_wiki_link_in_effect = false
             word = ''
           end
 
-          if word =~ /#{'<html>'}/i
+          if /<html>/i.match?(word)
             inside_html_tags = true
             word = ''
-          elsif word =~ /#{'</html>'}/i
+          elsif /<\/html>/i.match?(word)
             inside_html_tags = false
             word = ''
           end
         elsif is_wiki_name?(word)
-          if !no_wiki_link_in_effect and !inside_html_tags
+          if !no_wiki_link_in_effect && !inside_html_tags
             # code smell here y'all
-            word = convertToLink(word) if !block_given?
+            word = convert_to_link(word) unless block_given?
           end
         end
         if block_given?
@@ -355,9 +286,9 @@ module ClWiki
     end
 
     def self.only_html(str)
-      onlyOneTag = /\A[^<]*<[^<>]*>[^>]*\z/
-      headerTagLine = /\A\s*<h.>.*<\/h.>\s*\z/
-      (str =~ onlyOneTag) || (str =~ headerTagLine)
+      only_one_tag = /\A[^<]*<[^<>]*>[^>]*\z/
+      header_tag_line = %r{\A\s*<h.>.*</h.>\s*\z}
+      (str =~ only_one_tag) || (str =~ header_tag_line)
       # str.scan(/<.*>/).to_s == str.chomp
     end
 
@@ -366,38 +297,30 @@ module ClWiki
     end
 
     def cgifn
-      $wiki_conf.cgifn if $wiki_conf
+      $wiki_conf&.cgifn
     end
 
     def full_url
       ($wiki_conf.url_prefix + cgifn) if $wiki_conf
     end
 
-    def convertToLink(page_name)
+    def convert_to_link(page_name)
       if ClWiki::Page.page_exists?(page_name)
-        "<a href='#{page_name.strip_slash_prefix}'>#{page_name.strip_slash_prefix}</a>"
+        "<a href='#{page_name}'>#{page_name}</a>"
       else
-        if $wiki_conf.useIndex == ClWiki::Configuration::USE_INDEX_NO
-          finder = FindInFile.new($wiki_path)
-          finder.find(page_name, FindInFile::FILE_NAME_ONLY)
-          hits = finder.files.collect { |f| f.sub($wikiPageExt, '') }
-        else
-          @wikiIndex = ClWiki::IndexClient.new if @wikiIndex.nil?
-          titles_only = true
-          hits = @wikiIndex.search(page_name, titles_only)
-          hits = GlobalHitReducer.reduce_to_exact_if_exists(page_name, hits)
-        end
+        @wiki_index ||= ClWiki::MemoryIndexer.instance
+        hits = @wiki_index.search(page_name, titles_only: true)
 
-        case hits.length
-          when 0
-            result = page_name
-          when 1
-            result = "<a href='#{hits[0]}'>#{page_name}</a>"
-          else
-            result = "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
-        end
+        result = case hits.length
+                 when 0
+                   page_name
+                 when 1
+                   "<a href='#{hits[0]}'>#{page_name}</a>"
+                 else
+                   "<a href='find?search_text=#{page_name}'>#{page_name}</a>"
+                 end
 
-        if ($wiki_conf.editable) && ((hits.length == 0) || ($wiki_conf.global_edits))
+        if $wiki_conf.editable && (hits.empty? || $wiki_conf.global_edits)
           result << "<a href='#{page_name}/edit'>?</a>"
         end
         result
@@ -405,36 +328,12 @@ module ClWiki
     end
 
     def is_wiki_name?(string)
-      all_wiki_names = true
-      names = string.split(/[\\\/]/)
+      return false if string.empty?
 
-      # if first character is a slash, then split puts an empty string into names[0]
-      names.delete_if { |name| name.empty? }
-      all_wiki_names = false if names.empty?
-      names.each do |name|
-        all_wiki_names =
-            (
-            all_wiki_names and
-
-                # the number of all capitals followed by a lowercase is greater than 1
-                (name.scan(/[A-Z][a-z]/).length > 1) and
-
-                # the first letter is capitalized or slash
-                (
-                (name[0, 1] == name[0, 1].capitalize) or (name[0, 1] == '/') or (name[0, 1] == "\\")
-                ) and
-
-                # there are no non-word characters in the string (count is 0)
-                # ^[\w|\\|\/] is read:
-                # _____________[_____  _^_  ____\w_________  _|  __\\______  _|  ___\/________]
-                # characters that are  not  word characters  or  back-slash  or  forward-slash
-                # (the not negates the *whole* character set (stuff in brackets))
-                (name.scan(/[^\w\\\/]/).length == 0)
-            )
-      end
-      return all_wiki_names
+      /\A[A-Z][a-z]\w*?[A-Z][a-z]\w*\z/.match?(string)
     end
   end
+
   class CustomFooters
     include Singleton
 
@@ -444,11 +343,11 @@ module ClWiki
     end
 
     def process_footers(page)
-      content = ''
-      @footers.each do |f|
-        content << f.footer_html(page)
-      end if @footers
-      return content
+      String.new.tap do |content|
+        @footers&.each do |f|
+          content << f.footer_html(page)
+        end
+      end
     end
   end
 
@@ -470,11 +369,11 @@ module ClWiki
     end
 
     def process_formatters(content, page)
-      @formatters.each do |f|
-        if content =~ f.match_re
+      @formatters&.each do |f|
+        if content&.match?(f.match_re)
           content.gsub!(f.match_re) { |match| f.format_content(match, page) }
         end
-      end if @formatters
+      end
     end
   end
 
@@ -482,39 +381,12 @@ module ClWiki
   # directory and imitate.
   class CustomFormatter
   end
-
-  class GlobalHitReducer
-    def GlobalHitReducer.reduce_to_exact_if_exists(term, hits)
-      reduced = hits.dup
-      reduced.delete_if do |hit|
-        parts = hit.split('/')
-        exact = (parts[-1] =~ /^#{term}$/i)
-        !exact
-      end
-
-      if !reduced.empty?
-        reduced
-      else
-        hits
-      end
-    end
-  end
 end
 
 module CLabs
   class WikiDiffFormatter
-    def WikiDiffFormatter.format_diff(diff)
+    def self.format_diff(diff)
       "<b>Diff</b><br><pre>\n#{CGI.escapeHTML(diff)}\n</pre><br><hr=width\"50%\">"
     end
-  end
-end
-
-class String
-  def ensure_slash_prefix
-    self[0..0] != '/' ? "/#{self}" : self
-  end
-
-  def strip_slash_prefix
-    self.gsub(/^\//, '')
   end
 end

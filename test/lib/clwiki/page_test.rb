@@ -1,115 +1,60 @@
+# frozen_string_literal: true
+
 require_relative 'clwiki_test_helper'
-require 'page'
 require 'tmpdir'
 
 # stub this out for testing
 class ClWiki::Page
-  @@page_exists = false
-  @@page_globally_exists = false
+  @page_exists = false
+  @page_globally_exists = false
 
   def self.set_page_exists(value)
-    @@page_exists = value
+    @page_exists = value
   end
 
-  def self.page_exists?(pageFullName)
-    @@page_exists
+  def self.page_exists?(_)
+    @page_exists
   end
 end
 
-class TestClWikiPage < TestBase
+class PageTest < TestBase
   def test_wiki_page
-    ClWiki::Page.new('/NewPage')
-  end
-
-  def do_test_convert_to_link(pageName, pagePath='/FrontPage')
-    f = ClWiki::PageFormatter.new(nil, pagePath)
-    # fullPageName = f.expand_path(pageName, pagePath)
-    ClWiki::Page.set_page_exists(false)
-    $wiki_conf.editable = true
-    assert_equal(
-      pageName + "<a href='#{pageName}/edit'>?</a>",
-      f.convertToLink(pageName))
-    $wiki_conf.editable = false
-    assert_equal(
-      pageName,
-      f.convertToLink(pageName))
-    ClWiki::Page.set_page_exists(true)
-
-    # now that links serve up a separate link for each page in the
-    # hierarchy, testing this is cumbersome - and there's already
-    # tests for testFormatLinkPages which exercise this same thing
-
-    # assert_equal(
-    #  "<a href=clwikicgi.rb?page=" + fullPageName + ">" + pageName + "</a>",
-    #   f.convertToLink(pageName))
-  end
-
-  def test_convert_to_link_main
-    do_test_convert_to_link("TestPage")
-  end
-
-  def test_convert_to_link_sub_bs
-    do_test_convert_to_link("TestPage\TestSubPage")
-  end
-
-  def test_convert_to_link_sub_fs
-    do_test_convert_to_link("TestPage/TestSubPage")
-  end
-
-  def test_convert_to_link_bs_sub
-    do_test_convert_to_link("\TestPage/TestSubPage")
-  end
-
-  def test_convert_to_link_fs_sub
-    do_test_convert_to_link("/TestPage/TestSubPage")
-  end
-
-  def test_convert_to_link_fs_sub_sub
-    do_test_convert_to_link("/TestPage/TestSubPage\NotherSubPage")
-  end
-
-  def test_convert_to_link_fs_sub_sub2
-    do_test_convert_to_link("/TestPage/TestSubPage/NotherSubPage")
-  end
-
-  def test_convert_to_link_collapse_path
-    do_test_convert_to_link("TestSubPage/NotherSubPage", "/TestPage/TestSubPage")
-    do_test_convert_to_link("SubPage/NotherSubPage", "/TestPage/SubPage/SubPage")
+    ClWiki::Page.new('NewPage')
   end
 
   def test_gsub_words
     original =
-        'test page PageName ' +
-            'PageName/SubPage PageName\SubPage\SubPage ' +
-            '/PageName/SubPage \PageName\SubPage\SubPage ' +
-            'test.thing test, <tagger> </tagger> oops>whoops ' +
-            'oops<thing>bleh hen<butter '
+      'test page PageName ' \
+      'PageName/SubPage PageName\SubPage\SubPage ' \
+      '/PageName/SubPage \PageName\SubPage\SubPage ' \
+      'test.thing test, <tagger> </tagger> oops>whoops ' \
+      'oops<thing>bleh hen<butter '
 
     expected_results =
-        %w(test page PageName
-           PageName SubPage PageName SubPage SubPage PageName SubPage PageName SubPage SubPage
-           test thing test <tagger> </tagger> oops whoops
-           oops <thing> bleh hen butter)
+      %w[test page PageName
+         PageName SubPage PageName SubPage SubPage PageName SubPage PageName SubPage SubPage
+         test thing test <tagger> </tagger> oops whoops
+         oops <thing> bleh hen butter]
 
-    actual_results = Array.new
+    actual_results = []
     f = ClWiki::PageFormatter.new(original)
-    f.gsubWords { |word| actual_results << word }
+    f.gsub_words { |word| actual_results << word }
     assert_equal(expected_results, actual_results)
   end
 
-  def do_test_format_links(content, expected_content, page_exists=true)
+  def do_test_format_links(content, expected_content, page_exists = true)
     $wiki_conf.editable = true
     f = ClWiki::PageFormatter.new(content, nil)
     ClWiki::Page.set_page_exists(page_exists)
-    assert_equal(expected_content, f.formatLinks, "content: #{content} page_exists: #{page_exists} editable")
+    assert_equal(expected_content, f.format_links, "content: #{content} page_exists: #{page_exists} editable")
 
     $wiki_conf.editable = false
     f = ClWiki::PageFormatter.new(content, nil)
     ClWiki::Page.set_page_exists(page_exists)
     if page_exists
-      assert_equal(expected_content, f.formatLinks, "content: #{content} page_exists: #{page_exists} not editable")
+      assert_equal(expected_content, f.format_links, "content: #{content} page_exists: #{page_exists} not editable")
     else
-      assert_equal(content, f.formatLinks, "content: #{content} page_exists: #{page_exists} not editable")
+      assert_equal(content, f.format_links, "content: #{content} page_exists: #{page_exists} not editable")
     end
   end
 
@@ -126,7 +71,7 @@ class TestClWikiPage < TestBase
     # are returned intact. IE 5 just ignores them.
     # In the future I need to code no wiki links within
     # brackets which means parsing them.
-    do_test_format_links('<NoWikiLinks>TestPage</NoWikiLinks>', "TestPage")
+    do_test_format_links('<NoWikiLinks>TestPage</NoWikiLinks>', 'TestPage')
 
     # No WikiLinks within < >, to avoid problems with href
     do_test_format_links('<a href="www.NotAWikiPage.com">some link</a>', '<a href="www.NotAWikiPage.com">some link</a>')
@@ -139,24 +84,24 @@ class TestClWikiPage < TestBase
 
   def test_is_wiki_name
     f = ClWiki::PageFormatter.new
-    assert(f.is_wiki_name?("WikiName"))
-    assert(!f.is_wiki_name?("WikiName,"))
-    assert(!f.is_wiki_name?("Wikiname"))
-    assert(!f.is_wiki_name?("wIkiName"))
-    assert(!f.is_wiki_name?("<h1>wikiName</h1><br>Other"))
-    assert(!f.is_wiki_name?("<WikiName>"))
-    assert(!f.is_wiki_name?("WIKI"))
-    assert(f.is_wiki_name?('WikiName/SubWikiName'))
-    assert(f.is_wiki_name?('WikiName\SubWikiName'))
-    assert(f.is_wiki_name?('/WikiName/SubWikiName'))
-    assert(!f.is_wiki_name?('./WikiName/SubWikiName'))
-    assert(!f.is_wiki_name?('/.WikiName/SubWikiName'))
-    assert(!f.is_wiki_name?('/Wiki.Name/SubWikiName'))
-    assert(!f.is_wiki_name?('WikiName/Notwikiname'))
-    assert(!f.is_wiki_name?('Notwikiname/WikiName'))
-    assert(!f.is_wiki_name?('WikiName/WikiName/Notwikiname'))
-    assert(!f.is_wiki_name?('/'))
-    assert(!f.is_wiki_name?('//'))
+    assert(f.is_wiki_name?('WikiName'))
+    assert(f.is_wiki_name?('YoYo'))
+    refute(f.is_wiki_name?('Wikiname'))
+    refute(f.is_wiki_name?('wIkiName'))
+    refute(f.is_wiki_name?('<h1>wikiName</h1><br>Other'))
+    refute(f.is_wiki_name?('<WikiName>'))
+    refute(f.is_wiki_name?('WIKI'))
+    refute(f.is_wiki_name?('WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('WikiName\SubWikiName'))
+    refute(f.is_wiki_name?('/WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('./WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('/.WikiName/SubWikiName'))
+    refute(f.is_wiki_name?('/Wiki.Name/SubWikiName'))
+    refute(f.is_wiki_name?('WikiName/Notwikiname'))
+    refute(f.is_wiki_name?('Notwikiname/WikiName'))
+    refute(f.is_wiki_name?('WikiName/WikiName/Notwikiname'))
+    refute(f.is_wiki_name?('/'))
+    refute(f.is_wiki_name?('//'))
   end
 
   def test_custom_formatter
@@ -167,10 +112,9 @@ class TestClWikiPage < TestBase
 
   def test_custom_formatter_path_config
     Dir.mktmpdir do |dir|
-      begin
-        $wiki_conf.custom_formatter_load_path << dir
-        File.open(File.join(dir, 'format.reverser.rb'), 'w') do |f|
-          f.print <<-RUBY
+      $wiki_conf.custom_formatter_load_path << dir
+      File.open(File.join(dir, 'format.reverser.rb'), 'w') do |f|
+        f.print <<-RUBY
           class ReverseText < ClWiki::CustomFormatter
             def ReverseText.match_re
               /.*/
@@ -184,62 +128,41 @@ class TestClWikiPage < TestBase
           end
 
           ClWiki::CustomFormatters.instance.register(ReverseText)
-          RUBY
-        end
-        page = ClWiki::Page.new('RevPage')
-        page.update_content("awesome", page.mtime)
-        assert_match(/emosewa/, page.read_content(false))
-      ensure
-        ClWiki::CustomFormatters.instance.unregister(ReverseText)
-        Object.send(:remove_const, :ReverseText)
-        $wiki_conf.custom_formatter_load_path.delete(dir)
+        RUBY
       end
+      page = ClWiki::Page.new('RevPage')
+      page.update_content('awesome', page.mtime)
+      assert_match(/emosewa/, page.read_content(false))
+    ensure
+      ClWiki::CustomFormatters.instance.unregister(ReverseText)
+      Object.send(:remove_const, :ReverseText)
+      $wiki_conf.custom_formatter_load_path.delete(dir)
     end
+  end
+
+  def test_encrypted_content
+    page = ClWiki::Page.new('NewEncryptedPage', wiki_path: @test_wiki_path, owner: EncryptingUser.new)
+    page.update_content('my new content', Time.now, true)
+    assert_match(/my new content/, page.read_content(false))
+    refute_match(/new content/, File.read(page.file_full_path_and_name, mode: 'rb'))
   end
 end
 
 class TestClWikiPageFormatter < TestBase
   def test_only_html
     assert(ClWiki::PageFormatter.only_html('<tag>'))
-    assert(!ClWiki::PageFormatter.only_html('<tag'))
-    assert(!ClWiki::PageFormatter.only_html('tag>'))
-    assert(!ClWiki::PageFormatter.only_html('tag'))
-    assert(!ClWiki::PageFormatter.only_html(''))
-    assert(!ClWiki::PageFormatter.only_html('  '))
+    refute(ClWiki::PageFormatter.only_html('<tag'))
+    refute(ClWiki::PageFormatter.only_html('tag>'))
+    refute(ClWiki::PageFormatter.only_html('tag'))
+    refute(ClWiki::PageFormatter.only_html(''))
+    refute(ClWiki::PageFormatter.only_html('  '))
     assert(ClWiki::PageFormatter.only_html('  < t a g >  '))
-    assert(!ClWiki::PageFormatter.only_html('<t>a<g>'))
+    refute(ClWiki::PageFormatter.only_html('<t>a<g>'))
 
     # if this passes, method is misnamed, now
-    assert( ClWiki::PageFormatter.only_html('<h1>a</h1>'))
-    assert( ClWiki::PageFormatter.only_html(' <h5> a </h5>  '))
-    assert( ClWiki::PageFormatter.only_html(' <h5> <a href> </h5>  '))
-    assert(!ClWiki::PageFormatter.only_html(' <h5> <a href> </h5> stuff '))
-  end
-end
-
-class TestGlobalHitReducer < TestBase
-  def test_global_hit_reducer
-    # for global links, we want matches to be limited to exact matches.
-    # If //RootPage/SubPage has seven children:
-    #
-    #   //RootPage/SubPage/ChildOne
-    #   //RootPage/SubPage/ChildTwo
-    #   ...
-    #
-    # and the content is SubPage, we don't want a global link to the
-    # find results of SubPage, but a direct link to //RootPage/SubPage.
-    # If there's also a //OtherPage/SubPage, then the global link in this
-    # case will still go to Find Results.
-
-    hits = ['//RootPage/SubPage', '//RootPage/SubPage/ChildOne']
-    reduced = ClWiki::GlobalHitReducer.reduce_to_exact_if_exists('SubPage', hits)
-    assert_equal(['//RootPage/SubPage'], reduced)
-
-    reduced = ClWiki::GlobalHitReducer.reduce_to_exact_if_exists('SubPa', hits)
-    assert_equal(hits, reduced)
-
-    hits = ['//RootPage/SubPage', '//OtherPage/SubPage']
-    reduced = ClWiki::GlobalHitReducer.reduce_to_exact_if_exists('SubPage', hits)
-    assert_equal(hits, reduced)
+    assert(ClWiki::PageFormatter.only_html('<h1>a</h1>'))
+    assert(ClWiki::PageFormatter.only_html(' <h5> a </h5>  '))
+    assert(ClWiki::PageFormatter.only_html(' <h5> <a href> </h5>  '))
+    refute(ClWiki::PageFormatter.only_html(' <h5> <a href> </h5> stuff '))
   end
 end

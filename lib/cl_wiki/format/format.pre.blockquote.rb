@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 require 'cgi'
 
 class FormatPreBlockquote < ClWiki::CustomFormatter
-  def FormatPreBlockquote.match_re
-    /\[p\].*?\[\/p\]/mi
+  def self.match_re
+    %r{\[p\].*?\[/p\]}mi
   end
-  
-  def FormatPreBlockquote.format_content(content, page)
+
+  def self.format_content(content, page)
     content = CGI.escapeHTML(content)
-    content.gsub!(/\[p\]/i, "<blockquote><pre>")
-    content.gsub!(/\[\/p\]/i, "</pre></blockquote>")
+    content.gsub!(/\[p\]/i, '<blockquote><pre>')
+    content.gsub!(%r{\[/p\]}i, '</pre></blockquote>')
   end
 end
 

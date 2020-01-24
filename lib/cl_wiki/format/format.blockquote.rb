@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 class FormatBlockquote < ClWiki::CustomFormatter
-  def FormatBlockquote.match_re
-    /\[\].*\[\/\]/m
+  def self.match_re
+    %r{\[\].*\[/\]}m
   end
-  
-  def FormatBlockquote.format_content(content, page)
+
+  def self.format_content(content, page)
     if content
-      content.gsub!(/\[\]/, "<blockquote>")
-      content.gsub!(/\[\/\]/, "</blockquote>")
+      content.gsub!(/\[\]/, '<blockquote>')
+      content.gsub!(%r{\[/\]}, '</blockquote>')
       content
     end
   end

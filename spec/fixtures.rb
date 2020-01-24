@@ -1,7 +1,17 @@
+# frozen_string_literal: true
+
 class PageFixture
-  def self.write_page(name, contents)
-    @page = ClWiki::Page.new(name.ensure_slash_prefix)
+  def self.write_page(name, contents, owner:)
+    @page = ClWiki::Page.new(name, owner: owner)
     @page.update_content(contents, @page.mtime)
-    $wiki_conf.wait_on_threads
+  end
+end
+
+class AuthFixture
+  def self.create_test_user
+    ClWiki::User.create('testy', 'red pill').tap do |u|
+      key = u.derive_encryption_key('red pill')
+      u.cached_encryption_key = key
+    end
   end
 end
