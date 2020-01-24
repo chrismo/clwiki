@@ -85,6 +85,7 @@ class PageTest < TestBase
   def test_is_wiki_name
     f = ClWiki::PageFormatter.new
     assert(f.is_wiki_name?('WikiName'))
+    assert(f.is_wiki_name?('YoYo'))
     refute(f.is_wiki_name?('Wikiname'))
     refute(f.is_wiki_name?('wIkiName'))
     refute(f.is_wiki_name?('<h1>wikiName</h1><br>Other'))
