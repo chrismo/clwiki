@@ -10,8 +10,6 @@ RSpec.describe ClWiki::PageController do
 
   describe 'use authentication' do
     before do
-      # Yeah, this is ridiculous. One refactor at a time.
-      # Page class uses one global, Index uses the other. :facepalm:
       @restore_wiki_path = $wiki_conf.wiki_path
       $wiki_conf.wiki_path = '/tmp/test_wiki'
       $wiki_conf.use_authentication = true
@@ -20,7 +18,8 @@ RSpec.describe ClWiki::PageController do
 
       @user = AuthFixture.create_test_user
       ClWiki::MemoryIndexer.instance(page_owner: @user)
-      get :show, params: {}, session: {username: @user.username, encryption_key: @user.encryption_key}
+      get :show, params: {}, session: {username: @user.username,
+                                       encryption_key: Base64.encode64(@user.encryption_key)}
     end
 
     after do
