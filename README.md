@@ -33,6 +33,9 @@ I'm the only one using this wiki as far as I'm aware, so I've added simple user
 authentication without any in-app method to create a new account. You'll need to
 go to a Rails console and run `ClWiki::User.create` to make an account yourself.
 
+Then you must set the `owner:` configuration attribute to match the user account
+just created. Only a single user is supported.
+
 Password storage uses the standard `bcrypt` / `ActiveModel::SecurePassword` 
 functionality. 
 
