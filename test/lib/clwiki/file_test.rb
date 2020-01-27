@@ -150,4 +150,10 @@ class ClWikiFileTest < TestBase
 
     assert_match(/awesome/, ::File.read(wiki_file.full_path_and_name, mode: 'rb'))
   end
+
+  def test_utf_8_content
+    create_legacy_file('EllipsisPage.txt', '“It” …')
+    file = ClWiki::File.new('EllipsisPage', @test_wiki_path)
+    assert_equal "“It” …\n", file.content
+  end
 end
