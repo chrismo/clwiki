@@ -69,7 +69,11 @@ module ClWiki
 
       apply_metadata
 
-      @contents = content_encrypted? ? @owner.lockbox.decrypt_str(raw_content) : raw_content
+      @contents = if content_encrypted?
+                    @owner.lockbox.decrypt_str(raw_content)
+                  else
+                    convert_bin_to_utf_8(raw_content)
+                  end
     end
 
     def convert_bin_to_utf_8(content)
