@@ -64,16 +64,16 @@ module ClWiki
     def read_file
       @mod_time_at_last_read = ::File.mtime(full_path_and_name)
 
-      # positive lookbehind regex is used here to retain the end of line
-      # newline, because this used to just be `File.readlines` which also keeps
-      # the newline characters.
-      raw_lines = ::File.binread(full_path_and_name).split(/(?<=\n)/)
-      @metadata, raw_content = Metadata.split_file_contents(raw_lines)
-      raw_content = raw_content.join
+      raw_bytes = ::File.binread(full_path_and_name)
+      @metadata, raw_content = Metadata.split_file_contents(raw_bytes)
 
       apply_metadata
 
       @contents = content_encrypted? ? @owner.lockbox.decrypt_str(raw_content) : raw_content
+    end
+
+    def convert_bin_to_utf_8(content)
+      content.chars.map(&:ord).pack("U*")
     end
 
     def read_metadata(lines)
@@ -123,23 +123,18 @@ module ClWiki
   end
 
   class Metadata
-    def self.split_file_contents(lines)
-      st_idx = 0
-      lines.each_with_index do |ln, index|
-        next unless ln.chomp.empty?
+    def self.split_file_contents(content)
+      idx = content =~ /\n{3}/m
+      metadata = []
 
-        next_line = lines[index + 1]
-        if next_line.nil? || next_line.chomp.empty?
-          st_idx = index + 2 if all_lines_are_metadata_lines(lines[0..index - 1])
-          break
-        end
+      if idx
+        metadata = content[0..(idx - 1)].split(/\n/)
+        valid_metadata?(metadata) ? content = content[(idx + 3)..-1] : metadata = []
       end
-
-      m, c = st_idx > 0 ? [lines[0..st_idx - 3], lines[st_idx..-1]] : [[], lines]
-      [self.new(m), c]
+      [self.new(metadata), content]
     end
 
-    def self.all_lines_are_metadata_lines(lines)
+    def self.valid_metadata?(lines)
       lines.map { |ln| ln.scan(/\A(\w+):?/) }.flatten.
         map { |k| supported_keys.include?(k) }.uniq == [true]
     end
