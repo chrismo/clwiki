@@ -19,7 +19,8 @@ RSpec.describe ClWiki::PageController do
       @user = AuthFixture.create_test_user
       ClWiki::MemoryIndexer.instance(page_owner: @user)
       get :show, params: {}, session: {username: @user.username,
-                                       encryption_key: Base64.encode64(@user.encryption_key)}
+                                       encryption_key: Base64.encode64(@user.encryption_key),
+                                       expire_at: 48.hours.from_now}
     end
 
     after do
@@ -189,6 +190,33 @@ RSpec.describe ClWiki::PageController do
       get :edit, params: {page_name: 'AnotherNewPage'}
       assert_select 'input[type=checkbox][name=encrypt]' do |elements|
         assert elements.first.attributes.key?('checked')
+      end
+    end
+
+    it 'should expire old session' do
+      Timecop.travel(72.hours.from_now) do
+        get :show
+
+        assert_redirected_to login_path
+      end
+    end
+
+    it 'should not expire old session on edit' do
+      Timecop.travel(72.hours.from_now) do
+        get :edit, params: {page_name: 'DoNotKillMe'}
+
+        assert_template :edit
+      end
+    end
+
+    it 'should not expire old session on update' do
+      Timecop.travel(72.hours.from_now) do
+        get :edit, params: {page_name: 'DoNotKillMe'}
+        page = assigns(:page)
+
+        post :update, params: {page_name: 'DoNotKillMe', page_content: 'not dead yet!', client_mod_time: page.mtime.to_i}
+
+        assert_redirected_to page_show_path(page_name: 'DoNotKillMe')
       end
     end
   end

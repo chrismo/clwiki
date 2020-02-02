@@ -8,6 +8,7 @@ module ClWiki
     before_action :initialize_formatter
     before_action :assign_page_name
     before_action :redirect_to_front_page_if_bad_name, only: :show
+    skip_before_action :expire_old_session, only: [:edit, :update]
 
     def show
       @page = instantiate_page

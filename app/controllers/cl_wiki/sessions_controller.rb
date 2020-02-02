@@ -10,18 +10,29 @@ module ClWiki
     end
 
     def create
-      @user = User.find(params[:username])
-      password = params[:password]
-      if @user&.username == $wiki_conf.owner && @user&.authenticate(password)
-        session[:username] = @user.username
-        session[:encryption_key] = Base64.encode64(@user.derive_encryption_key(password))
-        redirect_to root_url
-      else
-        redirect_to login_url
-      end
+      auth_user_and_setup_session ?
+        redirect_to(root_url) :
+        redirect_to(login_url)
+    end
+
+    def destroy
+      reset_session
+      redirect_to login_url
     end
 
     private
+
+    def auth_user_and_setup_session
+      @user = User.find(params[:username])
+      password = params[:password]
+      authenticated = @user&.username == $wiki_conf.owner && @user&.authenticate(password)
+      if authenticated
+        session[:username] = @user.username
+        session[:expire_at] = 48.hours.from_now
+        session[:encryption_key] = Base64.encode64(@user.derive_encryption_key(password))
+      end
+      authenticated
+    end
 
     def skip_all_if_not_using_authentication
       redirect_to root_url unless $wiki_conf.use_authentication

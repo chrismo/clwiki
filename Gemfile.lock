@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    clwiki (3.0.2)
+    clwiki (3.0.3)
       bcrypt (~> 3.1)
       clindex (~> 2.0)
       lockbox
@@ -213,6 +213,7 @@ GEM
     thor (1.0.1)
     thread_safe (0.3.6)
     tilt (2.0.10)
+    timecop (0.9.1)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
@@ -248,6 +249,7 @@ DEPENDENCIES
   simplecov
   sprockets-rails
   sqlite3
+  timecop
   turbolinks
   uglifier (>= 1.0.3)
 
