@@ -330,7 +330,7 @@ module ClWiki
     def is_wiki_name?(string)
       return false if string.empty?
 
-      /\A[A-Z][a-z]\w*?[A-Z][a-z]\w*\z/.match?(string)
+      /\A[0-9]*[A-Z][a-z]\w*?[A-Z][a-z]\w*\z/.match?(string)
     end
   end
 
