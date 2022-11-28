@@ -60,3 +60,9 @@ underlying code. The big stuff:
 - Many options (probably out-of-date anyway) removed from configuration.
 - All globals, except configuration, are gone.
  
+## Dev Notes
+
+./launch.dummy.sh works - use it. :) 
+
+username and pswd will be stored in test/dummy/wikirep/users/[user].json ...
+don't commit this file.

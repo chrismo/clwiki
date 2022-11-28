@@ -12,9 +12,13 @@
 
  */
 
+html {
+    height: 95%;
+}
 
 body {
     font-family: "Verdana", Arial, serif;
+    height: 100%;
 }
 
 a:link {
@@ -54,7 +58,6 @@ a:active {
 }
 
 .wikiFooter {
-    font-size: 90%;
     margin-bottom: 5px;
 }
 
@@ -65,6 +68,7 @@ a:active {
 
 .wikiFooter li {
     display: inline;
+    /*font-size: 90%;*/
     padding-right: 10px;
 }
 
@@ -100,4 +104,13 @@ a:active {
     list-style-type: none;
     padding: 15px;
     float: left;
+}
+
+form {
+    height: 100%
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
 }
