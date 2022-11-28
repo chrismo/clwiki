@@ -1,4 +1,5 @@
-mtime: 2020-01-09 00:15:40 -0600
+encrypted: false
+mtime: 2022-11-27 22:12:54 -0600
 owner: chrismo
 
 
@@ -19,3 +20,6 @@ partial page hit (single result) => DotTe
 EncryptedPage
 
 edit
+
+this is new? and less broken? ok
+
