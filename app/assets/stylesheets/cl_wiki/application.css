@@ -58,7 +58,6 @@ a:active {
 }
 
 .wikiFooter {
-    font-size: 90%;
     margin-bottom: 5px;
 }
 
@@ -69,6 +68,7 @@ a:active {
 
 .wikiFooter li {
     display: inline;
+    /*font-size: 90%;*/
     padding-right: 10px;
 }
 
