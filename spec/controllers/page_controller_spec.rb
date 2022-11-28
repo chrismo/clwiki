@@ -101,6 +101,13 @@ RSpec.describe ClWiki::PageController do
       assert_redirected_to page_show_path(page_name: 'FrontPage')
     end
 
+    it 'should redirect to show page on edit if not editable' do
+      $wiki_conf.editable = false
+      get :edit, params: {page_name: 'FrontPage'}
+
+      assert_redirected_to page_show_path(page_name: 'FrontPage')
+    end
+
     it 'should render find entry page' do
       get :find
 

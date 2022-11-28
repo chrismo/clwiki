@@ -8,6 +8,7 @@ module ClWiki
     before_action :initialize_formatter
     before_action :assign_page_name
     before_action :redirect_to_front_page_if_bad_name, only: :show
+    before_action :redirect_to_show_if_read_only, only: [:edit, :update]
     skip_before_action :expire_old_session, only: [:edit, :update]
 
     def show
@@ -96,6 +97,13 @@ module ClWiki
       if (@page_name.blank? || !@formatter.is_wiki_name?(@page_name)) ||
          (!$wiki_conf.editable && !ClWiki::Page.page_exists?(@page_name))
         redirect_to page_show_url(page_name: front_page_name)
+        nil
+      end
+    end
+
+    def redirect_to_show_if_read_only
+      unless $wiki_conf.editable
+        redirect_to page_show_url(page_name: @page_name)
         nil
       end
     end
