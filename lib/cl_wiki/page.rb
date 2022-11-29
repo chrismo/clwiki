@@ -177,13 +177,14 @@ module ClWiki
       dirs = page_path.split('/')
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
       full_dirs = (0..dirs.length - 1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
-      head = String.new('<div class=\'wikiHeader\'>')
+      head = String.new("<div class='wikiHeader'>")
+      head << core_footer_links(full_page_name).sub('wikiFooter', 'wikiFooter wikiFooterFloat')
       if [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(full_page_name)
         head << "<span class='pageName'>#{full_page_name}</span>"
       else
         head << "<span class='pageName'><a href='find?search_text=#{search_text}'>#{page_name}</a></span><br/>"
         full_dirs.each do |dir|
-          head << '<span class=\'pageTag\'>'
+          head << "'<span class='pageTag'>'"
           head << "<a href=#{cgifn}?page=#{dir}>#{File.split(dir)[-1]}</a></span>"
         end
         head << '<br/>'
@@ -212,11 +213,11 @@ module ClWiki
 
     def footer(page)
       return String.new unless page.is_a? ClWiki::Page
-
       custom_footer = process_custom_footers(page)
+      custom_footer << core_footer_links(page.page_name)
+    end
 
-      wiki_name = page.page_name
-
+    def core_footer_links(wiki_name)
       # refactor string constants
       footer = String.new("<div class='wikiFooter'>")
       footer << '<ul>'
@@ -228,7 +229,7 @@ module ClWiki
       footer << "<li><span class='wikiAction'><a href='find'>Find</a></span></li>"
       footer << "<li><span class='wikiAction'><a href='recent'>Recent</a></span></li>"
       footer << '</ul></div>'
-      custom_footer << footer
+      footer
     end
 
     def src_url

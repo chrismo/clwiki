@@ -68,8 +68,16 @@ a:active {
 
 .wikiFooter li {
     display: inline;
-    /*font-size: 90%;*/
+    font-size: 90%;
     padding-right: 10px;
+}
+
+.wikiFooterFloat {
+    float: right;
+}
+
+.wikiFooterFloat ul {
+    margin-top: 0px;
 }
 
 .findInput {
