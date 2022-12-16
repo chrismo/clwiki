@@ -6,7 +6,7 @@ require 'singleton'
 module ClWiki
   class Page
     attr_reader :content, :mtime, :name, :page_name, :raw_content,
-                :file_full_path_and_name
+      :file_full_path_and_name
 
     def initialize(page_name, wiki_path: $wiki_conf.wiki_path, owner: PublicUser.new)
       raise "Fix this - no slashes! #{page_name}" if %r{/}.match?(page_name)
@@ -178,7 +178,7 @@ module ClWiki
       dirs = dirs[1..-1] if !dirs.empty? && dirs[0].empty?
       full_dirs = (0..dirs.length - 1).each { |i| full_dirs[i] = ('/' + dirs[0..i].join('/')) }
       head = String.new("<div class='wikiHeader'>")
-      head << core_footer_links(full_page_name).sub('wikiFooter', 'wikiFooter wikiFooterFloat')
+      head << core_footer_links(full_page_name, -1).sub('wikiFooter', 'wikiFooter wikiFooterFloat')
       if [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(full_page_name)
         head << "<span class='pageName'>#{full_page_name}</span>"
       else
@@ -217,17 +217,21 @@ module ClWiki
       custom_footer << core_footer_links(page.page_name)
     end
 
-    def core_footer_links(wiki_name)
+    def core_footer_links(wiki_name, tab_index=0)
       # refactor string constants
       footer = String.new("<div class='wikiFooter'>")
       footer << '<ul>'
       if $wiki_conf.editable
         unless [FIND_PAGE_NAME, FIND_RESULTS_NAME].include?(wiki_name)
-          footer << "<li><span class='wikiAction'><a href='#{wiki_name}/edit'>Edit</a></span></li>"
+          footer << "<li><span class='wikiAction'><a href='#{wiki_name}/edit' tabindex=#{tab_index}>Edit</a></span></li>"
         end
       end
-      footer << "<li><span class='wikiAction'><a href='find'>Find</a></span></li>"
-      footer << "<li><span class='wikiAction'><a href='recent'>Recent</a></span></li>"
+      footer << "<li><span class='wikiAction'><a href='find' tabindex=#{tab_index}>Find</a></span></li>"
+      if $wiki_conf.publishTag
+        footer << "<li><span class='wikiAction'><a href='recent' tabindex=#{tab_index}>Recent</a></span></li>"
+      else
+        footer << "<li><span class='wikiAction'><a href='FrontPage' tabindex=#{tab_index}>Home</a></span></li>"
+      end
       footer << '</ul></div>'
       footer
     end

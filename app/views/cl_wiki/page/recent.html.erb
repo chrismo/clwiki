@@ -1,3 +1,5 @@
+<% content_for :title, "ClWiki: Recent" %>
+
 <% @pages.each do |page| %>
   <div class='wikiHeader'>
     <span class='pageName'><%= @formatter.convert_to_link(page.name).html_safe %></span>
