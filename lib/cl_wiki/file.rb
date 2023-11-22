@@ -4,9 +4,9 @@ require 'fileutils'
 require 'time'
 
 module ClWiki
-  FILE_EXT = '.txt'
-
   class File
+    FILE_EXT = '.txt'
+
     attr_reader :name, :mod_time_at_last_read, :metadata, :owner
     attr_accessor :client_last_read_mod_time
 

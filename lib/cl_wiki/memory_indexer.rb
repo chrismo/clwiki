@@ -68,11 +68,11 @@ module ClWiki
     private
 
     def build
-      files = Dir[::File.join(@root_dir, '**/*' + ClWiki::FILE_EXT)]
+      files = Dir[::File.join(@root_dir, '**/*' + ClWiki::File::FILE_EXT)]
       files.each do |fn|
         next unless ::File.file?(fn)
 
-        page_name = ::File.basename(fn, ClWiki::FILE_EXT)
+        page_name = ::File.basename(fn, ClWiki::File::FILE_EXT)
         index_page(page_name)
       end
     end
