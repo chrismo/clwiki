@@ -42,7 +42,7 @@ Metrics/MethodLength:
   Exclude:
     - 'lib/cl_wiki/configuration.rb'
     - 'lib/cl_wiki/find_in_file.rb'
-    - 'lib/cl_wiki/format/format.opml.rb'
+    - 'lib/cl_wiki/format/format_opml.rb'
     - 'lib/cl_wiki/index.rb'
     - 'lib/cl_wiki/page.rb'
 
