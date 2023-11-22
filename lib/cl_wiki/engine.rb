@@ -4,7 +4,6 @@ module ClWiki
   class Engine < ::Rails::Engine
     isolate_namespace ClWiki
 
-    config.eager_load_namespaces << ClWiki
     config.autoload_paths << "#{root}/lib"
 
     initializer 'cl_wiki.assets.precompile' do |app|
