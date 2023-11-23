@@ -5,33 +5,35 @@ if $PROGRAM_NAME == __FILE__
   require 'clwikipage'
 end
 
-class FormatOPML < ClWiki::CustomFormatter
-  def self.match_re
-    %r{<opml.*?>.*?</opml>}m
-  end
-
-  def self.format_content(content, page)
-    out = ['<NoWikiLinks>']
-    content.grep(%r{<outline.*?>|</outline>}).each do |ln|
-      title = ln.scan(/title=\"(.*?)\"/).compact
-      html = ln.scan(/htmlUrl=\"(.*?)\"/).compact
-      xml = ln.scan(/xmlUrl=\"(.*?)\"/).compact
-      if html.empty? && xml.empty?
-        if !title.empty?
-          out << "<h4>#{title}</h4>"
-          out << '<blockquote>'
-        else
-          out << '</blockquote>'
-        end
-      else
-        out << "<a href='#{xml}'>[xml]</a> <a href='#{html}'>#{title}</a>"
-      end
+module ClWiki
+  class FormatOPML < ClWiki::CustomFormatter
+    def self.match_re
+      %r{<opml.*?>.*?</opml>}m
     end
-    out.join("\n") + content
+
+    def self.format_content(content, page)
+      out = ['<NoWikiLinks>']
+      content.grep(%r{<outline.*?>|</outline>}).each do |ln|
+        title = ln.scan(/title=\"(.*?)\"/).compact
+        html = ln.scan(/htmlUrl=\"(.*?)\"/).compact
+        xml = ln.scan(/xmlUrl=\"(.*?)\"/).compact
+        if html.empty? && xml.empty?
+          if !title.empty?
+            out << "<h4>#{title}</h4>"
+            out << '<blockquote>'
+          else
+            out << '</blockquote>'
+          end
+        else
+          out << "<a href='#{xml}'>[xml]</a> <a href='#{html}'>#{title}</a>"
+        end
+      end
+      out.join("\n") + content
+    end
   end
 end
 
-ClWiki::CustomFormatters.instance.register(FormatOPML)
+ClWiki::CustomFormatters.instance.register(ClWiki::FormatOPML)
 
 if $PROGRAM_NAME == __FILE__
   sample_opml = <<-OPMLTEXT
