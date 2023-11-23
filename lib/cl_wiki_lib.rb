@@ -16,7 +16,7 @@ require File.expand_path('cl_wiki/custom_footers', __dir__)
 require File.expand_path('cl_wiki/custom_formatter', __dir__)
 require File.expand_path('cl_wiki/custom_formatters', __dir__)
 
-Dir[File.join(__dir__, 'cl_wiki', 'format', '*.rb')].each do |fn|
+Dir[File.join(__dir__, 'cl_wiki', 'format_*.rb')].each do |fn|
   require fn
 end
 
