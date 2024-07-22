@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'rails', '~> 6.0'
+gem 'rails', '~> 7.0'
 gem 'sqlite3'
 
 # Gems used only for assets and not required
@@ -37,7 +37,7 @@ group :development, :test do
   gem 'rubocop'
   gem 'rubocop-performance'
   gem 'rubocop-rails'
-  gem 'rubocop_lineup'
+  # gem 'rubocop_lineup'
 
   gem 'simplecov'
 
