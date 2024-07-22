@@ -10,7 +10,9 @@ module ClWiki
 
     def self.format_content(content, page)
       content = CGI.escapeHTML(content)
+      content.gsub!(/\[p\]\n/i, '<blockquote><pre>')
       content.gsub!(/\[p\]/i, '<blockquote><pre>')
+      content.gsub!(%r{\[/p\]\n}i, '</pre></blockquote>')
       content.gsub!(%r{\[/p\]}i, '</pre></blockquote>')
     end
   end
