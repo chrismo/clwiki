@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    clwiki (3.3.0)
+    clwiki (3.3.2)
       bcrypt (~> 3.1)
       clindex (~> 2.0)
       lockbox
@@ -85,7 +85,7 @@ GEM
       tzinfo (~> 2.0)
     ast (2.4.2)
     base64 (0.2.0)
-    bcrypt (3.1.18)
+    bcrypt (3.1.20)
     bigdecimal (3.1.8)
     builder (3.3.0)
     clindex (2.0.1)
