@@ -38,6 +38,9 @@ RSpec.configure do |config|
 
   config.expect_with(:rspec) { |c| c.syntax = :should }
 
+  # Specs swap $wiki_conf.wiki_path; the indexer singleton caches it.
+  config.before { ClWiki::MemoryIndexer.instance_variable_set(:@instance, nil) }
+
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing
   # the seed, which is printed after each run.
