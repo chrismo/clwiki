@@ -4,21 +4,10 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'rails', '~> 7.0'
+gem 'rails', '~> 8.1'
 gem 'sqlite3'
 
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets do
-  gem 'sprockets-rails'
-  gem 'sass-rails'
-  gem 'coffee-rails'
-
-  # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  # gem 'therubyracer', platforms: :ruby
-
-  gem 'uglifier', '>= 1.0.3'
-end
+gem 'sprockets-rails'
 
 gem 'jquery-rails'
 
@@ -28,7 +17,7 @@ gem 'turbolinks'
 group :development, :test do
   gem 'rails-controller-testing'
 
-  gem 'rspec-rails', '4.0.0.beta3'
+  gem 'rspec-rails'
   gem 'rspec'
   gem 'rspec-core'
   gem 'rspec-expectations'

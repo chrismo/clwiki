@@ -4,7 +4,7 @@ require 'fileutils'
 
 require 'minitest'
 
-class TestBase < MiniTest::Test
+class TestBase < Minitest::Test
   def set_temp_dir
     @temp_dir = '/tmp/clwiki'
     @test_wiki_path = @temp_dir

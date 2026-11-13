@@ -11,7 +11,7 @@ xml.rss version: '2.0' do
       xml.item do
         xml.title page.name
         xml.description page.content
-        xml.pubDate page.mtime.to_s(:rfc822)
+        xml.pubDate page.mtime.to_fs(:rfc822)
         xml.link page_show_url(page_name: page.name)
         xml.guid page_show_url(page_name: page.name)
       end
